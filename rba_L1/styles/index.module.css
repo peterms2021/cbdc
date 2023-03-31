@@ -1,0 +1,32 @@
+.main {
+  min-height: 100vh;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  margin: 4rem 0 0 0;
+  line-height: 1.15;
+  font-size: 4rem;
+}
+
+.title,
+.description {
+  text-align: center;
+}
+
+.description {
+  margin: 4rem 0 1rem;
+  line-height: 1.5;
+  font-size: 1.5rem;
+}
+
+.form {
+  margin: 1rem 0 0 0;
+}
+
+.message {
+  overflow: auto;
+}
