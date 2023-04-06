@@ -8,6 +8,7 @@
     "noImplicitAny": false,
     "removeComments": true,
     "preserveConstEnums": true,
+    "resolveJsonModule": true,
     "sourceMap": false
   },
   "include": ["src/**/*"]
