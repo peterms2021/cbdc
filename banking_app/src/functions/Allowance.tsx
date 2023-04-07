@@ -1,9 +1,9 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-function Allowance(cbdc: Contract, owner: string, spender: string ): [result: string, err: string] {
+function Allowance(cbdc: Contract, owner: string, spender: string ): [result: BigNumber, err: string] {
   
-  let r:string = undefined;
+  let r:BigNumber = undefined;
   let e:string = undefined;
   
   if(cbdc == undefined){
@@ -17,7 +17,8 @@ function Allowance(cbdc: Contract, owner: string, spender: string ): [result: st
       .allowance(_owner, _spender)
       .then((resp: BigNumber) => {
       // format to 2 decimal places
-      r = utils.formatUnits(resp, 0).toString();
+      console.log(utils.formatUnits(resp, 0).toString());     
+      r = resp;
     })
     .catch((err: Error) => {
         e = err.message;

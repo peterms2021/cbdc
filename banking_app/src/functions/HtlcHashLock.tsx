@@ -1,18 +1,26 @@
-import styles from "../../styles/index.module.css";
-import { Contract } from "ethers";
-import { FC, FormEvent, useState } from "react";
-import { Button, Message, Form, FormProps } from "semantic-ui-react";
 
-const HtlcHashLock: FC<{ cbdc?: Contract }> = (props: { cbdc?: Contract }) => {
-  const [htlc, setHtlc] = useState<string>();
-  const [result, setResult] = useState<string>();
-  const [err, setErr] = useState<string>();
-  function handleChangeHtlc(e: FormEvent, props: FormProps) {
-    setHtlc(props.value);
+import { Contract } from "ethers";
+
+function HtlcHashLock(cbdc: Contract, htlc:string) : [result:string, err:string]   {
+
+  
+  let result:string =undefined;
+  let err:string = undefined;
+ 
+  if(cbdc == undefined){
+    console.log("Cbdc object is not defined");
+    return[result,"No CBDC contract"];
+  } 
+
+  function setErr(val: string){
+    err =  val;
   }
+  function setResult(val: string){
+    result =  val;
+  }
+
   async function handleSubmit() {
-    props.cbdc
-      ? props.cbdc
+        cbdc
           .htlcHashLock(htlc)
           .then((result: string) => {
             setResult(result);
@@ -21,21 +29,10 @@ const HtlcHashLock: FC<{ cbdc?: Contract }> = (props: { cbdc?: Contract }) => {
           .catch((err: Error) => {
             setResult(undefined);
             setErr(err.message);
-          })
-      : setErr("Please connect to MetaMask.");
+          });
   }
-
-  return (
-    <Form className={styles.form} success error onSubmit={handleSubmit} size="huge">
-      <Form.Group inline>
-        <label>htlcHashLock</label>
-        <Form.Input width={16} placeholder="htlc" onChange={handleChangeHtlc} />
-        <Button>Submit</Button>
-      </Form.Group>
-      <Message className={styles.message} success content={result} />
-      <Message className={styles.message} error content={err} />
-    </Form>
-  );
-};
+  handleSubmit();
+  return [result,err] ; 
+}
 
 export default HtlcHashLock;

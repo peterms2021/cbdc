@@ -1,21 +1,32 @@
-import styles from "../../styles/index.module.css";
-import { Contract, utils } from "ethers";
-import { FC, FormEvent, useState } from "react";
-import { Button, Message, Form, FormProps } from "semantic-ui-react";
 
-const RenounceRole: FC<{ cbdc?: Contract }> = (props: { cbdc?: Contract }) => {
-  const [role, setRole] = useState<string>("");
-  const [result, setResult] = useState<string>();
-  const [err, setErr] = useState<string>();
-  const [loading, setLoading] = useState(false);
-  function handleChangeRole(e: FormEvent, props: FormProps) {
-    setRole(props.value);
+import { Contract, utils } from "ethers";
+
+function RenounceRole(cbdc: Contract, role:string ): [result:string, err:string]  {
+  
+  let result:string =undefined;
+  let err:string = undefined;
+  let loading = false;
+ 
+  if(cbdc == undefined){
+    console.log("Cbdc object is not defined");
+    return[result,"No CBDC contract"];
+  } 
+
+  function setLoading(val: boolean){
+    loading = val;
   }
+
+  function setErr(val: string){
+    err =  val;
+  }
+  function setResult(val: string){
+    result =  val;
+  } 
   async function handleSubmit() {
-    if (props.cbdc) {
+
       try {
         setLoading(true);
-        const response = await props.cbdc.renounceRole(utils.id(role));
+        const response = await cbdc.renounceRole(utils.id(role));
         await response.wait();
         setResult("Success");
         setErr(undefined);
@@ -24,21 +35,11 @@ const RenounceRole: FC<{ cbdc?: Contract }> = (props: { cbdc?: Contract }) => {
         setResult(undefined);
         setErr((err as Error).message);
         setLoading(false);
-      }
-    } else setErr("Please connect to MetaMask.");
+      };
   }
 
-  return (
-    <Form className={styles.form} success error onSubmit={handleSubmit} size="huge">
-      <Form.Group inline>
-        <label>renounceRole</label>
-        <Form.Input width={16} placeholder="role" onChange={handleChangeRole} />
-        <Button loading={loading}>Submit</Button>
-      </Form.Group>
-      <Message className={styles.message} success content={result} />
-      <Message className={styles.message} error content={err} />
-    </Form>
-  );
+  handleSubmit();
+  return [result,err] ; 
 };
 
 export default RenounceRole;

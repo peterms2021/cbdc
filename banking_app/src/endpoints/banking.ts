@@ -67,7 +67,7 @@ function getAccountTable(userId: string): ccfapp.TypedKvMap<string, account_deta
   return ccfapp.typedKv(
     `user_accounts:${userId}`,
     ccfapp.string,
-    ccfapp.any
+    ccfapp.TypedKvMap<string, account_details>()
   );
 }
 
@@ -76,9 +76,6 @@ interface Caller {
 }
 
 function initializeAcctDetail(acctDetail: account_details, request: ccfapp.Request){
-
-
-  
   acctDetail.userId = "";
   acctDetail.role  =   undefined; //lender or borrower
   acctDetail.walletAddress = undefined;

@@ -4,7 +4,7 @@ const code = `/* javascript + ethersjs */
 const txReceipt = await provider.getTransactionReceipt(txHash); // retrieve tx receipt
 console.log(JSON.stringify(txReceipt, null, 4)); // print`;
 
-const GetTransactionReceipt(cbdc: Contract, tranaction:string): [result: string, err: string] {
+function GetTransactionReceipt(cbdc: Contract, tranaction:string): [result: string, err: string] {
   
   let loading = false;
   let err:string = undefined;

@@ -1,26 +1,33 @@
-import styles from "../../styles/index.module.css";
-import { Contract, utils } from "ethers";
-import { FC, FormEvent, useState } from "react";
-import { Button, Message, Form, FormProps } from "semantic-ui-react";
 
-const Transfer: FC<{ cbdc?: Contract }> = (props: { cbdc?: Contract }) => {
-  const [to, setTo] = useState<string>();
-  const [amount, setAmount] = useState<string>("");
-  const [result, setResult] = useState<string>();
-  const [err, setErr] = useState<string>();
-  const [loading, setLoading] = useState(false);
+import { BigNumber, Contract, utils } from "ethers";
 
-  function handleToChange(e: FormEvent, props: FormProps) {
-    setTo(props.value);
-  }
-  function handleAmountChange(e: FormEvent, props: FormProps) {
-    setAmount(props.value);
-  }
+function Transfer( cbdc: Contract, receiver:string,  amnt: BigNumber)  : [result:string, err:string]  {
+  
+    let result:string =undefined;
+    let err:string = undefined;
+    let loading = false;
+   
+    if(cbdc == undefined){
+      console.log("Cbdc object is not defined");
+      return[result,"No CBDC contract"];
+    } 
+  
+    function setLoading(val: boolean){
+      loading = val;
+    }
+  
+    function setErr(val: string){
+      err =  val;
+    }
+    function setResult(val: string){
+      result =  val;
+    } 
+
   async function handleSubmit() {
-    if (props.cbdc) {
       try {
         setLoading(true);
-        const response = await props.cbdc.transfer(to, utils.parseUnits(amount, 2).toString());
+        //const response = await cbdc.transfer(receiver, utils.parseUnits(amount, 2).toString());
+        const response = await cbdc.transfer(receiver, amnt.toString());
         await response.wait();
         setResult("Success");
         setErr(undefined);
@@ -30,21 +37,10 @@ const Transfer: FC<{ cbdc?: Contract }> = (props: { cbdc?: Contract }) => {
         setErr((err as Error).message);
         setLoading(false);
       }
-    } else setErr("Please connect to MetaMask.");
   }
 
-  return (
-    <Form className={styles.form} success error onSubmit={handleSubmit} size="huge">
-      <Form.Group inline>
-        <label>transfer</label>
-        <Form.Input width={8} placeholder="to" onChange={handleToChange} />
-        <Form.Input width={8} placeholder="amount" onChange={handleAmountChange} />
-        <Button loading={loading}>Submit</Button>
-      </Form.Group>
-      <Message className={styles.message} success content={result} />
-      <Message className={styles.message} error content={err} />
-    </Form>
-  );
+  handleSubmit();
+  return [result,err] ; 
 };
 
 export default Transfer;
