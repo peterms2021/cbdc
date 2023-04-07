@@ -1,39 +1,40 @@
-import styles from "../../styles/index.module.css";
-import { BigNumber, Contract, utils } from "ethers";
-import { FC, useState } from "react";
-import { Button, Message, Form } from "semantic-ui-react";
 
-const TotalSupply: FC<{ cbdc?: Contract }> = (props: { cbdc?: Contract }) => {
-  const [result, setResult] = useState<string>();
-  const [err, setErr] = useState<string>();
+import { BigNumber, Contract, utils } from "ethers";
+
+function TotalSupply(cbdc: Contract) : [result:BigNumber, err:string]  {
+  
+  let result:BigNumber =undefined;
+  let err:string = undefined;
+ 
+  if(cbdc == undefined){
+    console.log("Cbdc object is not defined");
+    return[result,"No CBDC contract"];
+  } 
+
+  function setErr(val: string){
+    err =  val;
+  }
+  function setResult(val: BigNumber){
+    result =  val;
+  }
 
   async function handleSubmit() {
-    props.cbdc
-      ? props.cbdc
+        cbdc
           .totalSupply()
           .then((result: BigNumber) => {
             // format to 2 decimal places
-            setResult(utils.formatUnits(result, 2).toString());
+            //setResult(utils.formatUnits(result, 2).toString());
+            setResult(result);
             setErr(undefined);
           })
           .catch((err: Error) => {
             setResult(undefined);
             setErr(err.message);
-          })
-      : setErr("Please connect to MetaMask.");
+          });
   }
 
-  return (
-    <Form className={styles.form} success error onSubmit={handleSubmit} size="huge">
-      <Form.Group inline>
-        <label>totalSupply</label>
-        <Form.Input width={16} placeholder="()" disabled />
-        <Button>Submit</Button>
-      </Form.Group>
-      <Message className={styles.message} success content={result} />
-      <Message className={styles.message} error content={err} />
-    </Form>
-  );
+  handleSubmit();
+  return [result,err] ; 
 };
 
 export default TotalSupply;

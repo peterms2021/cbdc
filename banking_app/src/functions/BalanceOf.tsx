@@ -1,11 +1,11 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-function BalanceOf(cbdc: Contract, addres: string ): [result: string, err: string] {
+function BalanceOf(cbdc: Contract, addres: string ): [result: BigNumber, err: string] {
   
   let loading = false;
   let err:string = undefined;
-  let result:string = undefined;
+  let result:BigNumber = undefined;
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -18,7 +18,7 @@ function BalanceOf(cbdc: Contract, addres: string ): [result: string, err: strin
   function setErr(val: string){
     err =  val;
   }
-  function setResult(val: string){
+  function setResult(val: BigNumber){
     result =  val;
   }
 
@@ -27,7 +27,8 @@ function BalanceOf(cbdc: Contract, addres: string ): [result: string, err: strin
           .balanceOf(_addres)
           .then((result: BigNumber) => {
             // format to 2 decimal places
-            setResult(utils.formatUnits(result, 2).toString());
+            console.log(utils.formatUnits(result, 2).toString());
+            setResult(result);
             setErr(undefined);
           })
           .catch((err: Error) => {

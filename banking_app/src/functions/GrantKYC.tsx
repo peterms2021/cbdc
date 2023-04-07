@@ -1,21 +1,31 @@
-import styles from "../../styles/index.module.css";
-import { Contract } from "ethers";
-import { FC, FormEvent, useState } from "react";
-import { Button, Message, Form, FormProps } from "semantic-ui-react";
 
-const GrantKYC: FC<{ cbdc?: Contract }> = (props: { cbdc?: Contract }) => {
-  const [holder, setHolder] = useState<string>();
-  const [result, setResult] = useState<string>();
-  const [err, setErr] = useState<string>();
-  const [loading, setLoading] = useState(false);
-  function handleChangeHolder(e: FormEvent, props: FormProps) {
-    setHolder(props.value);
+import { Contract } from "ethers";
+
+function GrantKYC( cbdc: Contract, holder: string) : [result: string, err: string] {
+
+  let loading = false;
+  let err:string = undefined;
+  let result:string = undefined;
+
+  if(cbdc == undefined){
+    console.log("Cbdc object is not defined");
+    return[result,"No CBDC contract"];
+  } 
+
+  function setLoading(val: boolean){
+    loading = val;
   }
+  function setErr(val: string){
+    err =  val;
+  }
+  function setResult(val: string){
+    result =  val;
+  }
+
   async function handleSubmit() {
-    if (props.cbdc) {
       try {
         setLoading(true);
-        const response = await props.cbdc.grantKYC(holder);
+        const response = await cbdc.grantKYC(holder);
         await response.wait();
         setResult("Success");
         setErr(undefined);
@@ -25,20 +35,11 @@ const GrantKYC: FC<{ cbdc?: Contract }> = (props: { cbdc?: Contract }) => {
         setErr((err as Error).message);
         setLoading(false);
       }
-    } else setErr("Please connect to MetaMask.");
   }
 
-  return (
-    <Form className={styles.form} success error onSubmit={handleSubmit} size="huge">
-      <Form.Group inline>
-        <label>grantKYC</label>
-        <Form.Input width={16} placeholder="holder" onChange={handleChangeHolder} />
-        <Button loading={loading}>Submit</Button>
-      </Form.Group>
-      <Message className={styles.message} success content={result} />
-      <Message className={styles.message} error content={err} />
-    </Form>
-  );
+  handleSubmit();
+  return [result,err] ; 
+
 };
 
 export default GrantKYC;

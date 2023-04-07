@@ -1,7 +1,7 @@
 
-import { Contract, utils } from "ethers";
+import { Contract, utils, BigNumber } from "ethers";
 
-function Approve(cbdc: Contract, spender: string, amount: string ): [result: string, err: string] {
+function Approve(cbdc: Contract, spender: string, amount: BigNumber ): [result: string, err: string] {
   
   let loading = false;
   let err:string = undefined;
@@ -37,7 +37,7 @@ function Approve(cbdc: Contract, spender: string, amount: string ): [result: str
       } 
   }
 
-  approve(cbdc, spender, amount);
+  approve(cbdc, spender, amount.toString());
   return [result,err] ; 
 };
 

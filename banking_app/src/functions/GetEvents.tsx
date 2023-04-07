@@ -1,8 +1,8 @@
 import kycerAbi from "../../../rba_L1/IKYCer-abi.json";
-import userAbi from "../../../rba_L1/IUser-abi.json";
+import userAbi from  "../../../rba_L1/IUser-abi.json";
+
 import { Contract, utils } from "ethers";
 
-/////
 const code = `/* javascript + ethersjs */
 import { utils } from "ethers";
 const txReceipt = await provider.getTransactionReceipt(txHash); // retrieve tx receipt
@@ -11,12 +11,12 @@ const iface = new utils.Interface(abi); // create interface from abi
 const events = receipt.logs.map((log) => iface.parseLog({topics: log.topics, data: log.data})) // parse logs in tx receipt
 
 console.log(JSON.stringify(events, null, 4)); // print`;
-/////
 
-const abi = [...userAbi, ...kycerAbi];
-const iface = new utils.Interface(abi);
 
-const GetEvents(cbdc: Contract, transaction: string) : [result: string, err: string] {
+function GetEvents(cbdc: Contract, transaction: string) : [result: string, err: string] {
+
+  const abi = [...userAbi, ...kycerAbi];
+  const iface = new utils.Interface(abi);
 
   let loading = false;
   let err:string = undefined;
