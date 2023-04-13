@@ -3,8 +3,13 @@ import { BigNumber, Contract, utils } from "ethers";
 
 function Allowance(cbdc: Contract, owner: string, spender: string ): [result: BigNumber, err: string] {
   
+<<<<<<< HEAD
   let r:BigNumber = undefined;
   let e:string = undefined;
+=======
+  let r:BigNumber = BigNumber.from("0");
+  let e:string = "";
+>>>>>>> l2
   
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");

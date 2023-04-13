@@ -3,8 +3,13 @@ import { Contract } from "ethers";
 
 function Symbol( cbdc: Contract) : [result:string, err:string]  {
   
+<<<<<<< HEAD
   let result:string =undefined;
   let err:string = undefined;
+=======
+  let result:string ="";
+  let err:string = "";
+>>>>>>> l2
  
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -23,10 +28,17 @@ function Symbol( cbdc: Contract) : [result:string, err:string]  {
       .symbol()
       .then((result: string) => {
         setResult(result);
+<<<<<<< HEAD
         setErr(undefined);
       })
       .catch((err: Error) => {
         setResult(undefined);
+=======
+        //setErr(undefined);
+      })
+      .catch((err: Error) => {
+        //setResult(undefined);
+>>>>>>> l2
         setErr(err.message);
       });
   }

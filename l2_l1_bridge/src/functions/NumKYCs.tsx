@@ -3,8 +3,13 @@ import { BigNumber, Contract, utils } from "ethers";
 // Return the amount that account holder is KYC'd 
 function NumKYCs(cbdc: Contract,   holder: string) : [result:BigNumber, err:string]  {
  
+<<<<<<< HEAD
   let result:BigNumber =undefined;
   let err:string = undefined;
+=======
+  let result:BigNumber =BigNumber.from("0");
+  let err:string = "";
+>>>>>>> l2
  
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -25,10 +30,17 @@ function NumKYCs(cbdc: Contract,   holder: string) : [result:BigNumber, err:stri
             // format to 2 decimal places
             //setResult(utils.formatUnits(result, 0).toString());
             setResult(result);
+<<<<<<< HEAD
             setErr(undefined);
           })
           .catch((err: Error) => {
             setResult(undefined);
+=======
+            //setErr(undefined);
+          })
+          .catch((err: Error) => {
+            //setResult(undefined);
+>>>>>>> l2
             setErr(err.message);
           });
   }
