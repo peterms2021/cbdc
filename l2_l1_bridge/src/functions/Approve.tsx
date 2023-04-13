@@ -4,8 +4,8 @@ import { Contract, utils, BigNumber } from "ethers";
 function Approve(cbdc: Contract, spender: string, amount: BigNumber ): [result: string, err: string] {
   
   let loading = false;
-  let err:string = undefined;
-  let result:string = undefined;
+  let err:string = "";
+  let result:string = "";
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -28,10 +28,10 @@ function Approve(cbdc: Contract, spender: string, amount: BigNumber ): [result: 
         const response = await cbdc.approve(_spender, utils.parseUnits(_amount, 2).toString());
         await response.wait();
         setResult("Success");
-        setErr(undefined);
+        //setErr(undefined);
         setLoading(false);
       } catch (err) {
-        setResult(undefined);
+        //setResult(undefined);
         setErr((err as Error).message);
         setLoading(false);
       } 

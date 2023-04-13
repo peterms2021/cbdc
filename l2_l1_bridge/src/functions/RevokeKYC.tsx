@@ -3,8 +3,8 @@ import { Contract } from "ethers";
 
 function RevokeKYC(cbdc: Contract,  holder:string) : [result:string, err:string]  {
   
-  let result:string =undefined;
-  let err:string = undefined;
+  let result:string ="";
+  let err:string = "";
   let loading = false;
  
   if(cbdc == undefined){
@@ -29,10 +29,10 @@ function RevokeKYC(cbdc: Contract,  holder:string) : [result:string, err:string]
         const response = await cbdc.revokeKYC(holder);
         await response.wait();
         setResult("Success");
-        setErr(undefined);
+        //setErr(undefined);
         setLoading(false);
       } catch (err) {
-        setResult(undefined);
+        //setResult(undefined);
         setErr((err as Error).message);
         setLoading(false);
       };

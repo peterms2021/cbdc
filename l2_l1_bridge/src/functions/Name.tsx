@@ -3,8 +3,8 @@ import { Contract } from "ethers";
 
 function Name(cbdc: Contract ) : [result:string, err:string]  {
  
-  let result:string =undefined;
-  let err:string = undefined;
+  let result:string ="";
+  let err:string = "";
  
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -23,10 +23,10 @@ function Name(cbdc: Contract ) : [result:string, err:string]  {
           .name()
           .then((result: string) => {
             setResult(result);
-            setErr(undefined);
+            //setErr(undefined);
           })
           .catch((err: Error) => {
-            setResult(undefined);
+            //setResult(undefined);
             setErr(err.message);
           });
   }

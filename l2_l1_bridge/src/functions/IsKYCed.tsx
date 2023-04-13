@@ -3,8 +3,8 @@ import { Contract } from "ethers";
 
 function IsKYCed(cbdc: Contract,  holder: string) : [result:boolean, err:string]  {
   
-  let result:boolean =undefined;
-  let err:string = undefined;
+  let result:boolean =false;
+  let err:string = "";
  
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -23,10 +23,10 @@ function IsKYCed(cbdc: Contract,  holder: string) : [result:boolean, err:string]
           .isKYCed(holder)
           .then((result: boolean) => {
             setResult(result);
-            setErr(undefined);
+            //setErr(undefined);
           })
           .catch((err: Error) => {
-            setResult(undefined);
+            //setResult(undefined);
             setErr(err.message);
           });
   }

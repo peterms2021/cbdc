@@ -5,8 +5,8 @@ import { BigNumber, Contract, utils } from "ethers";
 function Decimals(cbdc: Contract): [result: string, err: string] {
   
  
-  let err:string = undefined;
-  let result:string = undefined;
+  let err:string = "";
+  let result:string = "";
   let hashlock:string;
   let loading = false;
 
@@ -31,10 +31,10 @@ function Decimals(cbdc: Contract): [result: string, err: string] {
           .then((result: BigNumber) => {
             // format to 2 decimal places
             setResult(utils.formatUnits(result, 0).toString());
-            setErr(undefined);
+            //setErr(undefined);
           })
           .catch((err: Error) => {
-            setResult(undefined);
+            //setResult(undefined);
             setErr(err.message);
           })
      

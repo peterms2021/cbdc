@@ -2,8 +2,8 @@ import { Contract } from "ethers";
 
 function GetInactiveHTLCs(cbdc: Contract) : [result: Array<string>,  err: string] {
 
-  let err:string = undefined;
-  let result:Array<string> = undefined;
+  let err:string = "";
+  let result:Array<string> = [];
   let hashlock:string;
   let loading = false;
 
@@ -28,10 +28,10 @@ function GetInactiveHTLCs(cbdc: Contract) : [result: Array<string>,  err: string
           .then((htlcs: Array<string>) => {
             setResult(htlcs);
             console.log(`[${htlcs.join(", ")}]`);
-            setErr(undefined);
+            //setErr(undefined);
           })
           .catch((err: Error) => {
-            setResult(undefined);
+            //setResult(undefined);
             setErr(err.message);
           })
   }
