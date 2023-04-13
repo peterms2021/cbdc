@@ -5,8 +5,9 @@ import { BigNumber, Contract, utils } from "ethers";
 function HtlcAmount(cbdc: Contract, htlc:string) : [result: BigNumber, err: string] {
 
   let loading = false;
-  let err:string = undefined;
-  let result:BigNumber = undefined;
+  let err:string = "";
+  //let result:BigNumber = BigNumber.from(Number.MAX_SAFE_INTEGER - 1);
+  let result:BigNumber = BigNumber.from("0");
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -30,10 +31,10 @@ function HtlcAmount(cbdc: Contract, htlc:string) : [result: BigNumber, err: stri
             // format to 2 decimal places      
             console.log(utils.formatUnits(result, 2).toString());
             setResult(result);
-            setErr(undefined);
+            //setErr(undefined);
           })
           .catch((err: Error) => {
-            setResult(undefined);
+            //setResult(undefined);
             setErr(err.message);
           });  
   }

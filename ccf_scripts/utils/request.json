@@ -1,1 +1,1 @@
-{"error":{"code":"InvalidAuthenticationInfo","details":[{"auth_policy":"BaseAuthPolicy","code":"InvalidAuthenticationInfo","message":"Could not find matching member certificate"},{"auth_policy":"member_signature","code":"InvalidAuthenticationInfo","message":"Missing signature"},{"auth_policy":"member_cose_sign1","code":"InvalidAuthenticationInfo","message":"Missing content-type header"}],"message":"Invalid info"}}
+{"state_digest":"f94f8e660e04a6c482d03845cea3d807d88b5cb84b4d5a8cebeab421c85a0f17"}

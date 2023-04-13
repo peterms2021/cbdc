@@ -4,8 +4,8 @@ import { Contract } from "ethers";
 function GrantKYC( cbdc: Contract, holder: string) : [result: string, err: string] {
 
   let loading = false;
-  let err:string = undefined;
-  let result:string = undefined;
+  let err:string = "";
+  let result:string = "";
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -28,10 +28,10 @@ function GrantKYC( cbdc: Contract, holder: string) : [result: string, err: strin
         const response = await cbdc.grantKYC(holder);
         await response.wait();
         setResult("Success");
-        setErr(undefined);
+        //setErr(undefined);
         setLoading(false);
       } catch (err) {
-        setResult(undefined);
+        //setResult(undefined);
         setErr((err as Error).message);
         setLoading(false);
       }

@@ -4,8 +4,8 @@ import { Contract, utils } from "ethers";
 function CreateHTLC(cbdc: Contract, receiver: string, timelock: string, amount:string ): [result: string, err: string] {
 
   let loading = false;
-  let err:string = undefined;
-  let result:string = undefined;
+  let err:string = "";
+  let result:string = "";
   let hashlock:string;
 
   if(cbdc == undefined){
@@ -40,10 +40,10 @@ function CreateHTLC(cbdc: Contract, receiver: string, timelock: string, amount:s
         }
         console.log(`HTLC address: ${htlcAddress}`);
         setResult(htlcAddress);
-        setErr(undefined);
+        //setErr(undefined);
         setLoading(false);
       } catch (err) {
-        setResult(undefined);
+        //setResult(undefined);
         setErr((err as Error).message);
         setLoading(false);
       }

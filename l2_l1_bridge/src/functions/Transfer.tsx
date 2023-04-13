@@ -3,8 +3,8 @@ import { BigNumber, Contract, utils } from "ethers";
 
 function Transfer( cbdc: Contract, receiver:string,  amnt: BigNumber)  : [result:string, err:string]  {
   
-    let result:string =undefined;
-    let err:string = undefined;
+    let result:string ="";
+    let err:string = "";
     let loading = false;
    
     if(cbdc == undefined){
@@ -30,10 +30,10 @@ function Transfer( cbdc: Contract, receiver:string,  amnt: BigNumber)  : [result
         const response = await cbdc.transfer(receiver, amnt.toString());
         await response.wait();
         setResult("Success");
-        setErr(undefined);
+        //etErr(undefined);
         setLoading(false);
       } catch (err) {
-        setResult(undefined);
+        //setResult(undefined);
         setErr((err as Error).message);
         setLoading(false);
       }

@@ -2,8 +2,8 @@
 import { Contract } from "ethers";
 
 function HtlcRefunded( cbdc: Contract,  htlc: string): [result:boolean, err:string]  {
-  let result:boolean =undefined;
-  let err:string = undefined;
+  let result:boolean =false;
+  let err:string = "";
  
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -22,10 +22,10 @@ function HtlcRefunded( cbdc: Contract,  htlc: string): [result:boolean, err:stri
           .htlcRefunded(htlc)
           .then((result: boolean) => {
             setResult(result);
-            setErr(undefined);
+            //setErr(undefined);
           })
           .catch((err: Error) => {
-            setResult(undefined);
+            //setResult(undefined);
             setErr(err.message);
           });
   }

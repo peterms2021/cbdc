@@ -3,8 +3,8 @@ import { BigNumber, Contract, utils } from "ethers";
 
 function TotalSupply(cbdc: Contract) : [result:BigNumber, err:string]  {
   
-  let result:BigNumber =undefined;
-  let err:string = undefined;
+  let result:BigNumber =BigNumber.from("0");
+  let err:string = "";
  
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -25,10 +25,10 @@ function TotalSupply(cbdc: Contract) : [result:BigNumber, err:string]  {
             // format to 2 decimal places
             //setResult(utils.formatUnits(result, 2).toString());
             setResult(result);
-            setErr(undefined);
+            //setErr(undefined);
           })
           .catch((err: Error) => {
-            setResult(undefined);
+            //setResult(undefined);
             setErr(err.message);
           });
   }

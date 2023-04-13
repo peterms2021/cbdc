@@ -7,8 +7,8 @@ console.log(JSON.stringify(txReceipt, null, 4)); // print`;
 function GetTransactionReceipt(cbdc: Contract, tranaction:string): [result: string, err: string] {
   
   let loading = false;
-  let err:string = undefined;
-  let result:string = undefined;
+  let err:string = "";
+  let result:string = "";
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -30,10 +30,10 @@ function GetTransactionReceipt(cbdc: Contract, tranaction:string): [result: stri
           .getTransactionReceipt(tranaction)
           .then(receipt => {
             setResult(JSON.stringify(receipt, null, 4));
-            setErr(undefined);
+            //setErr(undefined);
           })
           .catch((err: Error) => {
-            setResult(undefined);
+            //setResult(undefined);
             setErr(err.message);
           })    
   }

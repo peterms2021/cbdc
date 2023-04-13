@@ -1,11 +1,11 @@
 
 import { Contract } from "ethers";
 
-function WithdrawHTLC(cbdc: Contract htlc: string,  preimage: string) : [result:string, err:string]  {
+function WithdrawHTLC(cbdc: Contract,  htlc: string,  preimage: string) : [result:string, err:string]  {
 
-  let result:string =undefined;
-  let err:string = undefined;
-  let loading = false;
+  let result : string ="";
+  let err: string ="";
+  let loading: boolean = false;
   
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -30,10 +30,10 @@ function WithdrawHTLC(cbdc: Contract htlc: string,  preimage: string) : [result:
         const response = await cbdc.withdrawHTLC(htlc, preimage);
         await response.wait();
         setResult("Success");
-        setErr(undefined);
+        //setErr(undefined);
         setLoading(false);
       } catch (err) {
-        setResult(undefined);
+        //setResult(undefined);
         setErr((err as Error).message);
         setLoading(false);
       }

@@ -4,8 +4,8 @@ import { BigNumber, Contract } from "ethers";
 
 function HtlcTimeLock(cbdc: Contract , htlc: string): [result:BigNumber, err:string]  {
   
-  let result:BigNumber =undefined;
-  let err:string = undefined;
+  let result:BigNumber =BigNumber.from("0");
+  let err:string = "";
  
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -24,10 +24,10 @@ function HtlcTimeLock(cbdc: Contract , htlc: string): [result:BigNumber, err:str
           .htlcTimeLock(htlc)
           .then((result: BigNumber) => {
             setResult(result);
-            setErr(undefined);
+            //setErr(undefined);
           })
           .catch((err: Error) => {
-            setResult(undefined);
+            //setResult(undefined);
             setErr(err.message);
           });
   }
