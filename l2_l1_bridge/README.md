@@ -1,37 +1,29 @@
-Note that the CBDC contract address is hard coded in [Transactions.tsx](pages/Transaction.tsx) file.
-This is not meant to be used in production environment and only meant to be a guide on how to connect to the CBDC blockchain.
+Project setup - https://www.digitalocean.com/community/tutorials/setting-up-a-node-project-with-typescript
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+1. Setup clef for account management with g-eth client. See https://geth.ethereum.org/docs/getting-started for details on setting up clef
+Initialize clef master
+clef init geth/clefdata 
 
-## Getting Started
 
-First, run the development server:
+2. We use geth/keystore here, but this should be understood to be wherever the keystore location is on the server running the geth client
+Use the <geth/keystore> as the location relative to where the clef client is started
+clef --keystore geth/keystore importraw <key1.data>
+clef --keystore geth/keystore importraw <key2.data>
+...
+clef --keystore geth/keystore importraw <key4.data>
 
-```bash
-npm run dev
-# or
-yarn dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+3. Locate the chain ID (for the kaleido test site is the Environment Info under the Environment settings)
+#clef --chainid <ID> --keystore geth/keystore --configdir geth/clef --http
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+clef --chainid 763928235  --keystore geth/keystore --configdir geth/clef --http
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+4. Run the Go-Ethereum client
+geth --datadir geth --signer=geth/clef/clef.ipc
 
-## Learn More
+geth --sepolia --datadir geth --authrpc.addr localhost --authrpc.port 8551 --authrpc.vhosts localhost --authrpc.jwtsecret geth/jwtsecret --http --http.api eth,net --signer=geth/clef/clef.ipc --http
 
-To learn more about Next.js, take a look at the following resources:
+geth --sepolia --datadir geth --authrpc.addr localhost --authrpc.port 8551 --authrpc.vhosts localhost --authrpc.jwtsecret geth/jwtsecret --http --http.api eth,net --signer=geth/clef/clef.ipc --http
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+geth  --signer=geth/clef/clef.ipc --http 

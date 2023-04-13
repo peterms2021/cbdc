@@ -19,8 +19,13 @@ function GetEvents(cbdc: Contract, transaction: string) : [result: string, err: 
   const iface = new utils.Interface(abi);
 
   let loading = false;
+<<<<<<< HEAD
   let err:string = undefined;
   let result:string = undefined;
+=======
+  let err:string = "";
+  let result:string = "";
+>>>>>>> l2
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -43,10 +48,17 @@ function GetEvents(cbdc: Contract, transaction: string) : [result: string, err: 
           .then(receipt => {
             const events = receipt.logs.map(log => iface.parseLog({ topics: log.topics, data: log.data }));
             setResult(JSON.stringify(events, null, 4));
+<<<<<<< HEAD
             setErr(undefined);
           })
           .catch((err: Error) => {
             setResult(undefined);
+=======
+            //setErr(undefined);
+          })
+          .catch((err: Error) => {
+            //setResult(undefined);
+>>>>>>> l2
             setErr(err.message);
           })
   }
