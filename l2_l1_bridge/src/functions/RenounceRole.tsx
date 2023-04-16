@@ -3,13 +3,8 @@ import { Contract, utils } from "ethers";
 
 function RenounceRole(cbdc: Contract, role:string ): [result:string, err:string]  {
   
-<<<<<<< HEAD
-  let result:string =undefined;
-  let err:string = undefined;
-=======
   let result:string ="";
   let err:string = "";
->>>>>>> l2
   let loading = false;
  
   if(cbdc == undefined){
@@ -34,17 +29,10 @@ function RenounceRole(cbdc: Contract, role:string ): [result:string, err:string]
         const response = await cbdc.renounceRole(utils.id(role));
         await response.wait();
         setResult("Success");
-<<<<<<< HEAD
-        setErr(undefined);
-        setLoading(false);
-      } catch (err) {
-        setResult(undefined);
-=======
         //setErr(undefined);
         setLoading(false);
       } catch (err) {
         //setResult(undefined);
->>>>>>> l2
         setErr((err as Error).message);
         setLoading(false);
       };

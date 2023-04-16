@@ -3,13 +3,8 @@ import { Contract, utils } from "ethers";
 
 function DecreaseAllowance(cbdc: Contract, spender: string,  allowance: string) : [result: string, err: string] {
 
-<<<<<<< HEAD
-  let err:string = undefined;
-  let result:string = undefined;
-=======
   let err:string = "";
   let result:string = "";
->>>>>>> l2
   let hashlock:string;
   let loading = false;
 
@@ -34,17 +29,10 @@ function DecreaseAllowance(cbdc: Contract, spender: string,  allowance: string) 
         const response = await cbdc.decreaseAllowance(spender, utils.parseUnits(allowance, 2).toString());
         await response.wait();
         setResult("Success");
-<<<<<<< HEAD
-        setErr(undefined);
-        setLoading(false);
-      } catch (err) {
-        setResult(undefined);
-=======
         //setErr(undefined);
         setLoading(false);
       } catch (err) {
         //setResult(undefined);
->>>>>>> l2
         setErr((err as Error).message);
         setLoading(false);
       }
