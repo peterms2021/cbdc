@@ -4,13 +4,8 @@ import { Contract } from "ethers";
 function HtlcHashLock(cbdc: Contract, htlc:string) : [result:string, err:string]   {
 
   
-<<<<<<< HEAD
-  let result:string =undefined;
-  let err:string = undefined;
-=======
   let result:string ="";
   let err:string = "";
->>>>>>> l2
  
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -29,17 +24,10 @@ function HtlcHashLock(cbdc: Contract, htlc:string) : [result:string, err:string]
           .htlcHashLock(htlc)
           .then((result: string) => {
             setResult(result);
-<<<<<<< HEAD
-            setErr(undefined);
-          })
-          .catch((err: Error) => {
-            setResult(undefined);
-=======
             //setErr(undefined);
           })
           .catch((err: Error) => {
             //setResult(undefined);
->>>>>>> l2
             setErr(err.message);
           });
   }

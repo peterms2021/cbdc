@@ -3,13 +3,8 @@ import { Contract } from "ethers";
 
 function GetActiveHTLCs(cbdc: Contract) : [result: Array<string>,  err: string] {
 
-<<<<<<< HEAD
-  let err:string = undefined;
-  let result:Array<string> = undefined;
-=======
   let err:string = "";
   let result:Array<string> = [];
->>>>>>> l2
   let hashlock:string;
   let loading = false;
 
@@ -34,17 +29,10 @@ function GetActiveHTLCs(cbdc: Contract) : [result: Array<string>,  err: string] 
           .then((htlcs: Array<string>) => {
             setResult(htlcs);
             console.log(`[${htlcs.join(", ")}]`);
-<<<<<<< HEAD
-            setErr(undefined);
-          })
-          .catch((err: Error) => {
-            setResult(undefined);
-=======
             //setErr(undefined);
           })
           .catch((err: Error) => {
             //setResult(undefined);
->>>>>>> l2
             setErr(err.message);
           })
   }
