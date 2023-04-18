@@ -55,30 +55,31 @@ export function extractBooleanEnvVar(
 }
 
 
-export const BANK_A_NAME="A";
-export const BANK_B_NAME="B";
+export const BANK_A_NAME="BANK_A_NAME";
+export const BANK_B_NAME="BANK_B_NAME";
+export const KYC_NAME="KYC";
+export const MSFT_NAME="MSFT";
 
-export const BANK_A_ADDRESS="A_Addr";
-export const BANK_B_ADDRESS="B_Addr";
+export const BANK_A_ADDRESS="BANK_A_ADDRESS";
+export const BANK_B_ADDRESS="BANK_B_ADDRESS";
 
-export const BANK_A_PKEY="A_Pkey";
-export const BANK_B_PKEY="B_Pkey";
+export const BANK_A_PKEY="BANK_A_PKEY";
+export const BANK_B_PKEY="BANK_B_PKEY";
 
-export const KYC_ADDR="K_Addr";
-export const KYC_PKEY="K_Pkey";
+export const KYC_ADDR="KYC_ADDR";
+export const KYC_PKEY="KYC_PKEY";
 
-export const MSFT_ADDR="MS_Addr";
-export const MSFT_PKEY="MS_Pkey";
+export const MSFT_ADDR="MSFT_ADDR";
+export const MSFT_PKEY="MSFT_PKEY";
 
-export const L1_URL="l1_url";
-export const L1_USER_NAME="l1_user";
-export const L1_USER_PWD="l1_pwd";
-export const L1_USER_CONNECT_URL="l1_connect";
-
-
+export const L1_URL="L1_URL";
+export const L1_USER_NAME="L1_USER_NAME";
+export const L1_USER_PWD="L1_USER_PWD";
+export const L1_USER_CONNECT_URL="L1_USER_CONNECT_URL";
+export const L1_CHAIN_ID="L1_CHAIN_ID";
 
 export function extractL1AccountDetails(): Map<string, string>{
-    const dotenv = require("dotenv");
+    //const dotenv = require("dotenv");
     //load the contents of .env file
     dotenv.config()
 
@@ -102,6 +103,7 @@ export function extractL1AccountDetails(): Map<string, string>{
     hashmap.set(L1_URL,  extractStringEnvVar(L1_URL)); //need to be without https
     hashmap.set(L1_USER_NAME,  extractStringEnvVar(L1_USER_NAME));
     hashmap.set(L1_USER_PWD,  extractStringEnvVar(L1_USER_PWD));
+    hashmap.set(L1_CHAIN_ID, extractStringEnvVar(L1_CHAIN_ID));
      
     let connectUrl = "https://" + hashmap.get(L1_USER_NAME) + ":" +  hashmap.get(L1_USER_PWD) + "@" + hashmap.get(L1_URL);
 

@@ -1,6 +1,9 @@
 import express from 'express';
+import  {setupConnection} from './Connect.js';
 const app = express();
-const port = 3000;
+const port = 21000;
+
+setupConnection();
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

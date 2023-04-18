@@ -1,24 +1,32 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "rootDirs": [
+      "src",
+      "stories",
+      "config"
+    ],
+    "rootDir": "src",
+    "sourceMap": true,
+    "outDir": "build",
+    "lib": ["esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
+    "strict": false,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports":true
   },
-<<<<<<< HEAD
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-=======
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx","src/**/*" ],
->>>>>>> l2
-  "exclude": ["node_modules"]
+  "include": [
+              "src/**/*.ts",
+              "src/*.ts"
+          ],
+  "exclude": ["node_modules", 
+              "src/transaction",
+               "build"]
 }

@@ -1,7 +1,7 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-function BalanceOf(cbdc: Contract, addres: string ): [result: BigNumber, err: string] {
+export function BalanceOf(cbdc: Contract, addres: string ): [result: BigNumber, err: string] {
   
   let loading = false;
   let err:string = "";
