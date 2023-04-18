@@ -1,0 +1,7 @@
+t=2023-04-12T16:04:19-0400 lvl=info msg=Configured api=signer "audit log"=audit.log
+t=2023-04-12T16:12:35-0400 lvl=info msg=Version    api=signer type=request metadata="{\"remote\":\"NA\",\"local\":\"NA\",\"scheme\":\"ipc\",\"User-Agent\":\"\",\"Origin\":\"\"}"
+t=2023-04-12T16:12:35-0400 lvl=info msg=Version    api=signer type=response data=6.1.0 error=nil
+t=2023-04-12T16:16:28-0400 lvl=info msg=Version    api=signer type=request  metadata="{\"remote\":\"NA\",\"local\":\"NA\",\"scheme\":\"ipc\",\"User-Agent\":\"\",\"Origin\":\"\"}"
+t=2023-04-12T16:16:28-0400 lvl=info msg=Version    api=signer type=response data=6.1.0 error=nil
+t=2023-04-12T16:22:19-0400 lvl=info msg=Version    api=signer type=request  metadata="{\"remote\":\"NA\",\"local\":\"NA\",\"scheme\":\"ipc\",\"User-Agent\":\"\",\"Origin\":\"\"}"
+t=2023-04-12T16:22:19-0400 lvl=info msg=Version    api=signer type=response data=6.1.0 error=nil

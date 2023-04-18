@@ -1,0 +1,1 @@
+import { Accnt, moveMoney } from "./Interface";

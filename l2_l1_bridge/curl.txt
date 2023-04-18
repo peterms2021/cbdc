@@ -1,0 +1,3 @@
+curl -X POST https://u1ybz7mj11:gP8ZDmFhf2JEmOKE8JamFjIqDP8nT22OXEBKSJzxdJ0@u1je04l45p-u1tvx8vjs1-rpc.us1-azure.kaleido.io/\
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0", "method":"eth_getBalance", "params":["0x82ec6341d2f3d8524c7f7549e85025298fed343f","latest"], "id":1}'

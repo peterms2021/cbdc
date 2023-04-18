@@ -1,5 +1,5 @@
-import kycerAbi from "../../../rba_L1/IKYCer-abi.json";
-import userAbi from  "../../../rba_L1/IUser-abi.json";
+import kycerAbi from "../IKYCer-abi.json";
+import userAbi from  "../IUser-abi.json";
 
 import { Contract, utils } from "ethers";
 
