@@ -1,7 +1,7 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-function TotalSupply(cbdc: Contract) : [result:BigNumber, err:string]  {
+export function TotalSupply(cbdc: Contract) : [result:BigNumber, err:string]  {
   
   let result:BigNumber =BigNumber.from("0");
   let err:string = "";

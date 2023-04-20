@@ -3,10 +3,10 @@ import cors from "cors";
 import helmet from "helmet";
 import * as dotenv from "dotenv";
 
-import { setupConnection, contractInterface } from './Connect.js';
+import { setupConnection, gConnectionInfo } from './Connect.js';
 import { eventListener } from './CbEvent.js';
 import { envRunMode, AppRunMode } from './Env.js';
-import { cbdcRouter } from 'src/transaction/Router.js'
+import { cbdcRouter } from './transaction/Router.js';
 
 
 const app = express();
@@ -39,7 +39,7 @@ else {
     res.send('Hello World!');
   });
   */
- 
+
   app.listen(PORT, () => {
     return console.log(`CBDC Bridge Listening at http://localhost:${port}`);
   })

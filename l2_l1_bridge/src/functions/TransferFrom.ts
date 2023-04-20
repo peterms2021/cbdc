@@ -1,7 +1,7 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-function TransferFrom(cbdc: Contract, from:string, to:string, amount: BigNumber) : [result:string, err:string]  {
+export function TransferFrom(cbdc: Contract, from:string, to:string, amount: BigNumber) : [result:string, err:string]  {
 
 let result:string ="";
 let err:string = "";
