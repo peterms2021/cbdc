@@ -11,49 +11,10 @@ function parseRequestQuery(request: ccfapp.Request<any>): any {
   return obj;
 }
 
-const ACCOUNT_ROLE = {
-  LENDER: "Lender",
-  BORROWER: "Burrower",
-};
-
 interface ClaimItem {
   userId: string;
   claim: string;
 }
-
-interface securityIten{
-  id: string;
-  sybol: string;
-  name: string;
-  security:  ccfapp.uint32;
-  rate: ccfapp.uint32;
-  totalSupply: number;
-}
-
-interface loan{
-  loanId: string;
-  amount: number;
-  fees: number;
-  target: number; 
-  //if long sell when the target price is exceed; else short - sell when below
-  //we will trigger an oracle to change the value of the security
-  longSell: boolean; 
-  securityId: string
-}
-
-interface account_details{
-  userId: string;
-  role:   string; //lender or borrower
-  walletAddress: string;
-  isKyced: ccf.boolean;
-  balance: ccfapp.uint32;
-  allowances: ccfapp.uint32;
-  loans: ccfapp.TypedKvMap<string, loan>;
-  lender: ccfapp.TypedKvMap<string, securityIten>;
-}
-
-
-
 
 const claimTableName = "current_claim";
 const currentClaimTable = ccfapp.typedKv(
@@ -63,27 +24,16 @@ const currentClaimTable = ccfapp.typedKv(
 );
 const keyForClaimTable = "key";
 
-function getAccountTable(userId: string): ccfapp.TypedKvMap<string, account_details> {
+function getAccountTable(userId: string): ccfapp.TypedKvMap<string, number> {
   return ccfapp.typedKv(
     `user_accounts:${userId}`,
     ccfapp.string,
-    ccfapp.TypedKvMap<string, account_details>()
+    ccfapp.uint32
   );
 }
 
 interface Caller {
   id: string;
-}
-
-function initializeAcctDetail(acctDetail: account_details, request: ccfapp.Request){
-  acctDetail.userId = "";
-  acctDetail.role  =   undefined; //lender or borrower
-  acctDetail.walletAddress = undefined;
-  acctDetail.isKyced= false;
-  acctDetail.balance = 0;
-  acctDetail.allowances = 0;
-  acctDetail.loans = undefined;
-  acctDetail.lender = undefined;
 }
 
 function getCallerId(request: ccfapp.Request<any>): string {
@@ -116,6 +66,7 @@ export function createAccount(request: ccfapp.Request): ccfapp.Response {
   }
 
   const accountToBalance = getAccountTable(userId);
+
   const accountName = request.params.account_name;
 
   if (accountToBalance.has(accountName)) {
@@ -125,15 +76,8 @@ export function createAccount(request: ccfapp.Request): ccfapp.Response {
     };
   }
 
-  const acctDetails =  accountToBalance.get(accountName);
-  //initialize the fields of the objects
-  initializeAcctDetail(acctDetails, request);
-  acctDetails.user_id = userId;
-
-
   // Initial balance should be 0.
-  //accountToBalance.set(accountName, acctDetails);
-  //accountToBalance.set(accountName, 0);
+  accountToBalance.set(accountName, 0);
 
   console.log("Create Account Completed");
 
@@ -142,17 +86,9 @@ export function createAccount(request: ccfapp.Request): ccfapp.Response {
   };
 }
 
-export function updateAccount(request: ccfapp.Request)
-{
-  const userId = request.params.user_id;
-
-
-}
-
 interface DepositRequest {
   value: number;
 }
-
 
 export function deposit(
   request: ccfapp.Request<DepositRequest>
