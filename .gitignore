@@ -9,3 +9,4 @@ package-lock.json
 *.pfx
 **/dist
 **/coverage
+/banking_dashboard/**  
