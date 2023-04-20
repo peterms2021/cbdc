@@ -19,3 +19,5 @@ export  L1_USER_PWD="kyXESMkfs9TpmqeljCYv35x1QBNxOxCE7j8YxHfWpX0"
 export  L1_USER_CONNECT_URL="https://a0n86s1kp7:kyXESMkfs9TpmqeljCYv35x1QBNxOxCE7j8YxHfWpX0@a0jq79osep-a0yjwjns56-rpc.au0-aws.kaleido.io/"
 
 export L1_CHAIN_ID="1007845588"
+
+export L1_APP_MODE=1
