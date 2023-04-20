@@ -22,10 +22,10 @@ const signTx = async (fromAccount, tx) => {
 
 const setup = async () => {
 
-    [cbdc, w3, wallets, provider] = await cbdcLib.setupConnection();
-
-    const networkId = await w3.eth.net.getId()
-    let contractAddress = cbdc.address;
+    let iface = await cbdcLib.setupConnection();
+  
+    const networkId = await iface.w3.eth.net.getId()
+    let contractAddress = iface.cbdc.address;
 
     /*
     let contractAddress,  deployedNetwork
@@ -39,7 +39,7 @@ const setup = async () => {
     */
     //which wallet do we want to watch?
     console.log("setup done...");
-    return [ w3, networkId, contractAddress, cbdc, wallets ]
+    return [ iface.w3, networkId, contractAddress, iface.cbdc, iface.wallets ]
 }
 
 const prettyPrint = (o) => {

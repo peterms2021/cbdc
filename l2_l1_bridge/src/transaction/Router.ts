@@ -4,17 +4,17 @@
 
  import express, { Request, Response } from "express";
  import * as WorkerService from "./CbdcWorker.js";
- import { transferFundsFrom,  transferFundsFromResp, Accnt, accntBalance } from "./interface.js";
+ import { transferFundsFrom,  transferFundsFromResp, Accnt, accntBalance } from "./Interface.js";
 
 
- export const itemsRouter = express.Router();
+ export const cbdcRouter = express.Router();
 /**
  * Controller Definitions
  */
 
 // GET account balance
 
-itemsRouter.get("/balance/:id", async (req: Request, res: Response) => {
+cbdcRouter.get("/balance/:id", async (req: Request, res: Response) => {
     try {
       const id: string =  req.params.id; 
       let bal:any;
@@ -30,7 +30,7 @@ itemsRouter.get("/balance/:id", async (req: Request, res: Response) => {
   });
   
   // GET money supply
-  itemsRouter.get("/total_supply", async (req: Request, res: Response) => {
+  cbdcRouter.get("/total_supply", async (req: Request, res: Response) => {
     //const id: number = parseInt(req.params.id, 10);
   
     try {
@@ -50,7 +50,7 @@ itemsRouter.get("/balance/:id", async (req: Request, res: Response) => {
 
 
   // POST items
-  itemsRouter.post("/transfer_from", async (req: Request, res: Response) => {
+  cbdcRouter.post("/transfer_from", async (req: Request, res: Response) => {
     try {
       const trans: transferFundsFrom = req.body;
   
@@ -67,7 +67,7 @@ itemsRouter.get("/balance/:id", async (req: Request, res: Response) => {
   /*
   // PUT items/:id
   
-  itemsRouter.put("/:id", async (req: Request, res: Response) => {
+  cbdcRouter.put("/:id", async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id, 10);
   
     try {
@@ -90,7 +90,7 @@ itemsRouter.get("/balance/:id", async (req: Request, res: Response) => {
   
   // DELETE items/:id
   
-  itemsRouter.delete("/:id", async (req: Request, res: Response) => {
+  cbdcRouter.delete("/:id", async (req: Request, res: Response) => {
     try {
       const id: number = parseInt(req.params.id, 10);
       await WorkerService.remove(id);

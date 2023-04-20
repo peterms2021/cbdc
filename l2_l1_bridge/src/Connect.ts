@@ -13,6 +13,17 @@ import { Network, Networkish } from "@ethersproject/networks";
 import { ConnectionInfo, fetchJson, poll } from "@ethersproject/web";
 import { BalanceOf } from "./functions/BalanceOf.js";
 
+export interface contractInterface { 
+  ready:boolean,
+  cbdc: ethers.Contract,
+  wallets:Map<string, ethers.Wallet>,
+  prov: ethers.providers.JsonRpcProvider,
+  web3:Web3,
+  envInfo:Map<string,string>
+};
+//the global scope connection infor
+export var gConnectionInfo:contractInterface;
+
 let enInfo = extractL1AccountDetails();
 
 async function testWallet(cbdc: ethers.Contract, wallet: ethers.Wallet, provider: ethers.providers.JsonRpcProvider) {
@@ -65,7 +76,7 @@ export function getAAllccountWallets(provider: ethers.providers.JsonRpcProvider)
   return actMap;
 }
 
- export async function setupConnection() :Promise<[cbdc:Contract, web3:Web3, wallets:Map<string, ethers.Wallet>, provider: ethers.providers.JsonRpcProvider]>{
+ export async function setupConnection() :Promise<contractInterface>{
   const CBDC_ADDRESS = "0xb82C4150d953fcCcE42d7D53246B5553016c5C71";
   const USER_ABI = userAbi;
   const KYCER_ABI = kycerAbi;
@@ -94,12 +105,21 @@ export function getAAllccountWallets(provider: ethers.providers.JsonRpcProvider)
     const cbdcContract = new ethers.Contract(CBDC_ADDRESS, combinedABI, wallet).connect(wallet)
     console.log("Constract connection established");
 
-    
     await testWallet(cbdcContract, wallet, provider);
 
     let m = getAAllccountWallets(provider);
     await testWallets(cbdcContract,m,provider);
-    return [cbdcContract, web3, m, provider];
+
+    const interfaceControls: contractInterface = {
+        ready: true,
+        cbdc: cbdcContract,
+        wallets: m,
+        prov: provider,
+        web3:web3,
+        envInfo:enInfo
+    } ;
+    gConnectionInfo = interfaceControls;
+    return interfaceControls;
   } catch (error) {
     let err = "Unable to connect with provider";
     console.error(err);

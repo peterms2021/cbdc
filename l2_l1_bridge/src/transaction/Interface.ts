@@ -1,27 +1,35 @@
 export interface Accnt {
     name: string;
-  }
+  };
   
-  export interface transferFunds {
-    src: Accnt;
-    dst: Accnt;
+  export interface MoneySupply {
+    bal: number;
+  };
+
+  export interface transferFundsFrom {
+    from: string;
+    to: string;
     amount:number;
-  }
+  };
+
+  export interface transferFundsFromResp  extends transferFundsFrom{
+    result:boolean;
+  };
 
   export interface accntBalance {
-    src: Accnt;
-    amount:number;
-  }
+    acct: string;
+    balance:number;
+  };
 
   export interface grantAllowance {
-    src: Accnt;
-    amount:number;
-  }
+    src: string;
+    allowance:number;
+  };
   
 
   export interface htlcLock {
-    src: Accnt;
+    src: string;
     duration:number;
-    amount:number;
+    a;mount:number;
   }
   
