@@ -9,11 +9,11 @@ create_certificate(){
     local certName="$1"
     local certFile="${1}_cert.pem"
     local setUserFile="set_${1}.json"
-    $ccf_prefix/keygenerator.sh --name $certName
+    $ccf_prefix/keygenerator.sh --name "$certName"
 
-    cert=$(< $certFile sed '$!G' | paste -sd '\\n' -)
+    cert=$(< "$certFile" sed '$!G' | paste -sd '\\n' -)
 
-    cat <<JSON > $setUserFile
+    cat <<JSON > "$setUserFile"
 {
   "actions": [
     {
@@ -46,10 +46,10 @@ proposal0_out=$(${ccf_prefix}/scurl.sh ${server}/gov/proposals \
   --data-binary @set_user0.json \
   -H "content-type: application/json")
 proposal0_id=$( jq -r  '.proposal_id' <<< "${proposal0_out}" )
-echo $proposal0_id
+echo "$proposal0_id"
 
 # Vote by member 1
-$ccf_prefix/scurl.sh ${server}/gov/proposals/$proposal0_id/ballots \
+$ccf_prefix/scurl.sh ${server}/gov/proposals/"$proposal0_id"/ballots \
   --cacert service_cert.pem \
   --signing-key member1_privk.pem \
   --signing-cert member1_cert.pem \
@@ -57,7 +57,7 @@ $ccf_prefix/scurl.sh ${server}/gov/proposals/$proposal0_id/ballots \
   -H "content-type: application/json" | jq
 
 # Vote by member 2
-$ccf_prefix/scurl.sh ${server}/gov/proposals/$proposal0_id/ballots \
+$ccf_prefix/scurl.sh ${server}/gov/proposals/"$proposal0_id"/ballots \
   --cacert service_cert.pem \
   --signing-key member2_privk.pem \
   --signing-cert member2_cert.pem \
@@ -67,10 +67,10 @@ $ccf_prefix/scurl.sh ${server}/gov/proposals/$proposal0_id/ballots \
 # Proposal for user1
 proposal1_out=$(${ccf_prefix}/scurl.sh ${server}/gov/proposals --cacert service_cert.pem --signing-key member0_privk.pem --signing-cert member0_cert.pem --data-binary @set_user1.json -H "content-type: application/json")
 proposal1_id=$( jq -r  '.proposal_id' <<< "${proposal1_out}" )
-echo $proposal0_id
+echo "$proposal0_id"
 
 # Vote by member 1
-$ccf_prefix/scurl.sh ${server}/gov/proposals/$proposal1_id/ballots \
+$ccf_prefix/scurl.sh ${server}/gov/proposals/"$proposal1_id"/ballots \
   --cacert service_cert.pem \
   --signing-key member1_privk.pem \
   --signing-cert member1_cert.pem \
@@ -78,7 +78,7 @@ $ccf_prefix/scurl.sh ${server}/gov/proposals/$proposal1_id/ballots \
   -H "content-type: application/json" | jq
 
 # Vote by member 2
-$ccf_prefix/scurl.sh ${server}/gov/proposals/$proposal1_id/ballots \
+$ccf_prefix/scurl.sh ${server}/gov/proposals/"$proposal1_id"/ballots \
   --cacert service_cert.pem \
   --signing-key member2_privk.pem \
   --signing-cert member2_cert.pem \

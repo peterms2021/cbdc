@@ -14,13 +14,13 @@ account_type0='current_account'
 account_type1='savings_account'
 
 # Create account for user 0
-curl ${server}/app/account/$user0_id/$account_type0 -X PUT --cacert service_cert.pem --cert member0_cert.pem --key member0_privk.pem
+curl ${server}/app/account/"$user0_id"/$account_type0 -X PUT --cacert service_cert.pem --cert member0_cert.pem --key member0_privk.pem
 
 # Create account for user 1
-curl ${server}/app/account/$user1_id/$account_type1 -X PUT --cacert service_cert.pem --cert member0_cert.pem --key member0_privk.pem
+curl ${server}/app/account/"$user1_id"/$account_type1 -X PUT --cacert service_cert.pem --cert member0_cert.pem --key member0_privk.pem
 
 # Deposit: user0, 100
-curl ${server}/app/deposit/$user0_id/$account_type0 -X POST --cacert service_cert.pem --cert member0_cert.pem --key member0_privk.pem -H "Content-Type: application/json" --data-binary '{ "value": 100 }'
+curl ${server}/app/deposit/"$user0_id"/$account_type0 -X POST --cacert service_cert.pem --cert member0_cert.pem --key member0_privk.pem -H "Content-Type: application/json" --data-binary '{ "value": 100 }'
 
 # Transfer 40 from user0 to user1
 transfer_transaction_id=$(curl ${server}/app/transfer/$account_type0 -X POST -i --cacert service_cert.pem --cert user0_cert.pem --key user0_privk.pem -H "Content-Type: application/json" --data-binary "{ \"value\": 40, \"user_id_to\": \"$user1_id\", \"account_name_to\": \"$account_type1\" }" | grep -i x-ms-ccf-transaction-id | awk '{print $2}' | sed -e 's/\r//g')
@@ -28,13 +28,13 @@ transfer_transaction_id=$(curl ${server}/app/transfer/$account_type0 -X POST -i 
 
 # Wait until the receipt becomes available
 only_status_code="-s -o /dev/null -w %{http_code}"
-while [ "200" != "$(curl ${server}/app/receipt?transaction_id=$transfer_transaction_id --cacert service_cert.pem --key user0_privk.pem --cert user0_cert.pem $only_status_code)" ]
+while [ "200" != "$(curl ${server}/app/receipt?transaction_id="$transfer_transaction_id" --cacert service_cert.pem --key user0_privk.pem --cert user0_cert.pem -s -o /dev/null -w %{http_code})" ]
 do
     sleep 1
 done
 
 # Verify receipt
-curl ${server}/app/receipt?transaction_id=$transfer_transaction_id --cacert service_cert.pem --key user0_privk.pem --cert user0_cert.pem -s | ../../verify_receipt.sh
+curl ${server}/app/receipt?transaction_id="$transfer_transaction_id" --cacert service_cert.pem --key user0_privk.pem --cert user0_cert.pem -s | ../../verify_receipt.sh
 
 # Check user0 balance
 curl ${server}/app/balance/$account_type0 -X GET --cacert service_cert.pem --cert user0_cert.pem --key user0_privk.pem
