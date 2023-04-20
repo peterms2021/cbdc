@@ -9,7 +9,8 @@
         "vsls-contrib.codetour",
         "esbenp.prettier-vscode",
         "timonwong.shellcheck",
-        "github.vscode-pull-request-github"
+        "github.vscode-pull-request-github",
+        "ms-vscode.makefile-tools"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
