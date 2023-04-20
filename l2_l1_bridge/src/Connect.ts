@@ -1,5 +1,8 @@
 
+
+import Web3 from 'web3';
 import { Contract, ethers, providers, Wallet } from "ethers";
+
 import { extractL1AccountDetails, extractNumberEnvVar, L1_CHAIN_ID, L1_URL, L1_USER_CONNECT_URL, L1_USER_NAME, L1_USER_PWD } from "./Env.js";
 import { BANK_A_NAME, BANK_B_NAME, KYC_NAME, MSFT_NAME, BANK_A_PKEY, BANK_B_PKEY, KYC_PKEY, MSFT_PKEY } from "./Env.js";
 
@@ -36,6 +39,7 @@ async function testWallet(cbdc: ethers.Contract, wallet: ethers.Wallet, provider
 }
 
 async function testWallets(cbdc:Contract, wallets:Map<string, ethers.Wallet>, provider: ethers.providers.JsonRpcProvider){
+  console.log(`Contract address: ${cbdc.address}`);
   wallets.forEach((value: ethers.Wallet, key: string) => {
     console.log(key, value);
     testWallet(cbdc,value,provider);
@@ -61,7 +65,7 @@ export function getAAllccountWallets(provider: ethers.providers.JsonRpcProvider)
   return actMap;
 }
 
- export async function setupConnection() :Promise<[cbdc:Contract, wallets:Map<string, ethers.Wallet>, provider: ethers.providers.JsonRpcProvider]>{
+ export async function setupConnection() :Promise<[cbdc:Contract, web3:Web3, wallets:Map<string, ethers.Wallet>, provider: ethers.providers.JsonRpcProvider]>{
   const CBDC_ADDRESS = "0xb82C4150d953fcCcE42d7D53246B5553016c5C71";
   const USER_ABI = userAbi;
   const KYCER_ABI = kycerAbi;
@@ -79,11 +83,13 @@ export function getAAllccountWallets(provider: ethers.providers.JsonRpcProvider)
 
   let provider = await new ethers.providers.JsonRpcProvider(conInfo, net);
   
+  let web3 = new Web3(provider);
+
   //generate wallets for the L1 account
   let pkey = enInfo.get(MSFT_PKEY);
   let skey = new ethers.utils.SigningKey(pkey as string);
   let wallet = new ethers.Wallet(skey as SigningKey, provider);
-
+  
   try {
     const cbdcContract = new ethers.Contract(CBDC_ADDRESS, combinedABI, wallet).connect(wallet)
     console.log("Constract connection established");
@@ -93,7 +99,7 @@ export function getAAllccountWallets(provider: ethers.providers.JsonRpcProvider)
 
     let m = getAAllccountWallets(provider);
     await testWallets(cbdcContract,m,provider);
-    return [cbdcContract, m, provider];
+    return [cbdcContract, web3, m, provider];
   } catch (error) {
     let err = "Unable to connect with provider";
     console.error(err);

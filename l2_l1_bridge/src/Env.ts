@@ -78,6 +78,22 @@ export const L1_USER_PWD="L1_USER_PWD";
 export const L1_USER_CONNECT_URL="L1_USER_CONNECT_URL";
 export const L1_CHAIN_ID="L1_CHAIN_ID";
 
+//The run mode of the app 
+export enum AppRunMode { 
+    NORMAL_MODE=0,
+    LOG_SUBSCRIBER = 1, 
+    EVENT_SUBSCRIBER = 2,
+    TX_EVENT_WRITER = 3,
+}
+export const APP_RUN_MODE="L1_APP_MODE"
+
+
+export function envRunMode():number {
+    let n = extractIntegerEnvVar(APP_RUN_MODE);
+    console.log(`Env run mode:= ${n}`);
+    return n;
+}
+
 export function extractL1AccountDetails(): Map<string, string>{
     //const dotenv = require("dotenv");
     //load the contents of .env file

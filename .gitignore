@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **/build/**
 *.deb
 **/.venv_ccf_sandbox
@@ -9,4 +10,4 @@ package-lock.json
 *.pfx
 **/dist
 **/coverage
-/banking_dashboard/**  
+package-lock.json
