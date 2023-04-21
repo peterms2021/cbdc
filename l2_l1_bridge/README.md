@@ -12,3 +12,10 @@ To run the app use
 npm run start 
 ```
 
+Set the CBDC_PORT environment varaible - the port the the app will listen on (defualts to 7000)
+
+//read account balance of the  accounts
+curl http://localhost:7000/balance/BANK_A -i
+curl http://localhost:7000/balance/BANK_B -i
+curl http://localhost:7000/balance/MSFT -i
+

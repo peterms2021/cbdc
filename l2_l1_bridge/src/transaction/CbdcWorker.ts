@@ -23,15 +23,17 @@ export const getAccountBalance = async (bankName: string): Promise<accntBalance 
     else {
         try {
             let addr = await wallet.getAddress();
-            let [result, err] = BalanceOf(gConnectionInfo.cbdc, addr);
+            let [result, err] = await BalanceOf(gConnectionInfo.cbdc, addr);
             if (err.length != 0) {
                 console.log(`getAccountBalance: failed to call to BalanceOf bank name ${bankName} with err ${err}`);
                 return null;
             }
+            console.log(`getAccountBalance:... ${bankName} => ${utils.formatUnits(result, 2).toString()}`);
             const resp: accntBalance = {
                 acct: bankName,
                 balance: result.toNumber()
-            }
+            };
+            console.log(`getAccountBalance: ${bankName} => ${resp.balance}`);
             return resp;
         } catch (error) {
             console.log(`getAccountBalance: failed to calle BalanceOf bank name ${bankName}`);

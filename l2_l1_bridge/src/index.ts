@@ -10,8 +10,6 @@ import { cbdcRouter } from './transaction/Router.js';
 
 
 const app = express();
-const port = 21000;
-
  setupConnection();
 let n  = envRunMode();
 console.log(` Root run mode: ${n}`);
@@ -20,15 +18,17 @@ if (n != AppRunMode.NORMAL_MODE as number) {
   console.log("Event listener app mode");
   eventListener();
 }
-else {
+else 
+{
+  let port = 7000;
   if (!process.env.CBDC_PORT) {
-    process.exit(1);
+    console.log(`CBDC_PORT is not define ... to defaulting to ${port}`);
+  }else{
+    port = parseInt(process.env.CBDC_PORT as string, 10);
   }
- 
- const PORT: number = parseInt(process.env.CBDC_PORT as string, 10);
 
   app.use(helmet());   //see https://www.npmjs.com/package/helmet 
-  app.use(cors());    //see https://auth0.com/blog/cors-tutorial-a-guide-to-cross-origin-resource-sharing/
+  //app.use(cors());    //see https://auth0.com/blog/cors-tutorial-a-guide-to-cross-origin-resource-sharing/
   app.use(express.json());
 
   app.use("/", cbdcRouter);
@@ -40,7 +40,7 @@ else {
   });
   */
 
-  app.listen(PORT, () => {
+  app.listen(port, () => {
     return console.log(`CBDC Bridge Listening at http://localhost:${port}`);
   })
 }

@@ -18,6 +18,7 @@ cbdcRouter.get("/balance/:id", async (req: Request, res: Response) => {
     try {
       const id: string =  req.params.id; 
       let bal:any;
+      console.log("cbdcRouter/balance... ");
       bal = await WorkerService.getAccountBalance(id);
        if(bal){
             res.status(200).send(bal);
