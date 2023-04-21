@@ -1,9 +1,38 @@
 import { Accnt, transferFundsFrom, transferFundsFromResp, accntBalance , MoneySupply} from "./Interface.js";
-import { BalanceOf } from "../functions/BalanceOf.js"
-import {TotalSupply} from "../functions/TotalSupply.js"
-import { BigNumber, Contract, utils } from "ethers";
-import {TransferFrom} from "../functions/TransferFrom.js"
+import Allowance from "../functions/Allowance.js";
+import Approve from "../functions/Approve.js";
+import BalanceOf from "../functions/BalanceOf.js";
+import CreateHTLC from "../functions/CreateHTLC.js";
+import CreateHTLCFor from "../functions/CreateHTLCFor.js";
+import Decimals from "../functions/Decimals.js";
+import DecreaseAllowance from "../functions/DecreaseAllowance.js";
+import GetActiveHTLCs from "../functions/GetActiveHTLCs.js";
+import GetAllHTLCs from "../functions/GetAllHTLCs";
+import GetInactiveHTLCs from "../functions/GetInactiveHTLCs.js";
+import HtlcAmount from "../functions/HtlcAmount.js";
+import HtlcBalance from "../functions/HtlcBalance.js";
+import HtlcEnabled from "../functions/HtlcEnabled.js";
+import HtlcHashLock from "../functions/HtlcHashLock.js";
+import HtlcPreimage from "../functions/HtlcPreimage.js";
+import HtlcReceiver from "../functions/HtlcReceiver.js";
+import HtlcRefunded from "../functions/HtlcRefunded.js";
+import HtlcSeized from "../functions/HtlcSeized.js";
+import HtlcSender from "../functions/HtlcSender.js";
+import HtlcTimeLock from "../functions/HtlcTimeLock.js";
+import HtlcWithdrawn from "../functions/HtlcWithdrawn.js";
+import IncreaseAllowance from "../functions/IncreaseAllowance.js";
+import IsKYCed from "../functions/IsKYCed.js";
+import Name from "../functions/Name.js";
+import NumKYCs from "../functions/NumKYCs.js";
+import RefundHTLC from "../functions/RefundHTLC.js";
+import Symbol from "../functions/Symbol.js";
+import TotalSupply from "../functions/TotalSupply.js";
+import Transfer from "../functions/Transfer.js";
+import TransferFrom from "../functions/TransferFrom.js";
+import WithdrawHTLC from "../functions/WithdrawHTLC.js";
 
+
+import { BigNumber, Contract, utils } from "ethers";
 import { gConnectionInfo } from "../Connect.js"
 
 
@@ -23,7 +52,7 @@ export const getAccountBalance = async (bankName: string): Promise<accntBalance 
     else {
         try {
             let addr = await wallet.getAddress();
-            let [result, err] = await BalanceOf(gConnectionInfo.cbdc, addr);
+            let [result, err] =  await BalanceOf(gConnectionInfo.cbdc, addr);
             if (err.length != 0) {
                 console.log(`getAccountBalance: failed to call to BalanceOf bank name ${bankName} with err ${err}`);
                 return null;
@@ -42,6 +71,7 @@ export const getAccountBalance = async (bankName: string): Promise<accntBalance 
     }
 };
 
+
 export const getMoneySupply  = async (): Promise<MoneySupply | null> =>  {
     let cbdc = gConnectionInfo.cbdc;
     if(cbdc === undefined){
@@ -51,7 +81,7 @@ export const getMoneySupply  = async (): Promise<MoneySupply | null> =>  {
     else
     {
         try {       
-            let [result, err] = TotalSupply(gConnectionInfo.cbdc);
+            let [result, err] = await TotalSupply(gConnectionInfo.cbdc);
             if (err.length != 0) {
                 console.log(`getMoneySupply: failed to call to BalanceOf bank with err ${err}`);
                 return null;
@@ -112,7 +142,7 @@ export const transferFrom = async (trans:transferFundsFrom): Promise<transferFun
         let raddr = await recvWallet.getAddress();
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, err] = TransferFrom(gConnectionInfo.cbdc, saddr,raddr,a);
+        let [result, err] = await TransferFrom(gConnectionInfo.cbdc, saddr,raddr,a);
         if (err.length != 0) {
             console.log(`transferFrom: failed to call to TransferFrom  to: sender  ${trans.from}  recv: ${trans.to} amt: ${trans.amount}  bal: ${amt.balance } with err ${err}`);
             return null;

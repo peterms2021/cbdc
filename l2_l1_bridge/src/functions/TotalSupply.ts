@@ -1,7 +1,7 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-export function TotalSupply(cbdc: Contract) : [result:BigNumber, err:string]  {
+export async function TotalSupply(cbdc: Contract) : Promise<[result:BigNumber, err:string]>  {
   
   let result:BigNumber =BigNumber.from("0");
   let err:string = "";
@@ -19,7 +19,7 @@ export function TotalSupply(cbdc: Contract) : [result:BigNumber, err:string]  {
   }
 
   async function handleSubmit() {
-        cbdc
+        await cbdc
           .totalSupply()
           .then((result: BigNumber) => {
             // format to 2 decimal places
@@ -33,7 +33,7 @@ export function TotalSupply(cbdc: Contract) : [result:BigNumber, err:string]  {
           });
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

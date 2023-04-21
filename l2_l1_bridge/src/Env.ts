@@ -57,8 +57,6 @@ export function extractBooleanEnvVar(
 
 export const BANK_A_NAME="BANK_A_NAME";
 export const BANK_B_NAME="BANK_B_NAME";
-export const KYC_NAME="KYC";
-export const MSFT_NAME="MSFT";
 
 export const BANK_A_ADDRESS="BANK_A_ADDRESS";
 export const BANK_B_ADDRESS="BANK_B_ADDRESS";
@@ -66,9 +64,11 @@ export const BANK_B_ADDRESS="BANK_B_ADDRESS";
 export const BANK_A_PKEY="BANK_A_PKEY";
 export const BANK_B_PKEY="BANK_B_PKEY";
 
+export const KYCER_NAME="KYCER_NAME";
 export const KYC_ADDR="KYC_ADDR";
 export const KYC_PKEY="KYC_PKEY";
 
+export const ESCROW_BANK_NAME="BANK_ESCROW_NAME";
 export const MSFT_ADDR="MSFT_ADDR";
 export const MSFT_PKEY="MSFT_PKEY";
 
@@ -110,9 +110,11 @@ export function extractL1AccountDetails(): Map<string, string>{
     hashmap.set(BANK_A_PKEY,  extractStringEnvVar(BANK_A_PKEY));
     hashmap.set(BANK_B_PKEY,  extractStringEnvVar(BANK_B_PKEY));
 
+    hashmap.set(KYCER_NAME,  extractStringEnvVar(KYCER_NAME));
     hashmap.set(KYC_ADDR,  extractStringEnvVar(KYC_ADDR));
     hashmap.set(KYC_PKEY,  extractStringEnvVar(KYC_PKEY));
 
+    hashmap.set(ESCROW_BANK_NAME, extractStringEnvVar(ESCROW_BANK_NAME));
     hashmap.set(MSFT_ADDR,  extractStringEnvVar(MSFT_ADDR));
     hashmap.set(MSFT_PKEY,  extractStringEnvVar(MSFT_PKEY));
 
@@ -120,6 +122,9 @@ export function extractL1AccountDetails(): Map<string, string>{
     hashmap.set(L1_USER_NAME,  extractStringEnvVar(L1_USER_NAME));
     hashmap.set(L1_USER_PWD,  extractStringEnvVar(L1_USER_PWD));
     hashmap.set(L1_CHAIN_ID, extractStringEnvVar(L1_CHAIN_ID));
+
+
+    
      
     let connectUrl = "https://" + hashmap.get(L1_USER_NAME) + ":" +  hashmap.get(L1_USER_PWD) + "@" + hashmap.get(L1_URL);
 
