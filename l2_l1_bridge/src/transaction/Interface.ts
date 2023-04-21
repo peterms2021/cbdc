@@ -30,6 +30,6 @@ export interface Accnt {
   export interface htlcLock {
     src: string;
     duration:number;
-    a;mount:number;
+    amount:number;
   }
   

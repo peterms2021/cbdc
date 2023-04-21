@@ -30,16 +30,8 @@ else
   app.use(helmet());   //see https://www.npmjs.com/package/helmet 
   //app.use(cors());    //see https://auth0.com/blog/cors-tutorial-a-guide-to-cross-origin-resource-sharing/
   app.use(express.json());
-
   app.use("/", cbdcRouter);
-
-  /*
-  console.log("Normal app mode");
-  app.get('/', (req, res) => {
-    res.send('Hello World!');
-  });
-  */
-
+  
   app.listen(port, () => {
     return console.log(`CBDC Bridge Listening at http://localhost:${port}`);
   })

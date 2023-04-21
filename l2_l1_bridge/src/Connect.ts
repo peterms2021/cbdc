@@ -4,7 +4,7 @@ import Web3 from 'web3';
 import { Contract, ethers, providers, Wallet } from "ethers";
 
 import { extractL1AccountDetails, extractNumberEnvVar, L1_CHAIN_ID, L1_URL, L1_USER_CONNECT_URL, L1_USER_NAME, L1_USER_PWD } from "./Env.js";
-import { BANK_A_NAME, BANK_B_NAME, KYC_NAME, MSFT_NAME, BANK_A_PKEY, BANK_B_PKEY, KYC_PKEY, MSFT_PKEY } from "./Env.js";
+import { BANK_A_NAME, BANK_B_NAME, KYCER_NAME, ESCROW_BANK_NAME, BANK_A_PKEY, BANK_B_PKEY, KYC_PKEY, MSFT_PKEY } from "./Env.js";
 
 import kycerAbi from "./IKYCer-abi.json" assert { type: "json" };
 import userAbi from "./IUser-abi.json" assert { type: "json" };
@@ -68,10 +68,10 @@ function getWalletForAccnt(name: string, provider: ethers.providers.JsonRpcProvi
 export function getAAllccountWallets(provider: ethers.providers.JsonRpcProvider): Map<string, ethers.Wallet> {
   let actMap = new Map<string, ethers.Wallet>();
 
-  actMap.set(MSFT_NAME, getWalletForAccnt(MSFT_PKEY,provider));
-  actMap.set(KYC_NAME, getWalletForAccnt(KYC_PKEY,provider));
-  actMap.set(BANK_A_NAME, getWalletForAccnt(BANK_A_PKEY,provider));
-  actMap.set(BANK_B_NAME, getWalletForAccnt(BANK_B_PKEY,provider));
+  actMap.set(enInfo.get(ESCROW_BANK_NAME), getWalletForAccnt(MSFT_PKEY,provider));
+  actMap.set(enInfo.get(KYCER_NAME), getWalletForAccnt(KYC_PKEY,provider));
+  actMap.set(enInfo.get(BANK_A_NAME), getWalletForAccnt(BANK_A_PKEY,provider));
+  actMap.set(enInfo.get(BANK_B_NAME), getWalletForAccnt(BANK_B_PKEY,provider));
 
   return actMap;
 }

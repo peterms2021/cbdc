@@ -1,7 +1,7 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-export function BalanceOf(cbdc: Contract, addres: string ): [result: BigNumber, err: string] {
+export async function BalanceOf(cbdc: Contract, addres: string ): Promise<[result: BigNumber, err: string]> {
   
   let loading = false;
   let err:string = "";
@@ -23,7 +23,7 @@ export function BalanceOf(cbdc: Contract, addres: string ): [result: BigNumber, 
   }
 
   async function balanceof(_cbdc: Contract, _addres: string) {
-          _cbdc
+          await _cbdc
           .balanceOf(_addres)
           .then((_result: BigNumber) => {
             // format to 2 decimal places
@@ -37,7 +37,7 @@ export function BalanceOf(cbdc: Contract, addres: string ): [result: BigNumber, 
           })
   }
 
-  balanceof(cbdc,addres);
+  await balanceof(cbdc,addres);
   return [result,err] ; 
 };
 
