@@ -25,10 +25,10 @@ export function BalanceOf(cbdc: Contract, addres: string ): [result: BigNumber, 
   async function balanceof(_cbdc: Contract, _addres: string) {
           _cbdc
           .balanceOf(_addres)
-          .then((result: BigNumber) => {
+          .then((_result: BigNumber) => {
             // format to 2 decimal places
-            console.log(utils.formatUnits(result, 2).toString());
-            setResult(result);
+            console.log(`balanceof:... ${_addres} => ${utils.formatUnits(_result, 2).toString()}`);
+            setResult(_result);
             //setErr(undefined);
           })
           .catch((err: Error) => {
