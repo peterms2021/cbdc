@@ -1,7 +1,7 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 // Return the amount that account holder is KYC'd 
-function NumKYCs(cbdc: Contract,   holder: string) : [result:BigNumber, err:string]  {
+async function NumKYCs(cbdc: Contract,   holder: string) : Promise<[result:BigNumber, err:string]>  {
  
   let result:BigNumber =BigNumber.from("0");
   let err:string = "";
@@ -19,7 +19,7 @@ function NumKYCs(cbdc: Contract,   holder: string) : [result:BigNumber, err:stri
   } 
 
   async function handleSubmit() {
-          cbdc
+          await cbdc
           .numKYCs(holder)
           .then((result: BigNumber) => {
             // format to 2 decimal places
@@ -32,7 +32,7 @@ function NumKYCs(cbdc: Contract,   holder: string) : [result:BigNumber, err:stri
             setErr(err.message);
           });
   }
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

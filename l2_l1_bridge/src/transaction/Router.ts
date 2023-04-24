@@ -54,6 +54,7 @@ cbdcRouter.post("/transfer_from", async (req: Request, res: Response) => {
     try {
         console.log(`transfer_from: ...`);
         const trans: transferFundsFrom = req.body;
+
         let tr = await WorkerService.transferFrom(trans);
         if (tr === undefined) {
             res.status(400).json("Bad request");
@@ -64,6 +65,70 @@ cbdcRouter.post("/transfer_from", async (req: Request, res: Response) => {
         res.status(500).send(e.message);
     }
 });
+
+//KYC 
+cbdcRouter.get("/kyc_check/:acct", async (req: Request, res: Response) => {
+    const id: string = req.params.acct;
+    console.log(`kyc_check: ... ${id}`);
+    try {
+        let bal: any;
+        bal = await WorkerService.checkKyc(id);
+       
+        return res.status(200).send(bal);
+        //res.status(404).send("kyc_check failed");
+    } catch (e) {
+        res.status(500).send(e.message);
+    }
+});
+
+cbdcRouter.put("/kyc_grant/:acct", async (req: Request, res: Response) => {
+    const id: string = req.params.acct;
+    try {
+        let bal: any;
+        bal = await WorkerService.grantKyc(id);
+
+        if (bal) {
+            return res.status(200).send(bal);
+        }
+
+        res.status(404).send("kyc_grant failed");
+    } catch (e) {
+        res.status(500).send(e.message);
+    }
+});
+
+cbdcRouter.get("/kyc_num/:acct", async (req: Request, res: Response) => {
+    const id: string = req.params.acct;
+    try {
+        let bal: any;
+        bal = await WorkerService.numKyc(id);
+
+        if (bal) {
+            return res.status(200).send(bal);
+        }
+
+        res.status(404).send("kyc_num failed");
+    } catch (e) {
+        res.status(500).send(e.message);
+    }
+});
+
+cbdcRouter.put("/kyc_revoke/:acct", async (req: Request, res: Response) => {
+    const id: string = req.params.acct;
+    try {
+        let bal: any;
+        bal = await WorkerService.revokeKyc(id);
+
+        if (bal) {
+            return res.status(200).send(bal);
+        }
+
+        res.status(404).send("kyc_num failed");
+    } catch (e) {
+        res.status(500).send(e.message);
+    }
+});
+
 
 /*
 // PUT items/:id
