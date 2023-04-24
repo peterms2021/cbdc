@@ -1,9 +1,9 @@
 
 import { Contract } from "ethers";
 
-function RevokeKYC(cbdc: Contract,  holder:string) : [result:string, err:string]  {
+async function RevokeKYC(cbdc: Contract,  holder:string) : Promise<[result:boolean, err:string]>  {
   
-  let result:string ="";
+  let result:boolean = false;
   let err:string = "";
   let loading = false;
  
@@ -19,7 +19,7 @@ function RevokeKYC(cbdc: Contract,  holder:string) : [result:string, err:string]
   function setErr(val: string){
     err =  val;
   }
-  function setResult(val: string){
+  function setResult(val: boolean){
     result =  val;
   } 
   async function handleSubmit() {
@@ -28,7 +28,7 @@ function RevokeKYC(cbdc: Contract,  holder:string) : [result:string, err:string]
         setLoading(true);
         const response = await cbdc.revokeKYC(holder);
         await response.wait();
-        setResult("Success");
+        setResult(true);
         //setErr(undefined);
         setLoading(false);
       } catch (err) {
@@ -37,7 +37,7 @@ function RevokeKYC(cbdc: Contract,  holder:string) : [result:string, err:string]
         setLoading(false);
       };
   }
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

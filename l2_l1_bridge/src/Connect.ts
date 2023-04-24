@@ -97,7 +97,8 @@ export function getAAllccountWallets(provider: ethers.providers.JsonRpcProvider)
   let web3 = new Web3(provider);
 
   //generate wallets for the L1 account
-  let pkey = enInfo.get(MSFT_PKEY);
+  //use the KYC_ER account as we are attaching the ABI to it
+  let pkey = enInfo.get(KYC_PKEY);
   let skey = new ethers.utils.SigningKey(pkey as string);
   let wallet = new ethers.Wallet(skey as SigningKey, provider);
   

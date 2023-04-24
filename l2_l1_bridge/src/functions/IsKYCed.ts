@@ -1,7 +1,7 @@
 
 import { Contract } from "ethers";
 
-function IsKYCed(cbdc: Contract,  holder: string) : [result:boolean, err:string]  {
+async function IsKYCed(cbdc: Contract,  holder: string) : Promise<[result:boolean, err:string]>  {
   
   let result:boolean =false;
   let err:string = "";
@@ -31,7 +31,7 @@ function IsKYCed(cbdc: Contract,  holder: string) : [result:boolean, err:string]
           });
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

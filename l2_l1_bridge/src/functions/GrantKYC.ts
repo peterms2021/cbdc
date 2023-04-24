@@ -1,11 +1,11 @@
 
 import { Contract } from "ethers";
 
-function GrantKYC( cbdc: Contract, holder: string) : [result: string, err: string] {
+async function GrantKYC( cbdc: Contract, holder: string) : Promise<[result: boolean, err: string]> {
 
   let loading = false;
   let err:string = "";
-  let result:string = "";
+  let result:boolean = false;
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -18,7 +18,7 @@ function GrantKYC( cbdc: Contract, holder: string) : [result: string, err: strin
   function setErr(val: string){
     err =  val;
   }
-  function setResult(val: string){
+  function setResult(val: boolean){
     result =  val;
   }
 
@@ -27,7 +27,7 @@ function GrantKYC( cbdc: Contract, holder: string) : [result: string, err: strin
         setLoading(true);
         const response = await cbdc.grantKYC(holder);
         await response.wait();
-        setResult("Success");
+        setResult(true);
         //setErr(undefined);
         setLoading(false);
       } catch (err) {
@@ -36,8 +36,8 @@ function GrantKYC( cbdc: Contract, holder: string) : [result: string, err: strin
         setLoading(false);
       }
   }
-
-  handleSubmit();
+  console.log(`GrantKYC : ${holder}`);
+  await handleSubmit();
   return [result,err] ; 
 
 };
