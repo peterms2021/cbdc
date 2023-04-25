@@ -4,10 +4,11 @@
 
 import express, { Request, Response } from "express";
 import * as WorkerService from "./CbdcWorker.js";
-import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance } from "./Interface.js";
-
+import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp } from "./Interface.js";
+import { approveFunds,  approveFundsResp } from "./Interface.js";
 
 export const cbdcRouter = express.Router();
+
 /**
  * Controller Definitions
  */
@@ -59,72 +60,57 @@ cbdcRouter.post("/transfer_from", async (req: Request, res: Response) => {
         if (tr === undefined) {
             res.status(400).json("Bad request");
         }
-        res.status(201).json(tr);
+        if (tr.err.length){
+            res.status(400).send(tr.err);
+        }else{
+            res.status(201).json(tr);
+        }
     } catch (e) {
         console.log(`transfer_from: ${e.message}`);
         res.status(500).send(e.message);
     }
 });
 
-//KYC 
-cbdcRouter.get("/kyc_check/:acct", async (req: Request, res: Response) => {
-    const id: string = req.params.acct;
-    console.log(`kyc_check: ... ${id}`);
+
+// POST items
+cbdcRouter.post("/transfer", async (req: Request, res: Response) => {
     try {
-        let bal: any;
-        bal = await WorkerService.checkKyc(id);
-       
-        return res.status(200).send(bal);
-        //res.status(404).send("kyc_check failed");
+        console.log(`transfer_from: ...`);
+        const trans: transferFunds = req.body;
+
+        let tr = await WorkerService.transfer(trans);
+        if (tr === undefined) {
+            res.status(400).json("Bad request");
+        }
+        if (tr.err.length){
+            res.status(400).send(tr.err);
+        }else{
+            res.status(201).json(tr);
+        }
     } catch (e) {
+        console.log(`transfer: ${e.message}`);
         res.status(500).send(e.message);
     }
 });
 
-cbdcRouter.put("/kyc_grant/:acct", async (req: Request, res: Response) => {
-    const id: string = req.params.acct;
+
+
+cbdcRouter.put("/approve", async (req: Request, res: Response) => {
     try {
-        let bal: any;
-        bal = await WorkerService.grantKyc(id);
+        console.log(`transfer_from: ...`);
+        const trans: approveFunds = req.body;
 
-        if (bal) {
-            return res.status(200).send(bal);
+        let tr = await WorkerService.approve(trans);
+        if (tr === undefined) {
+            res.status(400).json("Bad request");
         }
-
-        res.status(404).send("kyc_grant failed");
-    } catch (e) {
-        res.status(500).send(e.message);
-    }
-});
-
-cbdcRouter.get("/kyc_num/:acct", async (req: Request, res: Response) => {
-    const id: string = req.params.acct;
-    try {
-        let bal: any;
-        bal = await WorkerService.numKyc(id);
-
-        if (bal) {
-            return res.status(200).send(bal);
+        if (tr.err.length){
+            res.status(400).send(tr.err);
+        }else{
+            res.status(201).json(tr);
         }
-
-        res.status(404).send("kyc_num failed");
     } catch (e) {
-        res.status(500).send(e.message);
-    }
-});
-
-cbdcRouter.put("/kyc_revoke/:acct", async (req: Request, res: Response) => {
-    const id: string = req.params.acct;
-    try {
-        let bal: any;
-        bal = await WorkerService.revokeKyc(id);
-
-        if (bal) {
-            return res.status(200).send(bal);
-        }
-
-        res.status(404).send("kyc_num failed");
-    } catch (e) {
+        console.log(`transfer: ${e.message}`);
         res.status(500).send(e.message);
     }
 });
@@ -133,7 +119,7 @@ cbdcRouter.put("/kyc_revoke/:acct", async (req: Request, res: Response) => {
 /*
 // PUT items/:id
  
-cbdcRouter.put("/:id", async (req: Request, res: Response) => {
+cbdcRouter.put("/approve", async (req: Request, res: Response) => {
   const id: number = parseInt(req.params.id, 10);
  
   try {
