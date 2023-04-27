@@ -33,7 +33,7 @@ import WithdrawHTLC from "../functions/WithdrawHTLC.js";
 
 
 import { BigNumber, Contract, utils } from "ethers";
-import { gConnectionInfo } from "../Connect.js"
+import { gConnectionInfo } from "../ops/Connect.js"
 import GrantKYC from "../functions/GrantKYC.js";
 import RevokeKYC from "../functions/RevokeKYC.js";
 
@@ -46,7 +46,7 @@ import { approveFunds, approveFundsResp} from "./Interface.js";
 export const getAccountBalance = async (bankName: string): Promise<accntBalance | null> => {
     //lookup the account name in our env table
 
-    let wallet = gConnectionInfo.wallets.get(bankName);
+    let wallet = gConnectionInfo.walByNameMap.get(bankName);
 
     if (wallet === undefined) {
         console.log(`getAccountBalance: unknown bank name ${bankName}`);
@@ -55,7 +55,7 @@ export const getAccountBalance = async (bankName: string): Promise<accntBalance 
     else {
         try {
             let addr = await wallet.getAddress();
-            let [result, err] =  await BalanceOf(gConnectionInfo.cbdc, addr);
+            let [result, err] =  await BalanceOf(gConnectionInfo.cbdcMap, addr);
             if (err.length != 0) {
                 console.log(`getAccountBalance: failed to call to BalanceOf bank name ${bankName} with err ${err}`);
                 return null;
@@ -76,7 +76,7 @@ export const getAccountBalance = async (bankName: string): Promise<accntBalance 
 
 
 export const getMoneySupply  = async (): Promise<MoneySupply | null> =>  {
-    let cbdc = gConnectionInfo.cbdc;
+    let cbdc = gConnectionInfo.cbdcMap;
     if(cbdc === undefined){
         console.log(`getMoneySupply: no contract exist`);
         return null;
@@ -84,7 +84,7 @@ export const getMoneySupply  = async (): Promise<MoneySupply | null> =>  {
     else
     {
         try {       
-            let [result, err] = await TotalSupply(gConnectionInfo.cbdc);
+            let [result, err] = await TotalSupply(gConnectionInfo.cbdcMap);
             if (err.length != 0) {
                 console.log(`getMoneySupply: failed to call to BalanceOf bank with err ${err}`);
                 return null;
@@ -104,8 +104,8 @@ export const getMoneySupply  = async (): Promise<MoneySupply | null> =>  {
 export const transferFrom = async (trans:transferFundsFrom): Promise<transferFundsFromResp | null> => {
     //lookup the account name in our env table
 
-    let sendWallet = gConnectionInfo.wallets.get(trans.from);
-    let recvWallet = gConnectionInfo.wallets.get(trans.to);
+    let sendWallet = gConnectionInfo.walByNameMap.get(trans.from);
+    let recvWallet = gConnectionInfo.walByNameMap.get(trans.to);
 
     if(sendWallet ===  undefined ||  recvWallet  === undefined)
     {
@@ -142,7 +142,7 @@ export const transferFrom = async (trans:transferFundsFrom): Promise<transferFun
         let raddr = await recvWallet.getAddress();
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await TransferFrom(gConnectionInfo.cbdc, saddr,raddr,a);
+        let [result, _err] = await TransferFrom(gConnectionInfo.cbdcMap, saddr,raddr,a);
         if (_err.length != 0) {
             console.log(`transferFrom: failed to call to TransferFrom  to: sender  ${trans.from}  recv: ${trans.to} amt: ${trans.amount}  bal: ${amt.balance } with err ${_err}`);
             //return null;
@@ -165,7 +165,7 @@ export const transferFrom = async (trans:transferFundsFrom): Promise<transferFun
 
 export const transfer = async (trans:transferFunds): Promise<transferFundsResp | null> => {
 
-    let recvWallet = gConnectionInfo.wallets.get(trans.to);
+    let recvWallet = gConnectionInfo.walByNameMap.get(trans.to);
 
     if(recvWallet  === undefined)
     {
@@ -179,7 +179,7 @@ export const transfer = async (trans:transferFunds): Promise<transferFundsResp |
         let raddr = await recvWallet.getAddress();
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await Transfer(gConnectionInfo.cbdc,raddr,a);
+        let [result, _err] = await Transfer(gConnectionInfo.cbdcMap,raddr,a);
         if (_err.length != 0) {
             console.log(`transferFrom: failed to call to Transfer  recv: ${trans.to} amt: ${trans.amount}  with err ${_err}`);
             //return null;
@@ -201,7 +201,7 @@ export const transfer = async (trans:transferFunds): Promise<transferFundsResp |
 
 export const approve = async (trans:approveFunds): Promise<approveFundsResp | null> => {
 
-    let recvWallet = gConnectionInfo.wallets.get(trans.spender);
+    let recvWallet = gConnectionInfo.walByNameMap.get(trans.spender);
 
     if(recvWallet  === undefined)
     {
@@ -215,7 +215,7 @@ export const approve = async (trans:approveFunds): Promise<approveFundsResp | nu
         let raddr = await recvWallet.getAddress();
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await Transfer(gConnectionInfo.cbdc,raddr,a);
+        let [result, _err] = await Transfer(gConnectionInfo.cbdcMap,raddr,a);
         if (_err.length != 0) {
             console.log(`approve: failed to call to approve  spender: ${trans.spender} amt: ${trans.amount}  with err ${_err}`);
             //return null;
@@ -237,7 +237,7 @@ export const approve = async (trans:approveFunds): Promise<approveFundsResp | nu
 
 export const increaseAllowance = async (trans:approveFunds): Promise<approveFundsResp | null> => {
 
-    let recvWallet = gConnectionInfo.wallets.get(trans.spender);
+    let recvWallet = gConnectionInfo.walByNameMap.get(trans.spender);
 
     if(recvWallet  === undefined)
     {
@@ -251,7 +251,7 @@ export const increaseAllowance = async (trans:approveFunds): Promise<approveFund
         let raddr = await recvWallet.getAddress();
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await IncreaseAllowance(gConnectionInfo.cbdc,raddr,a);
+        let [result, _err] = await IncreaseAllowance(gConnectionInfo.cbdcMap,raddr,a);
         if (_err.length != 0) {
             console.log(`increaseAllowance: failed to call to approve  spender: ${trans.spender} amt: ${trans.amount}  with err ${_err}`);
             //return null;
@@ -272,7 +272,7 @@ export const increaseAllowance = async (trans:approveFunds): Promise<approveFund
 
 export const decreaseAllowance = async (trans:approveFunds): Promise<approveFundsResp | null> => {
 
-    let recvWallet = gConnectionInfo.wallets.get(trans.spender);
+    let recvWallet = gConnectionInfo.walByNameMap.get(trans.spender);
 
     if(recvWallet  === undefined)
     {
@@ -286,7 +286,7 @@ export const decreaseAllowance = async (trans:approveFunds): Promise<approveFund
         let raddr = await recvWallet.getAddress();
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await DecreaseAllowance(gConnectionInfo.cbdc,raddr,a);
+        let [result, _err] = await DecreaseAllowance(gConnectionInfo.cbdcMap,raddr,a);
         if (_err.length != 0) {
             console.log(`decreaseAllowance: failed to call to approve  spender: ${trans.spender} amt: ${trans.amount}  with err ${_err}`);
             //return null;

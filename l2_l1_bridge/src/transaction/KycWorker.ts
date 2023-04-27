@@ -33,7 +33,7 @@ import WithdrawHTLC from "../functions/WithdrawHTLC.js";
 
 
 import { BigNumber, Contract, utils } from "ethers";
-import { gConnectionInfo } from "../Connect.js"
+import { gConnectionInfo } from "../ops/Connect.js"
 import GrantKYC from "../functions/GrantKYC.js";
 import RevokeKYC from "../functions/RevokeKYC.js";
 
@@ -43,7 +43,7 @@ import RevokeKYC from "../functions/RevokeKYC.js";
 
 export const checkKyc  = async (bankName: string): Promise<boolean | null> =>  {
 
-    let bankWallet = gConnectionInfo.wallets.get(bankName);
+    let bankWallet = gConnectionInfo.walByNameMap.get(bankName);
 
     if(bankWallet ===  undefined)
     {
@@ -51,7 +51,7 @@ export const checkKyc  = async (bankName: string): Promise<boolean | null> =>  {
         return null;
     }
 
-    let cbdc = gConnectionInfo.cbdc;
+    let cbdc = gConnectionInfo.cbdcMap;
     if(cbdc === undefined){
         console.log(`checkKyc: no contract exist`);
         return null;
@@ -60,7 +60,7 @@ export const checkKyc  = async (bankName: string): Promise<boolean | null> =>  {
     {
         try {       
             let saddr = await bankWallet.getAddress();
-            let [result, err] = await IsKYCed(gConnectionInfo.cbdc, saddr);
+            let [result, err] = await IsKYCed(gConnectionInfo.cbdcMap, saddr);
             if (err.length != 0) {
                 console.log(`checkKyc: failed to call to BalanceOf bank with err ${err}`);
                 return null;
@@ -76,7 +76,7 @@ export const checkKyc  = async (bankName: string): Promise<boolean | null> =>  {
 
 export const grantKyc  = async (bankName: string): Promise<boolean | null> =>  {
 
-    let bankWallet = gConnectionInfo.wallets.get(bankName);
+    let bankWallet = gConnectionInfo.walByNameMap.get(bankName);
 
     if(bankWallet ===  undefined)
     {
@@ -84,7 +84,7 @@ export const grantKyc  = async (bankName: string): Promise<boolean | null> =>  {
         return null;
     }
 
-    let cbdc = gConnectionInfo.cbdc;
+    let cbdc = gConnectionInfo.cbdcMap;
     if(cbdc === undefined){
         console.log(`grantKyc: no contract exist`);
         return null;
@@ -93,7 +93,7 @@ export const grantKyc  = async (bankName: string): Promise<boolean | null> =>  {
     {
         try {       
             let saddr = await bankWallet.getAddress();
-            let [result, err] = await GrantKYC(gConnectionInfo.cbdc, saddr);
+            let [result, err] = await GrantKYC(gConnectionInfo.cbdcMap, saddr);
             if (err.length != 0) {
                 console.log(`grantKyc: failed to call to BalanceOf bank with err ${err}`);
                 return null;
@@ -108,7 +108,7 @@ export const grantKyc  = async (bankName: string): Promise<boolean | null> =>  {
 
 export const numKyc  = async (bankName: string): Promise<BigNumber | null> =>  {
 
-    let bankWallet = gConnectionInfo.wallets.get(bankName);
+    let bankWallet = gConnectionInfo.walByNameMap.get(bankName);
 
     if(bankWallet ===  undefined)
     {
@@ -116,7 +116,7 @@ export const numKyc  = async (bankName: string): Promise<BigNumber | null> =>  {
         return null;
     }
 
-    let cbdc = gConnectionInfo.cbdc;
+    let cbdc = gConnectionInfo.cbdcMap;
     if(cbdc === undefined){
         console.log(`numKyc: no contract exist`);
         return null;
@@ -125,7 +125,7 @@ export const numKyc  = async (bankName: string): Promise<BigNumber | null> =>  {
     {
         try {       
             let saddr = await bankWallet.getAddress();
-            let [result, err] = await NumKYCs(gConnectionInfo.cbdc, saddr);
+            let [result, err] = await NumKYCs(gConnectionInfo.cbdcMap, saddr);
             if (err.length != 0) {
                 console.log(`numKyc: failed to call to BalanceOf bank with err ${err}`);
                 return null;
@@ -141,7 +141,7 @@ export const numKyc  = async (bankName: string): Promise<BigNumber | null> =>  {
 
 export const revokeKyc  = async (bankName: string): Promise<boolean | null> =>  {
 
-    let bankWallet = gConnectionInfo.wallets.get(bankName);
+    let bankWallet = gConnectionInfo.walByNameMap.get(bankName);
 
     if(bankWallet ===  undefined)
     {
@@ -149,7 +149,7 @@ export const revokeKyc  = async (bankName: string): Promise<boolean | null> =>  
         return null;
     }
 
-    let cbdc = gConnectionInfo.cbdc;
+    let cbdc = gConnectionInfo.cbdcMap;
     if(cbdc === undefined){
         console.log(`revokeKyc: no contract exist`);
         return null;
@@ -158,7 +158,7 @@ export const revokeKyc  = async (bankName: string): Promise<boolean | null> =>  
     {
         try {       
             let saddr = await bankWallet.getAddress();
-            let [result, err] = await RevokeKYC(gConnectionInfo.cbdc, saddr);
+            let [result, err] = await RevokeKYC(gConnectionInfo.cbdcMap, saddr);
             if (err.length != 0) {
                 console.log(`revokeKyc: failed to call to BalanceOf bank with err ${err}`);
                 return null;

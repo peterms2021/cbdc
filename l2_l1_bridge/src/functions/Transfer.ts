@@ -1,7 +1,7 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-function Transfer( cbdc: Contract, receiver:string,  amnt: BigNumber)  : [result:string, err:string]  {
+export async function Transfer( cbdc: Contract, receiver:string,  amnt: BigNumber)  : Promise<[result:string, err:string]>  {
   
     let result:string ="";
     let err:string = "";
@@ -39,7 +39,7 @@ function Transfer( cbdc: Contract, receiver:string,  amnt: BigNumber)  : [result
       }
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

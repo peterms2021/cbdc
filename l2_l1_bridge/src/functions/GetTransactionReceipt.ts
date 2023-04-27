@@ -4,7 +4,7 @@ const code = `/* javascript + ethersjs */
 const txReceipt = await provider.getTransactionReceipt(txHash); // retrieve tx receipt
 console.log(JSON.stringify(txReceipt, null, 4)); // print`;
 
-function GetTransactionReceipt(cbdc: Contract, tranaction:string): [result: string, err: string] {
+export async function GetTransactionReceipt(cbdc: Contract, tranaction:string): Promise<[result: string, err: string]> {
   
   let loading = false;
   let err:string = "";
@@ -26,7 +26,7 @@ function GetTransactionReceipt(cbdc: Contract, tranaction:string): [result: stri
   }
 
   async function handleSubmit() {
-      cbdc.provider
+      await cbdc.provider
           .getTransactionReceipt(tranaction)
           .then(receipt => {
             setResult(JSON.stringify(receipt, null, 4));
@@ -38,7 +38,7 @@ function GetTransactionReceipt(cbdc: Contract, tranaction:string): [result: stri
           })    
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 
 };

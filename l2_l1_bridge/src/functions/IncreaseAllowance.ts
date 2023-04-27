@@ -1,7 +1,7 @@
 
 import { Contract, utils, BigNumber } from "ethers";
 
-function IncreaseAllowance(cbdc: Contract , spender: string, allowance: BigNumber): [result:string, err:string]  {
+export async function IncreaseAllowance(cbdc: Contract , spender: string, allowance: BigNumber): Promise<[result:string, err:string]>  {
  
   let result:string ="";
   let err:string = "";
@@ -38,7 +38,7 @@ function IncreaseAllowance(cbdc: Contract , spender: string, allowance: BigNumbe
       };
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

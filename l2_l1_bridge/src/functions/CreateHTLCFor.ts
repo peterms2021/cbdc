@@ -1,7 +1,7 @@
 
-import { Contract, utils } from "ethers";
-function CreateHTLCFor( cbdc: Contract, sender: string, 
-                      receiver:string, timelock: string, amount:string): [result: string, err: string] {
+import { BigNumber, Contract, utils } from "ethers";
+export async function CreateHTLCFor( cbdc: Contract, sender: string, 
+                      receiver:string, timelock: string, amount:BigNumber): Promise<[result: string, err: string]> {
   let loading = false;
   let err:string = "";
   let result:string = "";
@@ -30,7 +30,8 @@ function CreateHTLCFor( cbdc: Contract, sender: string,
           receiver,
           hashlock,
           timelock,
-          utils.parseUnits(amount, 2).toString(),
+          //utils.parseUnits(amount, 2).toString(),
+          amount.toString(),
         );
         const receipt = await response.wait();
         const htlcAddress = receipt.events?.find((e: { event: string }) => e.event == "HTLCCreated")?.args?.[0];
@@ -48,7 +49,7 @@ function CreateHTLCFor( cbdc: Contract, sender: string,
       }
     
   }
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 
