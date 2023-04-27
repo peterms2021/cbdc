@@ -1,22 +1,65 @@
 import * as ccfapp from "@microsoft/ccf-app";
 import { ccf } from "@microsoft/ccf-app/global";
 
-function parseRequestQuery(request: ccfapp.Request<any>): any {
-  const elements = request.query.split("&");
-  const obj = {};
-  for (const kv of elements) {
-    const [k, v] = kv.split("=");
-    obj[k] = v;
-  }
-  return obj;
-}
+//#region KVStore
 
+// cdbcUsers Table
+// Used to resolve external identity of the cdbcUser via their CBDC address
+// to CCF internal user identity which is the CCF certificate thumbprint
+// TODO: See also: Reverse lookup, CCFCert -> CBDCAddress via public:ccf:gov.members.info member_data
+const cbdcUsersTableName = "cbdcUsers"; //Private
+const cbdcUsersTable = ccfapp.typedKv(
+  cbdcUsersTableName,
+  ccfapp.arrayBuffer, //Key: CBDC ERC20 address of user. Hex encoded string
+  ccfapp.arrayBuffer //Value: User ID. SHA-256 fingerprint of CCF user certificate as hex-encoed string
+);
+
+// securityLenders Table
+// TODO: Ensure we are appropriately protecting the identify of holders
+// TODO: We should consider whether we can provide a mechanism to guarantee annonimity for the lender & borrower
+// this is a very intersting capability to Hedge Funds who need to be very protective of both long and short positions & intentions
+const securityLendersTableName = "securityLenders";
+interface SecurityLenderKey {
+  cbdcAddress: string; //Address of potential lender
+  securityId: string; //Security ticker e.g. 'MSFT'
+}
+const securityLendersTable = ccfapp.typedKv(
+  securityLendersTableName,
+  ccfapp.json<SecurityLenderKey>(),
+  ccfapp.uint32 //Quantity available
+);
+
+// securityLoans Table
+const securityLoansTableName = "securityLoans";
+interface SecurityLoanItem {
+  secret: string;
+  lenderAddress: string;
+  borrowerAddress: string;
+  securityId: string;
+  quantity: number; // Quantity of securities
+  fees: number;
+  initialCollateral: number;
+  htlcAddress?: string; //Address of the HTLC. i.e. return val from createHTLCFor
+  allowanceCreated?: Date; //Timestamp when we observed allowance amount > (collateral+fees)
+  htlcCreated?: Date; //Timestamp when we completed createHTLCFor
+  refunded?: Date; //Timestamp when we observed htlcRefunded == true
+  withdrawn?: Date; //Timestamp when we observed htlcWithdrawn == true
+}
+const securityLoansTable = ccfapp.typedKv(
+  securityLoansTableName,
+  ccfapp.arrayBuffer, //Hashed Secret
+  ccfapp.json<SecurityLoanItem>()
+);
+
+//#endregion
+
+//#region Original Code
+
+const claimTableName = "current_claim";
 interface ClaimItem {
   userId: string;
   claim: string;
 }
-
-const claimTableName = "current_claim";
 const currentClaimTable = ccfapp.typedKv(
   claimTableName,
   ccfapp.string,
@@ -30,6 +73,16 @@ function getAccountTable(userId: string): ccfapp.TypedKvMap<string, number> {
     ccfapp.string,
     ccfapp.uint32
   );
+}
+
+function parseRequestQuery(request: ccfapp.Request<any>): any {
+  const elements = request.query.split("&");
+  const obj = {};
+  for (const kv of elements) {
+    const [k, v] = kv.split("=");
+    obj[k] = v;
+  }
+  return obj;
 }
 
 interface Caller {
@@ -345,3 +398,5 @@ export function getTransactionReceipt(
     body,
   };
 }
+
+//#endregion
