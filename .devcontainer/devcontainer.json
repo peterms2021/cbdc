@@ -11,7 +11,8 @@
         "timonwong.shellcheck",
         "github.vscode-pull-request-github",
         "ms-vscode.makefile-tools",
-        "ms-python.python"
+        "ms-python.python",
+        "Trezm.type-doc-vscode"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
