@@ -68,7 +68,7 @@ export const KYCER_NAME="KYCER_NAME";
 export const KYC_ADDR="KYC_ADDR";
 export const KYC_PKEY="KYC_PKEY";
 
-export const ESCROW_BANK_NAME="BANK_ESCROW_NAME";
+export const ESCROW_BANK_NAME="ESCROW_BANK_NAME";
 export const MSFT_ADDR="MSFT_ADDR";
 export const MSFT_PKEY="MSFT_PKEY";
 
@@ -77,6 +77,18 @@ export const L1_USER_NAME="L1_USER_NAME";
 export const L1_USER_PWD="L1_USER_PWD";
 export const L1_USER_CONNECT_URL="L1_USER_CONNECT_URL";
 export const L1_CHAIN_ID="L1_CHAIN_ID";
+
+export const  CCF_URL="CCF_URL";
+export const  CCF_NEW_TRANSACTION="API_GET_TRANSACTION";
+
+export const  CCF_POLL_NEW_TRANS="API_POLL_NEW_TRANS_SEC";
+export const  CCF_POLL_ORACLE="API_UPDATE_ORACLE_SEC";
+
+export const  CCF_GET_LOAN="API_GET_LOAN";
+export const  CCF_CONFIRM_LOAN="API_CONFIRM_LOAN";
+export const  CCF_RETURN_SHARES="API_RETURN_SHARES";
+export const  CCF_UPDATE_PRICE="API_UPDATE_PRICE";
+
 
 //The run mode of the app 
 export enum AppRunMode { 
@@ -123,12 +135,21 @@ export function extractL1AccountDetails(): Map<string, string>{
     hashmap.set(L1_USER_PWD,  extractStringEnvVar(L1_USER_PWD));
     hashmap.set(L1_CHAIN_ID, extractStringEnvVar(L1_CHAIN_ID));
 
-
-    
-     
     let connectUrl = "https://" + hashmap.get(L1_USER_NAME) + ":" +  hashmap.get(L1_USER_PWD) + "@" + hashmap.get(L1_URL);
-
     hashmap.set(L1_USER_CONNECT_URL,  connectUrl);
 
+
+    let ccf_url = extractStringEnvVar(CCF_URL);
+    hashmap.set(CCF_URL,  ccf_url); //need to be without https
+    hashmap.set(CCF_NEW_TRANSACTION,  ccf_url + extractStringEnvVar(CCF_NEW_TRANSACTION));
+
+    hashmap.set(CCF_POLL_NEW_TRANS,  extractStringEnvVar(CCF_POLL_NEW_TRANS));
+    hashmap.set(CCF_POLL_ORACLE,  extractStringEnvVar(CCF_POLL_ORACLE));
+
+    hashmap.set(CCF_GET_LOAN,  ccf_url + extractStringEnvVar(CCF_GET_LOAN));
+    hashmap.set(CCF_CONFIRM_LOAN, ccf_url + extractStringEnvVar(CCF_CONFIRM_LOAN));
+    hashmap.set(CCF_RETURN_SHARES,  ccf_url + extractStringEnvVar(CCF_RETURN_SHARES));
+    hashmap.set(CCF_UPDATE_PRICE, ccf_url + extractStringEnvVar(CCF_UPDATE_PRICE));
+    
     return hashmap;
 }

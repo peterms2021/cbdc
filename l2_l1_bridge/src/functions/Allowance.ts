@@ -1,7 +1,7 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-function Allowance(cbdc: Contract, owner: string, spender: string ): [result: BigNumber, err: string] {
+export async function  Allowance(cbdc: Contract, owner: string, spender: string ): Promise<[result: BigNumber, err: string]> {
   
   let r:BigNumber = BigNumber.from("0");
   let e:string = "";
@@ -25,7 +25,7 @@ function Allowance(cbdc: Contract, owner: string, spender: string ): [result: Bi
     })
   }
 
-  allowance(cbdc, owner,spender);
+  await allowance(cbdc, owner,spender);
   return [r,e];
 }
 

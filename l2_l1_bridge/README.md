@@ -23,7 +23,34 @@ curl http://localhost:7001/balance/MsBank
 curl http://localhost:7001/total_supply -i 
 
 # KYC checking
-curl http://localhost:7001/kyc_check/BankB 
+curl http://localhost:7001/kyc/check/BankB 
+curl http://localhost:7001/kyc/check/MsBank 
+
+# KYC Grant
+curl -i -X PUT http://localhost:7001/kyc/grant/BankB 
+curl -i -X PUT http://localhost:7001/kyc/grant/BankA
+curl -i -X PUT http://localhost:7001/kyc/grant/MsBank 
+
+# KYC Revoke
+curl -i -X PUT http://localhost:7001/kyc/revoke/BankB 
+
+# KYC Count
+curl http://localhost:7001/kyc/num/BankB 
+curl http://localhost:7001/kyc/num/BankA
+curl http://localhost:7001/kyc/num/MsBank
 
 # Transfer 
 curl -i -X POST -H 'Content-Type: application/json; charset=UTF-8' -d '{"from":"MsBank", "to":"BankA","amount":"100"}' http://localhost:7001/transfer_from 
+
+# HTLC
+curl http://localhost:7001/htlc/all
+curl http://localhost:7001/htlc/active
+
+
+# Testing HTLC we provide - API to get hash of secrete and expiration tim
+curl -X PUT  -H 'Content-Type: application/json; charset=UTF-8' -d '{"secret":"My Big Big Elephant"}'   http://localhost:7001/htlc/hash_secret
+curl -X PUT  -H 'Content-Type: application/json; charset=UTF-8' -d '{"dur_ms":"10000"}'   http://localhost:7001/htlc/duration
+
+# now you can use the output of the secret and duration to create a hash timelock
+curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{"receiver":"MsBank", "duration":"<duration>","amount":"<number>"}'   http://localhost:7001/htlc/create
+curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{ "sender":"<bank>", "receiver":"<bank>", "duration":"<duration>","amount":"<number>"}'   http://localhost:7001/htlc/create_for
