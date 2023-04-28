@@ -4,7 +4,7 @@ import Web3 from 'web3';
 import { Contract, ethers, providers, Wallet } from "ethers";
 
 import { extractL1AccountDetails, extractNumberEnvVar, L1_CHAIN_ID, L1_URL, L1_USER_CONNECT_URL, L1_USER_NAME, L1_USER_PWD } from "./Env.js";
-import { BANK_A_NAME, BANK_B_NAME, KYCER_NAME, ESCROW_BANK_NAME, BANK_A_PKEY, BANK_B_PKEY, KYC_PKEY, MSFT_PKEY } from "./Env.js";
+import { L1_WALLET_PKEY } from "./Env.js";
 
 import kycerAbi from "../IKYCer-abi.json" assert { type: "json" };
 import userAbi from "../IUser-abi.json" assert { type: "json" };
@@ -12,13 +12,12 @@ import { SigningKey } from "ethers/lib/utils";
 import { Network, Networkish } from "@ethersproject/networks";
 import { ConnectionInfo, fetchJson, poll } from "@ethersproject/web";
 import { BalanceOf } from "../functions/BalanceOf.js";
-import { ContractMap, WalletMap } from './EventInterface.js';
+
 
 export interface contractInterface { 
   ready:boolean,
-  cbdcMap: ContractMap,
-  walByNameMap:WalletMap,  //using bank name/alias
-  wallByAddrMap:WalletMap, //using the account addr
+  cbdc: Contract,
+  wallet:Wallet,  //using bank name/alias
   prov: ethers.providers.JsonRpcProvider,
   web3:Web3,
   envInfo:Map<string,string>
@@ -26,13 +25,13 @@ export interface contractInterface {
 //the global scope connection infor
 export var gConnectionInfo:contractInterface;
 
-let enInfo = extractL1AccountDetails();
+export let enInfo = extractL1AccountDetails();
 
 async function testWallet(cbdc: ethers.Contract, wallet: ethers.Wallet, provider: ethers.providers.JsonRpcProvider) {
   const [account] = await provider.listAccounts();
   console.log(`Signer account: ${account}`);
   let signer = provider.getSigner(account);
-  let block;
+  let block: number;
   try {
     // check that it works!
     block = await provider.getBlockNumber();
@@ -49,15 +48,6 @@ async function testWallet(cbdc: ethers.Contract, wallet: ethers.Wallet, provider
 
   let resp = BalanceOf(cbdc, walletAddress);
   console.log(`Contract ballance: ${resp}`);
-}
-
-async function testWallets(cbdc:ContractMap, wallets:WalletMap, provider: ethers.providers.JsonRpcProvider){
-  
-  wallets.forEach((value: ethers.Wallet, key: string) => {
-    console.log(key, value);
-    let contract = cbdc.get(key);
-    testWallet(contract,value,provider);
-  });
 }
 
 function getWalletForAccnt(name: string, provider: ethers.providers.JsonRpcProvider ): [ethers.Wallet, Contract] | null {
@@ -82,35 +72,6 @@ function getWalletForAccnt(name: string, provider: ethers.providers.JsonRpcProvi
   return null;
 }
 
-export function getAAllccountWallets(provider: ethers.providers.JsonRpcProvider): [WalletMap, WalletMap, ContractMap] {
-  let actMap = new Map<string, ethers.Wallet>();
-  let actMap2 = new Map<string, ethers.Wallet>();
-  let cbdcMap = new Map<string, ethers.Contract>();
-
-  let v:ethers.Wallet;
-  let s:string;                                                                                 
-  let [m1,m2] = getWalletForAccnt(MSFT_PKEY,provider);
-  actMap.set(s=enInfo.get(ESCROW_BANK_NAME), m1);
-  actMap2.set(m1.address,m1);
-  cbdcMap.set(s,m2);
-
-  [m1,m2] = getWalletForAccnt(KYC_PKEY,provider);
-  actMap.set(s=enInfo.get(KYCER_NAME),m1 );
-  actMap2.set(m1.address,m1);
-  cbdcMap.set(s,m2);
-
-  [m1,m2] = getWalletForAccnt(BANK_A_PKEY,provider);
-  actMap.set(s=enInfo.get(BANK_A_NAME),m1 );
-  actMap2.set(m1.address,m1);
-  cbdcMap.set(s,m2);
-
-  [m1,m2] = getWalletForAccnt(BANK_B_PKEY,provider);
-  actMap.set(s=enInfo.get(BANK_B_NAME),m1 );
-  actMap2.set(m1.address,m1);
-  cbdcMap.set(s,m2);
-  return [actMap,actMap2, cbdcMap];
-}
-
  export async function setupConnection() :Promise<contractInterface>{
   const CBDC_ADDRESS = "0xb82C4150d953fcCcE42d7D53246B5553016c5C71";
   const USER_ABI = userAbi;
@@ -132,24 +93,24 @@ export function getAAllccountWallets(provider: ethers.providers.JsonRpcProvider)
 
   //generate wallets for the L1 account
   //use the KYC_ER account as we are attaching the ABI to it
-  let pkey = enInfo.get(KYC_PKEY);
+  let pkey = enInfo.get(L1_WALLET_PKEY);
   let skey = new ethers.utils.SigningKey(pkey as string);
   let wallet = new ethers.Wallet(skey as SigningKey, provider);
   
   try {
 
-    let [m,m2,contracts] = getAAllccountWallets(provider);
+    let [wal,contract] = getWalletForAccnt(L1_WALLET_PKEY,provider);
+
     const interfaceControls: contractInterface = {
         ready: true,
-        cbdcMap: contracts,
-        walByNameMap: m,
-        wallByAddrMap: m2,
+        cbdc: contract,
+        wallet: wal,
         prov: provider,
         web3:web3,
         envInfo:enInfo
     } ;
 
-    await testWallets(contracts,m,provider);
+    await testWallet(contract,wal,provider);
 
     gConnectionInfo = interfaceControls;
     return interfaceControls;

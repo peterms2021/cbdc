@@ -5,8 +5,8 @@
  import { BigNumber, utils } from "ethers";
  import express, { Request, Response } from "express";
  import * as htlcService from "./HtlcWorker.js";
- import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp, htlcLock, htlcLockFor, htlcWithdraw, htlcSecret, htlcSecretResp, htlcDuration, htlcDurationResp } from "./Interface.js";
- import { approveFunds,  approveFundsResp } from "./Interface.js";
+ import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp, htlcLock, htlcLockFor, htlcWithdraw, htlcSecret, htlcSecretResp, htlcDuration, htlcDurationResp } from "./TransInterface.js";
+ import { approveFunds,  approveFundsResp } from "./TransInterface.js";
  
  export const htlcRouter = express.Router();
  

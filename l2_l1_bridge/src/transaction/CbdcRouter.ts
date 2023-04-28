@@ -4,8 +4,8 @@
 
 import express, { Request, Response } from "express";
 import * as WorkerService from "./CbdcWorker.js";
-import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp } from "./Interface.js";
-import { approveFunds,  approveFundsResp } from "./Interface.js";
+import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp } from "./TransInterface.js";
+import { approveFunds,  approveFundsResp } from "./TransInterface.js";
 
 export const cbdcRouter = express.Router();
 
@@ -15,12 +15,12 @@ export const cbdcRouter = express.Router();
 
 // GET account balance
 
-cbdcRouter.get("/balance/:acct", async (req: Request, res: Response) => {
+cbdcRouter.get("/balance", async (req: Request, res: Response) => {
     try {
-        const id: string = req.params.acct;
+        //const id: string = req.params.acct;
         let bal: any;
         console.log("cbdcRouter/balance... ");
-        bal = await WorkerService.getAccountBalance(id);
+        bal = await WorkerService.getAccountBalance();
         if (bal) {
             res.status(200).send(bal);
         } else {
@@ -116,40 +116,4 @@ cbdcRouter.put("/approve", async (req: Request, res: Response) => {
 });
 
 
-/*
-// PUT items/:id
- 
-cbdcRouter.put("/approve", async (req: Request, res: Response) => {
-  const id: number = parseInt(req.params.id, 10);
- 
-  try {
-    const itemUpdate: Item = req.body;
- 
-    const existingItem: Item = await WorkerService.find(id);
- 
-    if (existingItem) {
-      const updatedItem = await WorkerService.update(id, itemUpdate);
-      return res.status(200).json(updatedItem);
-    }
- 
-    const newItem = await WorkerService.create(itemUpdate);
- 
-    res.status(201).json(newItem);
-  } catch (e) {
-    res.status(500).send(e.message);
-  }
-});
- 
-// DELETE items/:id
- 
-cbdcRouter.delete("/:id", async (req: Request, res: Response) => {
-  try {
-    const id: number = parseInt(req.params.id, 10);
-    await WorkerService.remove(id);
- 
-    res.sendStatus(204);
-  } catch (e) {
-    res.status(500).send(e.message);
-  }
-});
-*/
+

@@ -5,8 +5,11 @@ import util  from 'util'
 
 import * as cbdcLib from './Connect.js';
 import * as envLib from './Env.js';
-import { Contract, ethers } from 'ethers';
+import { Contract, ethers, Wallet } from 'ethers';
 import { contractEvent } from './EventInterface.js';
+import { enInfo, gConnectionInfo } from './Connect.js';
+import { CCF_POLL_NEW_TRANS } from './Env.js';
+import { processApproval, processTransfer, pullNewTransaction } from './BridgeServices.js';
 
 export function programRunMode (){  
     return envLib.envRunMode();
@@ -18,16 +21,19 @@ const signTx = async (fromAccount: any, tx: any) => {
     return signedTx.rawTransaction // hex string
 }
 
-type NewTypeT = [face: Web3, netid: Number, addr: string, contract: Contract, wal: Map<string, ethers.Wallet>];
+type NewTypeT = [face: Web3, netid: Number, addr: string, contract: Contract, wal: Wallet];
 
 const setup = async (): Promise<NewTypeT> => {
 
     let iface = await cbdcLib.setupConnection();
     let networkId:any;
-    let contractAddress = iface.cbdcMap.address;
+
+    let cbdc = gConnectionInfo.cbdc;
+    let contractAddress = cbdc.address;
+
     //which wallet do we want to watch?
     console.log("setup done...");
-    return [ iface.web3, networkId, contractAddress, iface.cbdcMap, iface.walByNameMap ]
+    return [ iface.web3, networkId, contractAddress, cbdc, iface.wallet ]
 }
 
 const prettyPrint = (o:any) => {
@@ -38,10 +44,9 @@ const recordWrite = async () : Promise<number> => {
     const [web3, chainId, contractAddress, contract, fromAccount] = await setup()
 
     const txnData = contract.methods.write().encodeABI()
-    let wall = fromAccount.get(envLib.BANK_A_NAME);
-    console.log('account.address:', wall.address)
+    console.log('account.address:', fromAccount.address)
     const promiseResults = await Promise.all([
-        web3.eth.getTransactionCount(wall.address),
+        web3.eth.getTransactionCount(fromAccount.address),
         web3.eth.getGasPrice(),
     ])
     const nonce = promiseResults[0]
@@ -51,7 +56,7 @@ const recordWrite = async () : Promise<number> => {
         'chainId': chainId,
         'gasPrice': gasPrice,
         'nonce': Web3.utils.toHex(nonce),
-        'from': wall.address,
+        'from': fromAccount.address,
         'to': contractAddress,
         'value': 0xbeef,
         'data': txnData,
@@ -134,7 +139,7 @@ const eventTransferSubScribe = async (): Promise<any> => {
                 v.to_spender = to;
                 v.value = value;
 
-
+                processTransfer(v);
         })
     })
   })
@@ -152,7 +157,14 @@ const eventApprovalSubScribe = async (): Promise<any> => {
                     eventData: event,
                 }
                 //look for address and call back to 
-                console.log(JSON.stringify(approvalEvent, null, 4))
+                console.log(JSON.stringify(approvalEvent, null, 4));
+
+                let v:contractEvent;
+                v.from_owner = owner;
+                v.to_spender = spender;
+                v.value = value;
+                
+                processApproval(v);
         })
     })
   })
@@ -160,12 +172,17 @@ const eventApprovalSubScribe = async (): Promise<any> => {
 
 
 const pollForTransactions =  async () : Promise<any> => {
+    let n = parseInt(enInfo.get(CCF_POLL_NEW_TRANS),10);
+    //conver to ms 
+    n = n * 1000;
     return new Promise((resolve, reject) => {
         setInterval(() => {
             console.log("Checking for transaction...");
-          }, 10000);
+            pullNewTransaction();
+          }, n);
     })
 };
+
 
 function handleRejection(p) {
     console.log("handleRejection >=");
