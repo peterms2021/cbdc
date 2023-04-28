@@ -54,7 +54,7 @@ export function extractBooleanEnvVar(
     return Boolean(value);
 }
 
-
+/*
 export const BANK_A_NAME="BANK_A_NAME";
 export const BANK_B_NAME="BANK_B_NAME";
 
@@ -71,6 +71,10 @@ export const KYC_PKEY="KYC_PKEY";
 export const ESCROW_BANK_NAME="ESCROW_BANK_NAME";
 export const MSFT_ADDR="MSFT_ADDR";
 export const MSFT_PKEY="MSFT_PKEY";
+*/
+
+//the single Wallet we want to attach to. This could be KCYER, BRIDGE or bank 
+export const L1_WALLET_PKEY="WALLET_PKEY";
 
 export const L1_URL="L1_URL";
 export const L1_USER_NAME="L1_USER_NAME";
@@ -86,9 +90,10 @@ export const  CCF_POLL_ORACLE="API_UPDATE_ORACLE_SEC";
 
 export const  CCF_GET_LOAN="API_GET_LOAN";
 export const  CCF_CONFIRM_LOAN="API_CONFIRM_LOAN";
+export const  CCF_CONFIRM_TRANSFER="API_CONFIRM_TRANSFER";
 export const  CCF_RETURN_SHARES="API_RETURN_SHARES";
 export const  CCF_UPDATE_PRICE="API_UPDATE_PRICE";
-
+export const   CCF_LOAN_LOCK="API_REG_LOAN_HTLC";
 
 //The run mode of the app 
 export enum AppRunMode { 
@@ -113,22 +118,7 @@ export function extractL1AccountDetails(): Map<string, string>{
 
     let hashmap = new Map<string, string>();
 
-    hashmap.set(BANK_A_NAME,  extractStringEnvVar(BANK_A_NAME));
-    hashmap.set(BANK_B_NAME,  extractStringEnvVar(BANK_B_NAME));
-
-    hashmap.set(BANK_A_ADDRESS,  extractStringEnvVar(BANK_A_ADDRESS));
-    hashmap.set(BANK_B_ADDRESS,  extractStringEnvVar(BANK_B_ADDRESS));
-
-    hashmap.set(BANK_A_PKEY,  extractStringEnvVar(BANK_A_PKEY));
-    hashmap.set(BANK_B_PKEY,  extractStringEnvVar(BANK_B_PKEY));
-
-    hashmap.set(KYCER_NAME,  extractStringEnvVar(KYCER_NAME));
-    hashmap.set(KYC_ADDR,  extractStringEnvVar(KYC_ADDR));
-    hashmap.set(KYC_PKEY,  extractStringEnvVar(KYC_PKEY));
-
-    hashmap.set(ESCROW_BANK_NAME, extractStringEnvVar(ESCROW_BANK_NAME));
-    hashmap.set(MSFT_ADDR,  extractStringEnvVar(MSFT_ADDR));
-    hashmap.set(MSFT_PKEY,  extractStringEnvVar(MSFT_PKEY));
+    hashmap.set(L1_WALLET_PKEY,  extractStringEnvVar(L1_WALLET_PKEY));
 
     hashmap.set(L1_URL,  extractStringEnvVar(L1_URL)); //need to be without https
     hashmap.set(L1_USER_NAME,  extractStringEnvVar(L1_USER_NAME));
@@ -147,9 +137,15 @@ export function extractL1AccountDetails(): Map<string, string>{
     hashmap.set(CCF_POLL_ORACLE,  extractStringEnvVar(CCF_POLL_ORACLE));
 
     hashmap.set(CCF_GET_LOAN,  ccf_url + extractStringEnvVar(CCF_GET_LOAN));
-    hashmap.set(CCF_CONFIRM_LOAN, ccf_url + extractStringEnvVar(CCF_CONFIRM_LOAN));
+    hashmap.set(CCF_CONFIRM_LOAN, ccf_url + extractStringEnvVar(CCF_CONFIRM_LOAN)); 
+    hashmap.set(CCF_CONFIRM_TRANSFER, ccf_url + extractStringEnvVar(CCF_CONFIRM_TRANSFER));
+    hashmap.set(CCF_LOAN_LOCK, ccf_url + extractStringEnvVar(CCF_LOAN_LOCK));
+
     hashmap.set(CCF_RETURN_SHARES,  ccf_url + extractStringEnvVar(CCF_RETURN_SHARES));
     hashmap.set(CCF_UPDATE_PRICE, ccf_url + extractStringEnvVar(CCF_UPDATE_PRICE));
+
+
+    
     
     return hashmap;
 }

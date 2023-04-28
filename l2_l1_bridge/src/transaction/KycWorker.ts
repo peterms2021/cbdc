@@ -1,4 +1,4 @@
-import { Accnt, transferFundsFrom, transferFundsFromResp, accntBalance , MoneySupply} from "./Interface.js";
+import { Accnt, transferFundsFrom, transferFundsFromResp, accntBalance , MoneySupply} from "./TransInterface.js";
 import Allowance from "../functions/Allowance.js";
 import Approve from "../functions/Approve.js";
 import BalanceOf from "../functions/BalanceOf.js";
@@ -33,141 +33,82 @@ import WithdrawHTLC from "../functions/WithdrawHTLC.js";
 
 
 import { BigNumber, Contract, utils } from "ethers";
-import { gConnectionInfo } from "../ops/Connect.js"
+import { enInfo, gConnectionInfo } from "../ops/Connect.js"
 import GrantKYC from "../functions/GrantKYC.js";
 import RevokeKYC from "../functions/RevokeKYC.js";
 
 
 
+
 // KYC functions
 
-export const checkKyc  = async (bankName: string): Promise<boolean | null> =>  {
+export const checkKyc  = async (account: string): Promise<boolean | null> =>  {
 
-    let bankWallet = gConnectionInfo.walByNameMap.get(bankName);
-
-    if(bankWallet ===  undefined)
-    {
-        console.log(`checkKyc: unknown bank name ${bankName}`);
-        return null;
-    }
-
-    let cbdc = gConnectionInfo.cbdcMap;
-    if(cbdc === undefined){
-        console.log(`checkKyc: no contract exist`);
-        return null;
-    }
-    else
-    {
-        try {       
-            let saddr = await bankWallet.getAddress();
-            let [result, err] = await IsKYCed(gConnectionInfo.cbdcMap, saddr);
-            if (err.length != 0) {
-                console.log(`checkKyc: failed to call to BalanceOf bank with err ${err}`);
-                return null;
-            }            
-            return result;
-        } catch (error) {
-            console.log(`checkKyc: call failed`);
+    try {       
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, err] = await IsKYCed(cbdc, account);
+        if (err.length != 0) {
+            console.log(`checkKyc: failed to call to IsKYCed bank with err ${err}`);
             return null;
-        }
+        }            
+        return result;
+    } catch (error) {
+        console.log(`checkKyc: call failed`);
+        return null;
     }
+    
 };
 
 
-export const grantKyc  = async (bankName: string): Promise<boolean | null> =>  {
+export const grantKyc  = async (account: string): Promise<boolean | null> =>  {
 
-    let bankWallet = gConnectionInfo.walByNameMap.get(bankName);
-
-    if(bankWallet ===  undefined)
-    {
-        console.log(`grantKyc: unknown bank name ${bankName}`);
-        return null;
-    }
-
-    let cbdc = gConnectionInfo.cbdcMap;
-    if(cbdc === undefined){
-        console.log(`grantKyc: no contract exist`);
-        return null;
-    }
-    else
-    {
-        try {       
-            let saddr = await bankWallet.getAddress();
-            let [result, err] = await GrantKYC(gConnectionInfo.cbdcMap, saddr);
-            if (err.length != 0) {
-                console.log(`grantKyc: failed to call to BalanceOf bank with err ${err}`);
-                return null;
-            }            
-            return result;
-        } catch (error) {
-            console.log(`grantKyc: failed`);
+    try {       
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, err] = await GrantKYC(cbdc, account);
+        if (err.length != 0) {
+            console.log(`grantKyc: failed to call to BalanceOf bank with err ${err}`);
             return null;
-        }
+        }            
+        return result;
+    } catch (error) {
+        console.log(`grantKyc: failed`);
+        return null;
     }
+    
 };
 
-export const numKyc  = async (bankName: string): Promise<BigNumber | null> =>  {
+export const numKyc  = async (acct: string): Promise<BigNumber | null> =>  {
 
-    let bankWallet = gConnectionInfo.walByNameMap.get(bankName);
-
-    if(bankWallet ===  undefined)
-    {
-        console.log(`numKyc: unknown bank name ${bankName}`);
-        return null;
-    }
-
-    let cbdc = gConnectionInfo.cbdcMap;
-    if(cbdc === undefined){
-        console.log(`numKyc: no contract exist`);
-        return null;
-    }
-    else
-    {
-        try {       
-            let saddr = await bankWallet.getAddress();
-            let [result, err] = await NumKYCs(gConnectionInfo.cbdcMap, saddr);
-            if (err.length != 0) {
-                console.log(`numKyc: failed to call to BalanceOf bank with err ${err}`);
-                return null;
-            }            
-            return result;
-        } catch (error) {
-            console.log(`numKyc: failed`);
+    try {       
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, err] = await NumKYCs(cbdc, acct);
+        if (err.length != 0) {
+            console.log(`numKyc: failed to call to BalanceOf bank with err ${err}`);
             return null;
-        }
+        }            
+        return result;
+    } catch (error) {
+        console.log(`numKyc: failed`);
+        return null;
     }
+    
 };
 
 
-export const revokeKyc  = async (bankName: string): Promise<boolean | null> =>  {
-
-    let bankWallet = gConnectionInfo.walByNameMap.get(bankName);
-
-    if(bankWallet ===  undefined)
-    {
-        console.log(`revokeKyc: unknown bank name ${bankName}`);
-        return null;
-    }
-
-    let cbdc = gConnectionInfo.cbdcMap;
-    if(cbdc === undefined){
-        console.log(`revokeKyc: no contract exist`);
-        return null;
-    }
-    else
-    {
-        try {       
-            let saddr = await bankWallet.getAddress();
-            let [result, err] = await RevokeKYC(gConnectionInfo.cbdcMap, saddr);
-            if (err.length != 0) {
-                console.log(`revokeKyc: failed to call to BalanceOf bank with err ${err}`);
-                return null;
-            }            
-            return result;
-        } catch (error) {
-            console.log(`revokeKyc: failed`);
+export const revokeKyc  = async (accnt: string): Promise<boolean | null> =>  {
+ 
+    try {       
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, err] = await RevokeKYC(cbdc, accnt);
+        if (err.length != 0) {
+            console.log(`revokeKyc: failed to call to BalanceOf bank with err ${err}`);
             return null;
-        }
+        }            
+        return result;
+    } catch (error) {
+        console.log(`revokeKyc: failed`);
+        return null;
     }
+    
 };
 

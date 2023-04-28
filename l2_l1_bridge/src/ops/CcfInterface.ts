@@ -1,18 +1,19 @@
 // data returned for new transactions/loan 
 export interface loanDetails{
+    ops: string;
     to:string;
     from:string;
     secret:string;
     collateral:number;
     duration:number; //how long is the loan - in seconds
-    fees:number;
+    //fees:number;
     id:string;
 };
 
+
 //initial response
-export interface loanResponse{
+export interface loanResponse extends loanDetails{
     htlc:string;
-    id: string;
     err:string;
 };
 

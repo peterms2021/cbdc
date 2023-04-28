@@ -1,19 +1,22 @@
-export BANK_A_NAME="BankA"
-export BANK_B_NAME="BankB"
+# export BANK_A_NAME="BankA"
+# export BANK_B_NAME="BankB"
 
-export  BANK_A_ADDRESS="0xBF4961b1b32CA8873e0C760906745F2006878EF0"
-export  BANK_B_ADDRESS="0xa3df034084078EBf20216b0789CF4901D8D6194E"
+# export  BANK_A_ADDRESS="0xBF4961b1b32CA8873e0C760906745F2006878EF0"
+# export  BANK_B_ADDRESS="0xa3df034084078EBf20216b0789CF4901D8D6194E"
 
-export  BANK_A_PKEY="0x29b4526f5aed0509a7b7a9ed7927f4aa87986f60691dc780691346c0e3765749"
-export  BANK_B_PKEY="0xbedb65454ea3fe4e64f97d79655a6650f1ed0838aaadd94ca69350ad1f52ab97"
+# export  BANK_A_PKEY="0x29b4526f5aed0509a7b7a9ed7927f4aa87986f60691dc780691346c0e3765749"
+# export  BANK_B_PKEY="0xbedb65454ea3fe4e64f97d79655a6650f1ed0838aaadd94ca69350ad1f52ab97"
 
-export  KYCER_NAME="Kycer"
-export  KYC_ADDR="0x8b40c24C086FD50DA4D5B61d1D2Fbc46c3055D7d"
-export  KYC_PKEY="0x74379ebabfc890e43d0175a6421b7135e9e7d947be5467cc014510cac073b390"
+# export  KYCER_NAME="Kycer"
+# export  KYC_ADDR="0x8b40c24C086FD50DA4D5B61d1D2Fbc46c3055D7d"
+# export  KYC_PKEY="0x74379ebabfc890e43d0175a6421b7135e9e7d947be5467cc014510cac073b390"
 
-export  ESCROW_BANK_NAME="MsBank"
-export  MSFT_ADDR="0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001"
-export  MSFT_PKEY="0xb3eb9d9441bd67b03136ded6f0bfaaade05a12be2897e93ced0860cfbe79c8ce"
+# export  ESCROW_BANK_NAME="MsBank"
+# export  MSFT_ADDR="0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001"
+# export  MSFT_PKEY="0xb3eb9d9441bd67b03136ded6f0bfaaade05a12be2897e93ced0860cfbe79c8ce"
+
+#set WALLET_PKEY to whatever wallet we want to attach to
+export WALLET_PKEY="0xb3eb9d9441bd67b03136ded6f0bfaaade05a12be2897e93ced0860cfbe79c8ce"
 
 export  L1_URL="https://a0jq79osep-a0yjwjns56-rpc.au0-aws.kaleido.io/"
 export  L1_USER_NAME="a0n86s1kp7"
@@ -27,6 +30,8 @@ export CCF_URL="http://localhost:9999"
 export API_GET_TRANSACTION="/pending_tx"
 export API_GET_LOAN="/get_loan"
 export API_CONFIRM_LOAN="/confirm_loan"
+export API_CONFIRM_TRANSFER="/confirm_transfer"
+export API_REG_LOAN_HTLC="/reg_loan_htlc"
 export API_RETURN_SHARES="/return_shares"
 export API_UPDATE_PRICE="/update_price"
 
@@ -34,6 +39,8 @@ export API_UPDATE_PRICE="/update_price"
 export API_POLL_NEW_TRANS_SEC="10"
 export API_UPDATE_ORACLE_SEC="10"
 
+# this env variable needs to change if we are running multiple instance on the same machine
+export CBDC_PORT=7001
 
-
+#if 0 - connet to regular wallet mode. Else act as bridge to CCF
 export L1_APP_MODE=0
