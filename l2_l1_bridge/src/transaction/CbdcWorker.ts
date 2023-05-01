@@ -33,11 +33,11 @@ import WithdrawHTLC from "../functions/WithdrawHTLC.js";
 
 
 import { BigNumber, Contract, utils } from "ethers";
-import { enInfo, gConnectionInfo } from "../ops/Connect.js"
+import { enInfo, gConnectionInfo } from "../ops/CbdcConnect.js"
 import GrantKYC from "../functions/GrantKYC.js";
 import RevokeKYC from "../functions/RevokeKYC.js";
 
-import { Accnt, transferFundsFrom, transferFundsFromResp, transferFunds, transferFundsResp, accntBalance , MoneySupply} from "./TransInterface.js";
+import { Accnt, transferFundsFrom, transferFundsFromResp, transferFunds, transferFundsResp, accntBalance , MoneySupply, allowAnce, allowAnceResp} from "./TransInterface.js";
 import { approveFunds, approveFundsResp} from "./TransInterface.js";
 /**
  * Worker Methods
@@ -93,6 +93,32 @@ export const getMoneySupply  = async (): Promise<MoneySupply | null> =>  {
             return null;
         }
     }
+};
+
+
+export const allowance = async (trans:allowAnce): Promise<allowAnceResp | null> => {
+ 
+    console.log(`allowance: ${trans}`);
+    try {       
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, _err] = await Allowance(cbdc, trans.owner,trans.spender);
+        if (_err.length != 0) {
+            console.log(`allowance: failed to call to Allowance  to: sender  ${trans.owner}  recv: ${trans.spender} amt: with err ${_err}`);
+            //return null;
+        }
+        const resp: allowAnceResp = {
+            owner: trans.owner,
+            spender: trans.spender,
+            amt: result?.toNumber(),
+            err:_err,
+            result: _err.length?false:true
+        }
+        return resp;
+    } catch (error) {
+        console.log(`allowance: failed to call Allowance  sender  ${trans.owner}  recv: ${trans.spender} `);
+        return null;
+    }
+    
 };
 
 
@@ -158,7 +184,7 @@ export const approve = async (trans:approveFunds): Promise<approveFundsResp | nu
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
         let cbdc = gConnectionInfo.cbdc;
-        let [result, _err] = await Transfer(cbdc,trans.spender,a);
+        let [result, _err] = await Approve(cbdc,trans.spender,a);
         if (_err.length != 0) {
             console.log(`approve: failed to call to approve  spender: ${trans.spender} amt: ${trans.amount}  with err ${_err}`);
             //return null;

@@ -24,6 +24,7 @@ export async function DecreaseAllowance(cbdc: Contract, spender: string,  allowa
     result =  val;
   }
 
+  console.log(`DecreaseAllowance:  spender: ${spender} allowance:${allowance}`);
   async function handleSubmit() {
       try {
         setLoading(true);

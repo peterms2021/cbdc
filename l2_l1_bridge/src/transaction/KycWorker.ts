@@ -33,7 +33,7 @@ import WithdrawHTLC from "../functions/WithdrawHTLC.js";
 
 
 import { BigNumber, Contract, utils } from "ethers";
-import { enInfo, gConnectionInfo } from "../ops/Connect.js"
+import { enInfo, gConnectionInfo } from "../ops/CbdcConnect.js"
 import GrantKYC from "../functions/GrantKYC.js";
 import RevokeKYC from "../functions/RevokeKYC.js";
 

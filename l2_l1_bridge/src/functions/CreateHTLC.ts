@@ -1,12 +1,11 @@
 
 import { Contract, utils, BigNumber } from "ethers";
 
-export async function CreateHTLC(cbdc: Contract, receiver: string, timelock: string, amount:BigNumber ): Promise<[result: string, err: string]> {
+export async function CreateHTLC(cbdc: Contract, receiver: string, hashlock:string, timelock: string, amount:BigNumber ): Promise<[result: string, err: string]> {
 
   let loading = false;
   let err:string = "";
   let result:string = "";
-  let hashlock:string;
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");

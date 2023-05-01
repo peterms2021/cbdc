@@ -3,13 +3,13 @@ import process from 'process'
 import Web3 from 'web3'
 import util  from 'util'
 
-import * as cbdcLib from './Connect.js';
+import * as cbdcLib from './CbdcConnect.js';
 import * as envLib from './Env.js';
-import { Contract, ethers, Wallet } from 'ethers';
-import { contractEvent } from './EventInterface.js';
-import { enInfo, gConnectionInfo } from './Connect.js';
-import { CCF_POLL_NEW_TRANS } from './Env.js';
-import { processApproval, processTransfer, pullNewTransaction } from './BridgeServices.js';
+import { BigNumber, Contract, ethers, Wallet } from 'ethers';
+import { contractEvent } from './CbdcEventInterface.js';
+import { enInfo, gConnectionInfo } from './CbdcConnect.js';
+import { CCF_POLL_NEW_TRANS, loadCcfBridgeData } from './Env.js';
+import { processApproval, processTransfer, pullNewTransaction } from './CcfBridgeServices.js';
 
 export function programRunMode (){  
     return envLib.envRunMode();
@@ -32,11 +32,11 @@ const setup = async (): Promise<NewTypeT> => {
     let contractAddress = cbdc.address;
 
     //which wallet do we want to watch?
-    console.log("setup done...");
+    //console.log("setup done...");
     return [ iface.web3, networkId, contractAddress, cbdc, iface.wallet ]
 }
 
-const prettyPrint = (o:any) => {
+export const prettyPrint = (o:any) => {
    return util.inspect(o, {showHidden: false, depth: null, colors: true})
 }
 
@@ -132,12 +132,12 @@ const eventTransferSubScribe = async (): Promise<any> => {
                     eventData: event,
                 }
                 //look for address and call back to 
-                console.log(JSON.stringify(transferEvent, null, 4))
+                console.log( JSON.stringify(transferEvent, null, 4));
 
-                let v:contractEvent;
-                v.from_owner = from;
-                v.to_spender = to;
-                v.value = value;
+                const  v = {} as contractEvent;
+                v.from_owner = from as string;
+                v.to_spender = to as string;
+                v.value = value as BigNumber;
 
                 processTransfer(v);
         })
@@ -157,12 +157,13 @@ const eventApprovalSubScribe = async (): Promise<any> => {
                     eventData: event,
                 }
                 //look for address and call back to 
-                console.log(JSON.stringify(approvalEvent, null, 4));
+                //console.log( prettyPrint(JSON.stringify(approvalEvent, null, 4)));
+                console.log( JSON.stringify(approvalEvent, null, 4));
 
-                let v:contractEvent;
-                v.from_owner = owner;
-                v.to_spender = spender;
-                v.value = value;
+                const  v = {} as contractEvent;
+                v.from_owner = approvalEvent.owner as string;
+                v.to_spender = approvalEvent.spender as string;
+                v.value = approvalEvent.value as BigNumber;
                 
                 processApproval(v);
         })
@@ -177,31 +178,19 @@ const pollForTransactions =  async () : Promise<any> => {
     n = n * 1000;
     return new Promise((resolve, reject) => {
         setInterval(() => {
-            console.log("Checking for transaction...");
+            //console.log("Checking for transaction...");
             pullNewTransaction();
           }, n);
     })
 };
 
 
-function handleRejection(p) {
-    console.log("handleRejection >=");
-    return p.catch((error)=>({
-        error
-    }))
-}
-
-function waitForAll(...ps) {
-    console.log('started...')
-    return Promise.all(ps.map(handleRejection))
-}
-
 async function  _eventListener(){
-    //waitForAll(pollForTransactions(), eventTransferSubScribe(), logSubscribe(),eventSubscribe()).then(results=>console.log('done', results));
-    waitForAll(pollForTransactions(), eventTransferSubScribe(), eventApprovalSubScribe()).then(results=>console.log('_eventListener done', results));
+    let [pt, et, ea] =  await Promise.all([pollForTransactions(), eventTransferSubScribe(), eventApprovalSubScribe()]);
 };
 
-export  function  eventListener2(){
-    _eventListener().then( res => { console.log("done")});
+export  function  bridgeEventListener(){
+    loadCcfBridgeData();
+    _eventListener().then( res => { console.log(" bridgeEventListener done")});
 }
 
