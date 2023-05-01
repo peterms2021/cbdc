@@ -22,6 +22,7 @@ export interface Accnt {
     amount:number;
   };
 
+
   export interface transferFundsFromResp  extends transferFundsFrom{
     result:boolean;
     err:string;
@@ -42,6 +43,17 @@ export interface Accnt {
     balance:number;
   };
 
+  export interface allowAnce {
+    owner: string;
+    spender: string;
+  };
+
+  export interface allowAnceResp  extends allowAnce{
+    amt:number;
+    result:boolean;
+    err:string;
+  };
+
   export interface grantAllowance {
     src: string;
     allowance:number;
@@ -50,6 +62,7 @@ export interface Accnt {
 //htlc 
   export interface htlcLock {
     receiver: string;
+    secret:string,
     duration:number;
     amount:number;
   };

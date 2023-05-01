@@ -72,7 +72,13 @@ function getWalletForAccnt(name: string, provider: ethers.providers.JsonRpcProvi
   return null;
 }
 
+var bInitialized:boolean = false;
  export async function setupConnection() :Promise<contractInterface>{
+
+  if(bInitialized){
+    return gConnectionInfo;
+  }
+
   const CBDC_ADDRESS = "0xb82C4150d953fcCcE42d7D53246B5553016c5C71";
   const USER_ABI = userAbi;
   const KYCER_ABI = kycerAbi;
@@ -88,7 +94,7 @@ function getWalletForAccnt(name: string, provider: ethers.providers.JsonRpcProvi
     name: "CBDC"
   };
 
-  let provider = await new ethers.providers.JsonRpcProvider(conInfo, net);
+  let provider =  new ethers.providers.JsonRpcProvider(conInfo, net);
   let web3 = new Web3(provider);
 
   //generate wallets for the L1 account
@@ -99,7 +105,7 @@ function getWalletForAccnt(name: string, provider: ethers.providers.JsonRpcProvi
   
   try {
 
-    let [wal,contract] = getWalletForAccnt(L1_WALLET_PKEY,provider);
+    let [wal,contract] =  getWalletForAccnt(L1_WALLET_PKEY,provider);
 
     const interfaceControls: contractInterface = {
         ready: true,
@@ -113,6 +119,7 @@ function getWalletForAccnt(name: string, provider: ethers.providers.JsonRpcProvi
     await testWallet(contract,wal,provider);
 
     gConnectionInfo = interfaceControls;
+    bInitialized=true;
     return interfaceControls;
   } catch (error) {
     let err = "Unable to connect with provider";

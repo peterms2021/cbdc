@@ -25,6 +25,7 @@
     "json-rpc-2.0": "^1.5.1",
     "node-fetch": "^2.6.9",
     "ts-node-dev": "^2.0.0",
+    "untildify": "^4.0.0",
     "web3": "^0.20.7"
   },
   "devDependencies": {

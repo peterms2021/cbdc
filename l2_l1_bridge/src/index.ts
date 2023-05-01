@@ -3,19 +3,19 @@ import cors from "cors";
 import helmet from "helmet";
 import * as dotenv from "dotenv";
 
-import { setupConnection, gConnectionInfo } from './ops/Connect.js';
+import { setupConnection, gConnectionInfo } from './ops/CbdcConnect.js';
 import { envRunMode, AppRunMode } from './ops/Env.js';
 import { cbdcRouter } from './transaction/CbdcRouter.js';
 import { htlcRouter } from './transaction/HtlcRouter.js';
 import { kycRouter } from './transaction/KycRouter.js';
-import { eventListener2 as bridgeEventListener } from './ops/EventListener.js';
+import { bridgeEventListener as bridgeEventListener } from './ops/CbdcEventListener.js';
 import { bridgeRouter } from './transaction/BridgeRouter.js';
 
 const app = express();
 
 setupConnection();
-let n = envRunMode();
-console.log(` Run mode: ${n}`);
+let runMode = envRunMode();
+console.log(` Run mode: ${runMode}`);
 
 let port = 7000;
 if (!process.env.CBDC_PORT) {
@@ -31,14 +31,17 @@ app.use("/", cbdcRouter);
 app.use("/kyc", kycRouter);
 app.use("/htlc", htlcRouter);
 
-if (n != 0){
+let mode:string = "CBDC Client";
+
+if (+runMode != +0){
   console.log(`Running bridge mode`);
   app.use("/bridge", bridgeRouter);
   bridgeEventListener();
+  mode="CCF<->CBDC Bridge";
 }
 
 app.listen(port, () => {
-  return console.log(`CBDC Bridge Listening at http://localhost:${port}`);
+  return console.log(`${mode} Bridge Listening at http://localhost:${port}`);
 })
 
 

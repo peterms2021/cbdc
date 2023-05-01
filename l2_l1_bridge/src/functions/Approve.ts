@@ -22,6 +22,8 @@ export async function Approve(cbdc: Contract, spender: string, amount: BigNumber
     result =  val;
   }
 
+  console.log(`Approve:  spender: ${spender} amount:${amount}`);
+
   async function approve(cbdc: Contract, _spender: string, _amount: string  ) {
       try {
         setLoading(true);

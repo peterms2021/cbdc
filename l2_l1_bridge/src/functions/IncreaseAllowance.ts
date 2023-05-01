@@ -22,6 +22,7 @@ export async function IncreaseAllowance(cbdc: Contract , spender: string, allowa
     result =  val;
   }
 
+  console.log(`IncreaseAllowance:  spender: ${spender} allowance:${allowance}`);
   async function handleSubmit() {
   
       try {

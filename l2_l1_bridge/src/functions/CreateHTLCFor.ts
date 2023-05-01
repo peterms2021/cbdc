@@ -1,11 +1,13 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 export async function CreateHTLCFor( cbdc: Contract, sender: string, 
-                      receiver:string, timelock: string, amount:BigNumber): Promise<[result: string, err: string]> {
+                      receiver:string,
+                      hashlock:string,
+                      timelock: string, amount:BigNumber): Promise<[result: string, err: string]> {
   let loading = false;
   let err:string = "";
   let result:string = "";
-  let hashlock:string;
+
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -21,7 +23,8 @@ export async function CreateHTLCFor( cbdc: Contract, sender: string,
   function setResult(val: string){
     result =  val;
   }
-                        
+  console.log(`CreateHTLCFor: sender:${sender}  receiver:${receiver}  timelock:${timelock} amount:${amount.toString()}  `);
+
   async function handleSubmit() {
       try {
         setLoading(true);
@@ -33,6 +36,9 @@ export async function CreateHTLCFor( cbdc: Contract, sender: string,
           //utils.parseUnits(amount, 2).toString(),
           amount.toString(),
         );
+
+        console.log(`CreateHTLCFor called...`);
+        
         const receipt = await response.wait();
         const htlcAddress = receipt.events?.find((e: { event: string }) => e.event == "HTLCCreated")?.args?.[0];
         if (!htlcAddress) {

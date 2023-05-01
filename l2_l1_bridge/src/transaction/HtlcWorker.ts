@@ -33,7 +33,7 @@ import WithdrawHTLC from "../functions/WithdrawHTLC.js";
 
 
 import { BigNumber, Contract, utils } from "ethers";
-import { enInfo, gConnectionInfo } from "../ops/Connect.js"
+import { enInfo, gConnectionInfo } from "../ops/CbdcConnect.js"
 import GrantKYC from "../functions/GrantKYC.js";
 import RevokeKYC from "../functions/RevokeKYC.js";
 
@@ -42,20 +42,20 @@ import { approveFunds, approveFundsResp} from "./TransInterface.js";
 
 
 
-export const createHTLC = async (receiver: string, timelock: string, amount:BigNumber ): Promise<[htclock: string, err: string] | null> => {
+export const createHTLC = async (receiver: string, hashlock:string, timelock: string, amount:BigNumber ): Promise<[htclock: string, err: string] | null> => {
 
     try {
         let cbdc = gConnectionInfo.cbdc;
-        let [htlock, err] =  await CreateHTLC(cbdc, receiver, timelock,amount);
+        let [htlock, err] =  await CreateHTLC(cbdc, receiver, hashlock, timelock,amount);
         if (err.length != 0) {
-            console.log(`createHTLC: failed to call to BalanceOf bank name ${receiver} with err ${err}`);
+            console.log(`createHTLC: failed to call to createHTLC account ${receiver} with err ${err}`);
             //return null;
         }else{
             console.log(`createHTLC:... ${receiver} => ${htlock}`);
         }
         return [htlock, err];
     } catch (error) {
-        console.log(`createHTLC: failed to calle BalanceOf bank name ${receiver}`);
+        console.log(`createHTLC: failed on account receiver:${receiver}`);
         return null;
     }
     
@@ -63,21 +63,21 @@ export const createHTLC = async (receiver: string, timelock: string, amount:BigN
 
 
 
-export const createHTLCFor = async ( sender: string, receiver: string, timelock: string, amount:BigNumber ): Promise<[htclock: string, err: string] | null> => {
+export const createHTLCFor = async ( sender: string, receiver: string, hashlock:string, timelock: string, amount:BigNumber ): Promise<[htclock: string, err: string] | null> => {
  
     try {
         
         let cbdc = gConnectionInfo.cbdc;
-        let [htlock, err] =  await CreateHTLCFor(cbdc, sender, receiver, timelock,amount);
+        let [htlock, err] =  await CreateHTLCFor(cbdc, sender, receiver, hashlock, timelock,amount);
         if (err.length != 0) {
-            console.log(`createHTLCFor: failed to call to BalanceOf bank name ${receiver} with err ${err}`);
+            console.log(`createHTLCFor: failed to call to createHTLCFor account  ${receiver} with err ${err}`);
             //return null;
         }else{
             console.log(`createHTLCFor:... ${receiver} => ${htlock}`);
         }
         return [htlock, err];
     } catch (error) {
-        console.log(`createHTLCFor: failed to calle BalanceOf bank name ${receiver}`);
+        console.log(`createHTLCFor: failed to called on account ${receiver}`);
         return null;
     }
     

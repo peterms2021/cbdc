@@ -53,7 +53,7 @@ export function removeAccountToWatch(s:string): boolean{
  }
 
 
- bridgeRouter.get("/watch", async (req: Request, res: Response) => {
+ bridgeRouter.get("/list_watch", async (req: Request, res: Response) => {
     try {     
         res.status(200).json(gAccountsWatchedByBridge);
     } catch (e) {
@@ -75,7 +75,7 @@ bridgeRouter.put("/add_watch/:id", async (req: Request, res: Response) => {
  
 // DELETE items/:id
  
-bridgeRouter.delete("/remove_watch/:id", async (req: Request, res: Response) => {
+bridgeRouter.delete("/del_watch/:id", async (req: Request, res: Response) => {
   try {
 
     let b = removeAccountToWatch(req.params.id,)    

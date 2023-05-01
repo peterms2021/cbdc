@@ -10,6 +10,7 @@ export async function  Allowance(cbdc: Contract, owner: string, spender: string 
     console.log("Cbdc object is not defined");
     return[r,"No CBDC contract"];
   } 
+  console.log(`Allowance: owner:${owner} spender: ${spender}`);
 
   async function allowance(_cbdc: Contract, _owner: string, _spender: string ) {
     let resp: string;
@@ -17,7 +18,7 @@ export async function  Allowance(cbdc: Contract, owner: string, spender: string 
       .allowance(_owner, _spender)
       .then((resp: BigNumber) => {
       // format to 2 decimal places
-      console.log(utils.formatUnits(resp, 0).toString());     
+      console.log(`resp => $${resp}: `, utils.formatUnits(resp, 0).toString());     
       r = resp;
     })
     .catch((err: Error) => {

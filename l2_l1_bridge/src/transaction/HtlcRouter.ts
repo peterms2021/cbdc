@@ -19,7 +19,7 @@
         console.log(`htlc/create: ...`);
         const trans: htlcLock = req.body;
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
-        let resp = await htlcService.createHTLC(trans.receiver, trans.duration.toString(),a );
+        let resp = await htlcService.createHTLC(trans.receiver, trans.secret, trans.duration.toString(),a );
         if (resp) {
             let [r,e] = resp;
             if(e.length == 0){
@@ -43,7 +43,7 @@ htlcRouter.post("/create_for", async (req: Request, res: Response) => {
         console.log(`htlc/create_for: ...`);
         const trans: htlcLockFor = req.body;
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
-        let resp = await htlcService.createHTLCFor( trans.sender, trans.receiver, trans.duration.toString(),a );
+        let resp = await htlcService.createHTLCFor( trans.sender, trans.receiver, trans.secret, trans.duration.toString(),a );
         if (resp) {
             let [r,e] = resp;
             if(e.length == 0){

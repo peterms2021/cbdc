@@ -23,6 +23,8 @@ export async function Transfer( cbdc: Contract, receiver:string,  amnt: BigNumbe
       result =  val;
     } 
 
+  console.log(`Transfer: receiver:${receiver} => amnt:${amnt}`);
+  
   async function handleSubmit() {
       try {
         setLoading(true);
