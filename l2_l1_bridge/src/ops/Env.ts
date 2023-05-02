@@ -86,13 +86,13 @@ export const L1_USER_PWD = "L1_USER_PWD";
 export const L1_USER_CONNECT_URL = "L1_USER_CONNECT_URL";
 export const L1_CHAIN_ID = "L1_CHAIN_ID";
 
-export const CCF_URL = "CCF_URL";
+export const CCF_HOST_NAME = "CCF_HOST_NAME";
 export const CCF_NEW_TRANSACTION = "API_GET_TRANSACTION";
 
 export const CCF_POLL_NEW_TRANS = "API_POLL_NEW_TRANS_SEC";
 export const CCF_POLL_ORACLE = "API_UPDATE_ORACLE_SEC";
 
-export const CCF_SERVER_URL = "CCF_URL";
+export const CCF_SERVER_NAME = "CCF_HOST_NAME";
 export const CCF_SERVER_PORT = "CCF_SERVER_PORT";
 export const CCF_CLIENT_KEY_FILE = "CCF_CLIENT_KEY_FILE";
 export const CCF_CLIENT_CERT_FILE = "CCF_CLIENT_CERT_FILE";
@@ -130,7 +130,7 @@ export function envRunMode(): number {
 export function loadCcfBridgeData() {
     CCF_PORT = extractNumberEnvVar(CCF_SERVER_PORT);
     var url:string;
-    enInfo.set(CCF_SERVER_URL, url=extractStringEnvVar(CCF_SERVER_URL)); //need to be without https
+    enInfo.set(CCF_SERVER_NAME, url=extractStringEnvVar(CCF_SERVER_NAME)); //need to be without https
     enInfo.set(CCF_SERVER_PORT, extractStringEnvVar(CCF_SERVER_PORT));
     
 
@@ -172,20 +172,20 @@ export function extractL1AccountDetails(): Map<string, string> {
     hashmap.set(L1_USER_CONNECT_URL, connectUrl);
 
 
-    let ccf_url = extractStringEnvVar(CCF_URL);
-    hashmap.set(CCF_URL, ccf_url); //need to be without https
-    hashmap.set(CCF_NEW_TRANSACTION, ccf_url + extractStringEnvVar(CCF_NEW_TRANSACTION));
+    let ccf_url = extractStringEnvVar(CCF_HOST_NAME);
+    hashmap.set(CCF_HOST_NAME, ccf_url); //need to be without https
+    hashmap.set(CCF_NEW_TRANSACTION, extractStringEnvVar(CCF_NEW_TRANSACTION));
 
     hashmap.set(CCF_POLL_NEW_TRANS, extractStringEnvVar(CCF_POLL_NEW_TRANS));
     hashmap.set(CCF_POLL_ORACLE, extractStringEnvVar(CCF_POLL_ORACLE));
 
-    hashmap.set(CCF_GET_LOAN, ccf_url + extractStringEnvVar(CCF_GET_LOAN));
-    hashmap.set(CCF_CONFIRM_LOAN, ccf_url + extractStringEnvVar(CCF_CONFIRM_LOAN));
-    hashmap.set(CCF_CONFIRM_TRANSFER, ccf_url + extractStringEnvVar(CCF_CONFIRM_TRANSFER));
-    hashmap.set(CCF_LOAN_LOCK, ccf_url + extractStringEnvVar(CCF_LOAN_LOCK));
+    hashmap.set(CCF_GET_LOAN,  extractStringEnvVar(CCF_GET_LOAN));
+    hashmap.set(CCF_CONFIRM_LOAN,  extractStringEnvVar(CCF_CONFIRM_LOAN));
+    hashmap.set(CCF_CONFIRM_TRANSFER, extractStringEnvVar(CCF_CONFIRM_TRANSFER));
+    hashmap.set(CCF_LOAN_LOCK,  extractStringEnvVar(CCF_LOAN_LOCK));
 
-    hashmap.set(CCF_RETURN_SHARES, ccf_url + extractStringEnvVar(CCF_RETURN_SHARES));
-    hashmap.set(CCF_UPDATE_PRICE, ccf_url + extractStringEnvVar(CCF_UPDATE_PRICE));
+    hashmap.set(CCF_RETURN_SHARES,  extractStringEnvVar(CCF_RETURN_SHARES));
+    hashmap.set(CCF_UPDATE_PRICE,  extractStringEnvVar(CCF_UPDATE_PRICE));
 
     return hashmap;
 }

@@ -27,13 +27,13 @@ export  L1_USER_PWD="kyXESMkfs9TpmqeljCYv35x1QBNxOxCE7j8YxHfWpX0"
 export L1_CHAIN_ID="1007845588"
 
 #set the URL to the CCF instance
-export CCF_URL="https://cbdc-test1.confidential-ledger.azure.com"
+export CCF_HOST_NAME="cbdc-test1.confidential-ledger.azure.com"
 export CCF_SERVER_PORT=443
 
 #private key
-export CCF_CLIENT_KEY_FILE="~/.ccf_key/peterwalker_privk.pem"
+export CCF_CLIENT_KEY_FILE="~/.ccf_key/user0.key"
 #public key
-export CCF_CLIENT_CERT_FILE="~/.ccf_key/peterwalker_cert.pem"
+export CCF_CLIENT_CERT_FILE="~/.ccf_key/user0.cer"
 #mutual TLS service cert
 export CCF_SERVICE_CERT_FILE="~/.ccf_key/service_cert.pem"
 

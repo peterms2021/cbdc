@@ -5,7 +5,7 @@ import { contractEvent } from "./CbdcEventInterface.js";
 
 import fetch from "node-fetch";
 import { CCF_CLIENT_CERT_BUFFER, CCF_CLIENT_KEY_BUFFER, CCF_CONFIRM_LOAN, CCF_CONFIRM_TRANSFER , 
-         CCF_GET_LOAN, CCF_LOAN_LOCK, CCF_PORT, CCF_SERVER_PORT, CCF_SERVER_URL, CCF_SERVICE_CERT_BUFFER, CCF_URL} from "./Env.js";
+         CCF_GET_LOAN, CCF_LOAN_LOCK, CCF_PORT, CCF_SERVER_PORT, CCF_SERVER_NAME, CCF_SERVICE_CERT_BUFFER, CCF_HOST_NAME} from "./Env.js";
 import CreateHTLCFor from "../functions/CreateHTLCFor.js";
 
 import * as htlcService from "../transaction/HtlcWorker.js";
@@ -13,32 +13,30 @@ import TransferFrom from "../functions/TransferFrom.js";
 import * as acctWorker from "../transaction/CbdcWorker.js";
 import { transferFundsFrom } from "../transaction/TransInterface.js";
 import { addAccountToWatch, isAccountBridgeWatchList } from "../transaction/BridgeRouter.js";
-
-
 import https from 'https';
 import { prettyPrint } from "./CbdcEventListener.js";
 
 
-
-function httpsReq({body, ...options}) {
-    return new Promise<string| null>((resolve,reject) => {
-        const req = https.request({
-            ...options,
-        }, res => {
+function httpsReq(body:any, _options:any ) {
+    return new Promise<any| null>((resolve,reject) => {
+        const req = https.request(
+            _options
+        , res => {
             const chunks = [];
             res.on('data', data => chunks.push(data))
             res.on('end', () => {
                 let resBody = Buffer.concat(chunks);
                 switch(res.headers['content-type']) {
                     case 'application/json':
+                        console.log(`resp data: ${resBody.toString()}`);
                         resBody = JSON.parse(resBody.toString());
                         break;
                 }
-                resolve(resBody.toString())
-                //resolve(resBody)
+                resolve(resBody);
             })
         })
         req.on('error',reject);
+
         if(body) {
             req.write(body);
         }
@@ -47,29 +45,51 @@ function httpsReq({body, ...options}) {
 }
 
 
+async function ccf_post_call(path_url:string,  args:any):Promise <any| null> {
+   
+    const options = {
+        key:  CCF_CLIENT_KEY_BUFFER,  // Secret client key
+        cert: CCF_CLIENT_CERT_BUFFER, // Public client key
+        ca:   [CCF_SERVICE_CERT_BUFFER], //mutual TLS service cert 
+        //rejectUnauthorized: false,              // Used for self signed server
+        hostname: enInfo.get(CCF_SERVER_NAME),         // Server hostname
+        method: 'POST',
+        path:path_url,
+        headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': JSON.stringify(args).length
+          }
+    };
+    return httpsReq(
+        JSON.stringify(args),
+        options);
+}
 
-async function ccf_call(path_url:string, meth:string, args:any):Promise <string| null> {
-    var options = {
-        key: CCF_CLIENT_KEY_BUFFER,  // Secret client key
-        cert:CCF_CLIENT_CERT_BUFFER, // Public client key
-        ca: CCF_SERVICE_CERT_BUFFER, //mutual TLS service cert 
-        // rejectUnauthorized: false,              // Used for self signed server
-        hostname: enInfo.get(CCF_SERVER_URL),         // Server hostname
-        port: CCF_PORT,          // Server port
-        method: meth,
+
+async function ccf_get_call(path_url:string, args:any):Promise <any| null> {
+    const options = {
+        key:  CCF_CLIENT_KEY_BUFFER,  // Secret client key
+        cert: CCF_CLIENT_CERT_BUFFER, // Public client key
+        ca:   [CCF_SERVICE_CERT_BUFFER], //mutual TLS service cert 
+        //rejectUnauthorized: false,              // Used for self signed server
+        hostname: enInfo.get(CCF_SERVER_NAME),         // Server hostname
+        method: 'GET',
         path:path_url,
     };
 
-    return httpsReq({
-        options,
-        body:   JSON.stringify(args) 
-    })
+   // console.log(`ccf_call: ${JSON.stringify(options)}`);
+    return httpsReq(
+        JSON.stringify(args),
+        options
+    )
 }
 
 export async function test_ccf(): Promise<void>{ 
     try{
         console.log(' test_ccf...')
-        await ccf_call("/app/balance/current_account",'GET',"");
+        await ccf_get_call("/app/balance/current_account","")
+        .then(jsonformat => console.log(prettyPrint( JSON.stringify(jsonformat))))
+        .catch(err => console.log(`Error ${err}`));;
     }catch(err){
         console.log(`test_ccf Error ${err}`);
     }
@@ -78,25 +98,15 @@ export async function test_ccf(): Promise<void>{
 async function sendHtlcToCCF(data:loanResponse) : Promise<void>{
 
     let path = enInfo.get(CCF_LOAN_LOCK);
-
-    ccf_call(path, 'POST',data)
-            //.then(result => result.json())
+    ccf_post_call(path,data)
+            .then(result => {
+                console.log('sendHtlcToCCF ', prettyPrint(result.json()))
+            })
             //the posted contents 
-            .then(jsonformat => console.log(prettyPrint(jsonformat)))
+            .then(jsonformat => {
+                console.log(prettyPrint(jsonformat))
+            })
             .catch(err => console.log(`Error ${err}`));
-
-    /*
-    fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
-    })
-        //then() function is used to convert the posted contents to the website into json format
-        .then(result => result.json())
-        //the posted contents to the website in json format is displayed as the output on the screen
-        .then(jsonformat => console.log(jsonformat))
-        .catch(err => console.log(`Error ${err}`));
-     */   
 }
 
 export const processTransfer = async (trans:contractEvent): Promise<boolean | null> => {
@@ -125,27 +135,16 @@ export const processTransfer = async (trans:contractEvent): Promise<boolean | nu
     //call CCF with the informaton about 
     let path = enInfo.get(CCF_CONFIRM_TRANSFER);
 
-    ccf_call(path, 'POST',data)
-        //.then(result => result.json())
+    ccf_post_call(path,data)
+        .then(result => {
+            console.log('processTransfer ', prettyPrint(result.json()))
+        })
         //the posted contents 
         .then(jsonformat => console.log(prettyPrint(jsonformat)))
         .catch(err => {
             console.log(`Error ${err}`);
             return false;
         });
-
-    /*    
-    fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
-    })
-        //then() function is used to convert the posted contents to the website into json format
-        .then(result => result.json())
-        //the posted contents to the website in json format is displayed as the output on the screen
-        .then(jsonformat => console.log(jsonformat))
-        .catch(err => console.log(`Error ${err}`));
-    */
 
     return true;
 }
@@ -178,27 +177,18 @@ export const processApproval = async (trans:contractEvent): Promise<boolean | nu
     
     let path = enInfo.get(CCF_CONFIRM_LOAN);
 
-    ccf_call(path, 'POST',data)
-        //.then(result => result.json())
+    ccf_post_call(path,data)
+        .then(result =>{            
+            console.log('processApproval ', prettyPrint(result.json()))
+        })
         //the posted contents 
-        .then(jsonformat => console.log(prettyPrint(jsonformat)))
+        .then(jsonformat => {
+            console.log('processApproval jsonformat', prettyPrint(jsonformat))
+        })
         .catch(err => {
             console.log(`Error ${err}`);
             return false;
         });
-
-    /*
-    fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
-    })
-        //then() function is used to convert the posted contents to the website into json format
-        .then(result => result.json())
-        //the posted contents to the website in json format is displayed as the output on the screen
-        .then(jsonformat => console.log(jsonformat))
-        .catch(err => console.log(`Error ${err}`));
-    */
 
     return true;
 }
@@ -208,9 +198,9 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
 
     let path = enInfo.get(CCF_GET_LOAN);
 
-    test_ccf();
+    //test_ccf(); return null;
 
-    ccf_call(path, 'GET','')
+    ccf_get_call(path,'')
         //then() function is used to convert the posted contents to the website into json format
         .then(async result => {
 
@@ -244,10 +234,12 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
             sendHtlcToCCF(r);            
         })
         //the posted contents to the website in json format is displayed as the output on the screen
-        //.then(jsonformat => console.log(jsonformat))
+        .then(jsonformat => {
+            console.log( 'pullNewTransaction: jsonformat response', jsonformat);
+        })
         .catch(err => {
             //if(errCnt==0)
-                console.log(`Error ${err}`);
+                console.log(`pullNewTransaction  Error: ${err}`);
             errCnt++;    
         });
 
