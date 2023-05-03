@@ -12,6 +12,7 @@
   "dependencies": {
     "@microsoft/ccf-app": "^3.0.0-dev6",
     "js-base64": "^3.5.2",
+    "js-sha3": "^0.8.0",
     "jsrsasign": "^10.0.4",
     "jsrsasign-util": "^1.0.2",
     "jwt-decode": "^3.0.0",
