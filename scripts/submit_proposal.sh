@@ -60,15 +60,15 @@ service_cert="$certificate_dir/service_cert.pem"
 signing_cert="$certificate_dir/member0_cert.pem"
 signing_key="$certificate_dir/member0_privk.pem"
 
-proposal0_out=$(/opt/ccf_virtual/bin/scurl.sh "$network_url/gov/proposals" --cacert $service_cert --signing-key $signing_key --signing-cert $signing_cert --data-binary @$proposal_file -H "content-type: application/json")
+proposal0_out=$(/opt/ccf_virtual/bin/scurl.sh "$network_url/gov/proposals" --cacert "$service_cert" --signing-key "$signing_key" --signing-cert "$signing_cert" --data-binary @"$proposal_file" -H "content-type: application/json")
 proposal0_id=$( jq -r  '.proposal_id' <<< "${proposal0_out}" )
-echo $proposal0_id
+echo "$proposal0_id"
 
 # proposal submitter vote for proposal
-/opt/ccf_virtual/bin/scurl.sh "$network_url/gov/proposals/$proposal0_id/ballots" --cacert $service_cert --signing-key $signing_key --signing-cert $signing_cert --data-binary @${app_dir}/governance/vote/vote_accept.json -H "content-type: application/json" | jq
+/opt/ccf_virtual/bin/scurl.sh "$network_url/gov/proposals/$proposal0_id/ballots" --cacert "$service_cert" --signing-key "$signing_key" --signing-cert "$signing_cert" --data-binary @"${app_dir}"/governance/vote/vote_accept.json -H "content-type: application/json" | jq
 
 for ((i = 1 ; i < $member_count ; i++)); do
   signing_cert="$certificate_dir/member${i}_cert.pem"
   signing_key="$certificate_dir/member${i}_privk.pem"
-  /opt/ccf_virtual/bin/scurl.sh "$network_url/gov/proposals/$proposal0_id/ballots" --cacert $service_cert --signing-key $signing_key --signing-cert $signing_cert --data-binary @${app_dir}/governance/vote/vote_accept.json -H "content-type: application/json" | jq
+  /opt/ccf_virtual/bin/scurl.sh "$network_url/gov/proposals/$proposal0_id/ballots" --cacert "$service_cert" --signing-key "$signing_key" --signing-cert "$signing_cert" --data-binary @"${app_dir}"/governance/vote/vote_accept.json -H "content-type: application/json" | jq
 done
