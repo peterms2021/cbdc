@@ -1,5 +1,23 @@
 {
   "endpoints": {
+    "/testing": {
+      "post": {
+        "js_module": "endpoints/banking.js",
+        "js_function": "testFunction",
+        "forwarding_required": "always",
+        "authn_policies": ["user_cert"],
+        "mode": "readwrite",
+        "openapi": {
+          "responses": {
+            "204": {
+              "description": "Ok"
+            }
+          },
+          "security": [],
+          "parameters": []
+        }
+      }
+    },
     "/cbdcuser/{user_id}/{cbdc_address}": {
       "put": {
         "js_module": "endpoints/banking.js",
@@ -22,6 +40,24 @@
       "post": {
         "js_module": "endpoints/banking.js",
         "js_function": "registerSecurityHoldings",
+        "forwarding_required": "always",
+        "authn_policies": ["user_cert"],
+        "mode": "readwrite",
+        "openapi": {
+          "responses": {
+            "204": {
+              "description": "Ok"
+            }
+          },
+          "security": [],
+          "parameters": []
+        }
+      }
+    },
+    "/loans/{user_id}": {
+      "post": {
+        "js_module": "endpoints/banking.js",
+        "js_function": "requestSecurityLoan",
         "forwarding_required": "always",
         "authn_policies": ["user_cert"],
         "mode": "readwrite",

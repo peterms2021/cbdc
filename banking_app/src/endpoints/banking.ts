@@ -1,6 +1,15 @@
 import * as ccfapp from "@microsoft/ccf-app";
+import * as ccfcrypto from "@microsoft/ccf-app/crypto.js";
 import { ccf } from "@microsoft/ccf-app/global";
-import { forEach } from "lodash-es";
+import { forEach, sample } from "lodash-es";
+import { keccak256 } from "js-sha3";
+
+export function testFunction() {
+  console.log(`Ēntered Test Function`);
+  console.log(keccak256("SECRET"));
+  console.log(keccak256(""));
+  console.log(keccak256(ccfcrypto.generateAesKey(128)));
+}
 
 //#region KVStore
 
@@ -40,7 +49,9 @@ const securityHoldingsTable = ccfapp.typedKv(
 const securityLoansTableName = "lending.securityloans";
 interface ISecurityLoanItem {
   secret: string;
+  lenderId: string;
   lenderAddress: string;
+  borrowerId: string;
   borrowerAddress: string;
   securityId: string;
   quantity: number; // Quantity of securities
@@ -54,7 +65,7 @@ interface ISecurityLoanItem {
 }
 const securityLoansTable = ccfapp.typedKv(
   securityLoansTableName,
-  ccfapp.arrayBuffer, //Hashed Secret
+  ccfapp.string, //Hashed Secret. Effecitvely the public securityLoan ID
   ccfapp.json<ISecurityLoanItem>()
 );
 
@@ -115,7 +126,7 @@ function getUserIdToAddress(userId: string): string {
   return ccfUsersTable.get(userId);
 }
 
-// Same structure is sent as both request and response
+// Same data structure is sent as both request and response
 interface IRegisterHoldingsRequestResponse {
   userId: string;
   holdings: IHolding[];
@@ -146,7 +157,7 @@ export function registerSecurityHoldings(
     body.userId != userId
   ) {
     return {
-      statusCode: 404,
+      statusCode: 400,
       body: <any>`User not found or does not match caller for: ${body.userId}`,
     };
   }
@@ -196,12 +207,124 @@ export function registerSecurityHoldings(
   };
 }
 
-//TODO: This is a very insecure method. So we should ideally have a mechanism to prevent it from being accidentally run in a production environment
-function dumpKVMap(tableName: string) {
-  console.log(`Dumping kvMap: ${tableName}`);
-  ccfapp.rawKv[tableName].forEach((value: ArrayBuffer, key: ArrayBuffer) => {
-    console.log(`Key: ${ccf.bufToStr(key)} Value: ${ccf.bufToStr(value)}`);
+interface ISecurityLoanRequest {
+  userId: string;
+  securityId: string;
+  quantity: number;
+}
+interface ISecurityLoanResponse {
+  securityLoanId: string;
+  securityId: string;
+  quantity: number; // Quantity of securities
+  fees: number;
+  initialCollateral: number;
+}
+
+export function requestSecurityLoan(
+  request: ccfapp.Request<ISecurityLoanRequest>
+): ccfapp.Response<ISecurityLoanResponse> {
+  //For simplification. Const values.
+  const securityPrice = 100; //Initial price of all securities set to fixed value
+  const collateralRate = 1.05; //All securities subject to same collateral level
+  const feeRate = 0.01; //All securities subject to same fee rate.
+
+  console.log(`Entered Request Security Loan method`);
+
+  let body: ISecurityLoanRequest;
+  try {
+    body = request.body.json();
+  } catch {
+    return {
+      statusCode: 400,
+      body: <any>`Cannot parse JSON from ${request.body.text()}`,
+    };
+  }
+
+  console.log(`Parsed body: ${request.body.text()}`);
+
+  //Validate userId and that these match between caller and data
+  const userId = getCallerId(request);
+  if (!validateUserId(userId) || body.userId != userId) {
+    return {
+      statusCode: 400,
+      body: <any>`User not found or userIds do not match for: ${userId}`,
+    };
+  }
+
+  dumpKVMap(securityHoldingsTableName);
+
+  //Determine if securities available to loan. For simplicity we require that entire parcel can be obtained
+  // from single lender (single holding). Would also need to consider a more 'fair' randomized allocation of holding->loan
+  //TODO: Will need a mechanism to 'lock' a holding prior to it being created for a loan
+  // Exact semantics TBD around how reservations are to be handled, how unused reservations are to be returned etc.
+  let candidateLoans: Array<
+    [
+      holdingKey: ISecurityHoldingKey,
+      holdingValue: IHolding,
+      quantityDelta: number
+    ]
+  > = [];
+  let lenderId: string;
+  securityHoldingsTable.forEach((value: IHolding, key: ISecurityHoldingKey) => {
+    if (
+      key.userId != userId && // Can't borrow from self
+      value.securityId == body.securityId &&
+      value.quantity > body.quantity
+    ) {
+      let quantityDelta: number = value.quantity - body.quantity;
+      candidateLoans.push([key, value, quantityDelta]); //For use later when optimizing more complex loans
+    }
   });
+
+  console.log(`Got ${candidateLoans.length} candidate loans`);
+
+  if (candidateLoans.length == 0) {
+    return {
+      statusCode: 404,
+      body: <any>(
+        `Insufficient quantity available for requested loan: ${body.quantity} of ${body.securityId}`
+      ),
+    };
+  } else {
+    //Take the first candidate holding. Reduce the holding. Update the kvMap
+    //let candidateLoan = sample(candidateLoans);
+    let candidateLoan = candidateLoans[0];
+    lenderId = candidateLoan[0].userId;
+    let holdingValue = candidateLoan[1];
+    holdingValue.quantity -= body.quantity;
+    securityHoldingsTable.set(candidateLoan[0], holdingValue);
+  }
+
+  dumpKVMap(securityHoldingsTableName);
+
+  //Generate and hash secret
+  const sharedKey: string = "SECRET";
+  /*
+  const secretKey: string = ethcryptoutils.bytesToUtf8(
+    new Uint8Array(ccfcrypto.generateAesKey(128))
+  );
+
+  console.log(`Cleartext shared: ${sharedKey} Cleartext secret: ${secretKey}`);
+
+  const sharedHashed: string = ethcryptoutils.bytesToUtf8(
+    keccak256(ethcryptoutils.utf8ToBytes(sharedKey))
+  );
+  const secretHashed: string = ethcryptoutils.bytesToUtf8(
+    keccak256(ethcryptoutils.utf8ToBytes(secretKey))
+  );
+
+  console.log(`Hashed shared: ${sharedHashed} hashed secret: ${secretHashed}`);
+*/
+  return {
+    statusCode: 204,
+    body: <ISecurityLoanResponse>{
+      securityLoanId: "foo",
+      securityId: "bar",
+      quantity: 100,
+      fees: 1,
+      initialCollateral: 100,
+    },
+  };
 }
 
 //#endregion
@@ -217,6 +340,14 @@ function validateUserId(userId: string): boolean {
     ccfapp.arrayBuffer
   );
   return usersCerts.has(ccf.strToBuf(userId));
+}
+
+//TODO: This is a very insecure method. So we should ideally have a mechanism to prevent it from being accidentally run in a production environment
+function dumpKVMap(tableName: string) {
+  console.log(`Dumping kvMap: ${tableName}`);
+  ccfapp.rawKv[tableName].forEach((value: ArrayBuffer, key: ArrayBuffer) => {
+    console.log(`Key: ${ccf.bufToStr(key)} Value: ${ccf.bufToStr(value)}`);
+  });
 }
 
 //#endregion
