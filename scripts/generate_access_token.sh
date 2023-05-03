@@ -27,6 +27,6 @@ else
     exit 1
 fi
 
-curl -X POST https://login.microsoftonline.com/$TenantId/oauth2/v2.0/token \
+curl -X POST https://login.microsoftonline.com/"$TenantId"/oauth2/v2.0/token \
 	-H "Content-Type: application/x-www-form-urlencoded" \
 	-d "client_id=$ClientApplicationId&client_secret=$ClientSecret&scope=$ApiIdentifierUri/.default&grant_type=client_credentials"
