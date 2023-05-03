@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x #echo on
+#set -x #echo on
 
 ls "$PWD"
 
