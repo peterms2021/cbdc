@@ -1,7 +1,7 @@
 // Initially from https://github.com/microsoft/ccf-app-samples/blob/main/.devcontainer.json
 {
   "name": "CCF Samples",
-  "image": "mcr.microsoft.com/ccf/app/dev:3.0.1-virtual",
+  "image": "mcr.microsoft.com/ccf/app/dev:3.0.9-virtual",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -11,7 +11,8 @@
         "timonwong.shellcheck",
         "github.vscode-pull-request-github",
         "ms-vscode.makefile-tools",
-        "ms-python.python"
+        "ms-python.python",
+        "Trezm.type-doc-vscode"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",

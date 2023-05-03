@@ -50,6 +50,13 @@ start-host: build ## 🏁 Start the CCF Sandbox for the demo
 	@echo -e "\e[34m$@\e[0m" || true
 	@/opt/ccf_virtual/bin/sandbox.sh --js-app-bundle ./dist/ --initial-member-count 3 --initial-user-count 2 --constitution-dir ./governance/constitution
 
+# TODO: Worth doing some optimization of the sandbox.sh and sending upstream for a nicer inner loop experience
+start-host-faster: build ## 🏁 Start the CCF Sandbox for the demo
+	@echo -e "\e[34m$@\e[0m" || true
+	@cp ./scripts/faster_sandbox.sh /opt/ccf_virtual/bin/faster_sandbox.sh
+	@/opt/ccf_virtual/bin/faster_sandbox.sh --js-app-bundle ./dist/ --initial-member-count 3 --initial-user-count 2 --constitution-dir ./governance/constitution
+
+
 demo: ## 🎬 Demo the Banking Application
 	@echo -e "\e[34m$@\e[0m" || true
 	@./scripts/demo.sh
