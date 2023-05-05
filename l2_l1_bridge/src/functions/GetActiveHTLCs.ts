@@ -1,7 +1,7 @@
 
 import { Contract } from "ethers";
 
-function GetActiveHTLCs(cbdc: Contract) : [result: Array<string>,  err: string] {
+export async function  GetActiveHTLCs(cbdc: Contract) : Promise <[result: Array<string>,  err: string]> {
 
   let err:string = "";
   let result:Array<string> = [];
@@ -37,7 +37,7 @@ function GetActiveHTLCs(cbdc: Contract) : [result: Array<string>,  err: string] 
           })
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

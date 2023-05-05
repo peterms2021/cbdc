@@ -1,7 +1,7 @@
 
 import { Contract } from "ethers";
 
-function HtlcReceiver( cbdc: Contract , htlc: string) : [result:string, err:string]  {
+export async function HtlcReceiver( cbdc: Contract , htlc: string) : Promise<[result:string, err:string]>  {
   let result:string ="";
   let err:string = "";
  
@@ -18,7 +18,7 @@ function HtlcReceiver( cbdc: Contract , htlc: string) : [result:string, err:stri
   }
 
   async function handleSubmit() {
-          cbdc
+         await  cbdc
           .htlcReceiver(htlc)
           .then((result: string) => {
             setResult(result);
@@ -29,7 +29,7 @@ function HtlcReceiver( cbdc: Contract , htlc: string) : [result:string, err:stri
             setErr(err.message);
           });
   }
- handleSubmit();
+ await handleSubmit();
  return [result,err] ; 
  
 };

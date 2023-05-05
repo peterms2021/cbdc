@@ -1,7 +1,7 @@
 
 import { Contract } from "ethers";
 
-function Symbol( cbdc: Contract) : [result:string, err:string]  {
+export async function Symbol( cbdc: Contract) : Promise<[result:string, err:string]>  {
   
   let result:string ="";
   let err:string = "";
@@ -31,7 +31,7 @@ function Symbol( cbdc: Contract) : [result:string, err:string]  {
       });
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

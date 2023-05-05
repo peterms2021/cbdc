@@ -33,76 +33,63 @@ import WithdrawHTLC from "../functions/WithdrawHTLC.js";
 
 
 import { BigNumber, Contract, utils } from "ethers";
-import { gConnectionInfo } from "../Connect.js"
+import { enInfo, gConnectionInfo } from "../ops/CbdcConnect.js"
 import GrantKYC from "../functions/GrantKYC.js";
 import RevokeKYC from "../functions/RevokeKYC.js";
 
-import { Accnt, transferFundsFrom, transferFundsFromResp, transferFunds, transferFundsResp, accntBalance , MoneySupply} from "./Interface.js";
-import { approveFunds, approveFundsResp} from "./Interface.js";
+import { Accnt, transferFundsFrom, transferFundsFromResp, transferFunds, transferFundsResp, accntBalance , MoneySupply} from "./TransInterface.js";
+import { approveFunds, approveFundsResp} from "./TransInterface.js";
 
 
-export const createHTLC = async (receiver: string, timelock: string, amount:BigNumber ): Promise<[htclock: string, err: string] | null> => {
 
-    let wallet = gConnectionInfo.wallets.get(receiver);
+export const createHTLC = async (receiver: string, hashlock:string, timelock: string, amount:BigNumber ): Promise<[htclock: string, err: string] | null> => {
 
-    if (wallet === undefined) {
-        console.log(`createHTLC: unknown bank name ${receiver}`);
+    try {
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] =  await CreateHTLC(cbdc, receiver, hashlock, timelock,amount);
+        if (err.length != 0) {
+            console.log(`createHTLC: failed to call to createHTLC account ${receiver} with err ${err}`);
+            //return null;
+        }else{
+            console.log(`createHTLC:... ${receiver} => ${htlock}`);
+        }
+        return [htlock, err];
+    } catch (error) {
+        console.log(`createHTLC: failed on account receiver:${receiver}`);
         return null;
     }
-    else {
-        try {
-            let addr = await wallet.getAddress();
-            let [htlock, err] =  await CreateHTLC(gConnectionInfo.cbdc, addr, timelock,amount);
-            if (err.length != 0) {
-                console.log(`createHTLC: failed to call to BalanceOf bank name ${receiver} with err ${err}`);
-                //return null;
-            }else{
-                console.log(`createHTLC:... ${receiver} => ${htlock}`);
-            }
-            return [htlock, err];
-        } catch (error) {
-            console.log(`createHTLC: failed to calle BalanceOf bank name ${receiver}`);
-            return null;
-        }
-    }
+    
 };
 
 
 
-export const createHTLCFor = async ( sender: string, receiver: string, timelock: string, amount:BigNumber ): Promise<[htclock: string, err: string] | null> => {
-
-    let rwallet = gConnectionInfo.wallets.get(receiver);
-    let swallet = gConnectionInfo.wallets.get(sender);
-
-    if (rwallet === undefined || swallet === undefined) {
-        console.log(`createHTLCFor: unknown bank name ${receiver} or ${sender}`);
+export const createHTLCFor = async ( sender: string, receiver: string, hashlock:string, timelock: string, amount:BigNumber ): Promise<[htclock: string, err: string] | null> => {
+ 
+    try {
+        
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] =  await CreateHTLCFor(cbdc, sender, receiver, hashlock, timelock,amount);
+        if (err.length != 0) {
+            console.log(`createHTLCFor: failed to call to createHTLCFor account  ${receiver} with err ${err}`);
+            //return null;
+        }else{
+            console.log(`createHTLCFor:... ${receiver} => ${htlock}`);
+        }
+        return [htlock, err];
+    } catch (error) {
+        console.log(`createHTLCFor: failed to called on account ${receiver}`);
         return null;
     }
-    else {
-        try {
-            let raddr = await rwallet.getAddress();
-            let saddr = await swallet.getAddress();
-            let [htlock, err] =  await CreateHTLCFor(gConnectionInfo.cbdc, saddr, raddr, timelock,amount);
-            if (err.length != 0) {
-                console.log(`createHTLCFor: failed to call to BalanceOf bank name ${receiver} with err ${err}`);
-                //return null;
-            }else{
-                console.log(`createHTLCFor:... ${receiver} => ${htlock}`);
-            }
-            return [htlock, err];
-        } catch (error) {
-            console.log(`createHTLCFor: failed to calle BalanceOf bank name ${receiver}`);
-            return null;
-        }
-    }
+    
 };
 
 
 export const getActiveHTLCs = async (): Promise<[result: Array<string>, err: string] | null> => {
 
     try {
-
-        let [htlock, err] = await GetActiveHTLCs(gConnectionInfo.cbdc);
+        
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await GetActiveHTLCs(cbdc);
         if (err.length != 0) {
             console.log(`getActiveHTLCs: failed with err ${err}`);
             //return null;
@@ -119,8 +106,9 @@ export const getActiveHTLCs = async (): Promise<[result: Array<string>, err: str
 export const getInactiveHTLCs = async (): Promise<[result: Array<string>, err: string] | null> => {
 
     try {
-
-        let [htlock, err] = await GetInactiveHTLCs(gConnectionInfo.cbdc);
+        
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await GetInactiveHTLCs(cbdc);
         if (err.length != 0) {
             console.log(`getInactiveHTLCs: failed with err ${err}`);
             //return null;
@@ -139,7 +127,8 @@ export const getAllHTLCs = async (): Promise<[result: Array<string>, err: string
 
     try {
 
-        let [htlock, err] = await GetAllHTLCs(gConnectionInfo.cbdc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await GetAllHTLCs(cbdc);
         if (err.length != 0) {
             console.log(`getAllHTLCs: failed with err ${err}`);
             //return null;
@@ -159,7 +148,8 @@ export const getHtlcAmount = async (htlc:string): Promise<[result:BigNumber, err
   
     try {
 
-        let [htlock, err] = await HtlcAmount(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcAmount(cbdc, htlc);
         if (err.length != 0) {
             console.log(`getHtlcAmount: failed with err ${err}`);
             //return null;
@@ -179,7 +169,8 @@ export const getHtlcBalance = async (htlc:string): Promise<[result:BigNumber, er
   
     try {
 
-        let [htlock, err] = await HtlcBalance(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcBalance(cbdc, htlc);
         if (err.length != 0) {
             console.log(`getHtlcBalance: failed with err ${err}`);
             //return null;
@@ -198,7 +189,8 @@ export const getHtlcEnabled = async (htlc:string): Promise<[result:boolean, err:
   
     try {
 
-        let [htlock, err] = await HtlcEnabled(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcEnabled(cbdc, htlc);
         if (err.length != 0) {
             console.log(`getHtlcEnabled: failed with err ${err}`);
             //return null;
@@ -218,8 +210,8 @@ export const getHtlcEnabled = async (htlc:string): Promise<[result:boolean, err:
 export const htlcHashLock = async (htlc:string): Promise<[result:string, err: string] | null> => {
   
     try {
-
-        let [htlock, err] = await HtlcHashLock(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcHashLock(cbdc, htlc);
         if (err.length != 0) {
             console.log(`htlcHashLock: failed with err ${err}`);
             //return null;
@@ -238,7 +230,8 @@ export const htlcHashLock = async (htlc:string): Promise<[result:string, err: st
 export const htlcPreimage = async (htlc:string): Promise<[result:string, err: string] | null> => {
   
     try {
-        let [htlock, err] = await HtlcPreimage(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcPreimage(cbdc, htlc);
         if (err.length != 0) {
             console.log(`htlcPreimage: failed with err ${err}`);
             //return null;
@@ -256,7 +249,8 @@ export const htlcPreimage = async (htlc:string): Promise<[result:string, err: st
 export const htlcReceiver = async (htlc:string): Promise<[result:string, err: string] | null> => {
   
     try {
-        let [htlock, err] = await HtlcReceiver(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcReceiver(cbdc, htlc);
         if (err.length != 0) {
             console.log(`htlcReceiver: failed with err ${err}`);
             //return null;
@@ -274,7 +268,8 @@ export const htlcReceiver = async (htlc:string): Promise<[result:string, err: st
 export const htlcRefunded = async (htlc:string): Promise<[result:boolean, err: string] | null> => {
   
     try {
-        let [htlock, err] = await HtlcRefunded(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcRefunded(cbdc, htlc);
         if (err.length != 0) {
             console.log(`htlcRefunded: failed with err ${err}`);
             //return null;
@@ -292,7 +287,8 @@ export const htlcRefunded = async (htlc:string): Promise<[result:boolean, err: s
 export const htlcSeized = async (htlc:string): Promise<[result:boolean, err: string] | null> => {
   
     try {
-        let [htlock, err] = await HtlcSeized(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcSeized(cbdc, htlc);
         if (err.length != 0) {
             console.log(`htlcSeized: failed with err ${err}`);
             //return null;
@@ -310,7 +306,8 @@ export const htlcSeized = async (htlc:string): Promise<[result:boolean, err: str
 export const htlcSender = async (htlc:string): Promise<[result:string, err: string] | null> => {
   
     try {
-        let [htlock, err] = await HtlcSender(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcSender(cbdc, htlc);
         if (err.length != 0) {
             console.log(`htlcSender: failed with err ${err}`);
             //return null;
@@ -329,7 +326,8 @@ export const htlcSender = async (htlc:string): Promise<[result:string, err: stri
 export const htlcTimeLock = async (htlc:string): Promise<[result:BigNumber, err: string] | null> => {
   
     try {
-        let [htlock, err] = await HtlcTimeLock(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcTimeLock(cbdc, htlc);
         if (err.length != 0) {
             console.log(`htlcSender: failed with err ${err}`);
             //return null;
@@ -347,7 +345,8 @@ export const htlcTimeLock = async (htlc:string): Promise<[result:BigNumber, err:
 export const htlcWithdrawn = async (htlc:string): Promise<[result:boolean, err: string] | null> => {
   
     try {
-        let [htlock, err] = await HtlcWithdrawn(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await HtlcWithdrawn(cbdc, htlc);
         if (err.length != 0) {
             console.log(`htlcWithdrawn: failed with err ${err}`);
             //return null;
@@ -366,7 +365,8 @@ export const htlcWithdrawn = async (htlc:string): Promise<[result:boolean, err: 
 export const htlcRefund = async (htlc:string): Promise<[result:string, err: string] | null> => {
   
     try {
-        let [htlock, err] = await RefundHTLC(gConnectionInfo.cbdc, htlc);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await RefundHTLC(cbdc, htlc);
         if (err.length != 0) {
             console.log(`htlcRefund: failed with err ${err}`);
             //return null;
@@ -383,7 +383,8 @@ export const htlcRefund = async (htlc:string): Promise<[result:string, err: stri
 export const htlcWithdraw = async (htlc: string,  preimage: string): Promise<[result:string, err: string] | null> => {
   
     try {
-        let [htlock, err] = await WithdrawHTLC(gConnectionInfo.cbdc, htlc, preimage);
+        let cbdc = gConnectionInfo.cbdc;
+        let [htlock, err] = await WithdrawHTLC(cbdc, htlc, preimage);
         if (err.length != 0) {
             console.log(`htlcWithdraw: failed with err ${err}`);
             //return null;

@@ -1,7 +1,7 @@
 
 import { BigNumber, Contract, utils } from "ethers";
 
-function Allowance(cbdc: Contract, owner: string, spender: string ): [result: BigNumber, err: string] {
+export async function  Allowance(cbdc: Contract, owner: string, spender: string ): Promise<[result: BigNumber, err: string]> {
   
   let r:BigNumber = BigNumber.from("0");
   let e:string = "";
@@ -10,6 +10,7 @@ function Allowance(cbdc: Contract, owner: string, spender: string ): [result: Bi
     console.log("Cbdc object is not defined");
     return[r,"No CBDC contract"];
   } 
+  console.log(`Allowance: owner:${owner} spender: ${spender}`);
 
   async function allowance(_cbdc: Contract, _owner: string, _spender: string ) {
     let resp: string;
@@ -17,7 +18,7 @@ function Allowance(cbdc: Contract, owner: string, spender: string ): [result: Bi
       .allowance(_owner, _spender)
       .then((resp: BigNumber) => {
       // format to 2 decimal places
-      console.log(utils.formatUnits(resp, 0).toString());     
+      console.log(`resp => $${resp}: `, utils.formatUnits(resp, 0).toString());     
       r = resp;
     })
     .catch((err: Error) => {
@@ -25,7 +26,7 @@ function Allowance(cbdc: Contract, owner: string, spender: string ): [result: Bi
     })
   }
 
-  allowance(cbdc, owner,spender);
+  await allowance(cbdc, owner,spender);
   return [r,e];
 }
 

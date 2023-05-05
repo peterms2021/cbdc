@@ -2,7 +2,7 @@
 import { BigNumber, Contract, utils } from "ethers";
 
 
-function Decimals(cbdc: Contract): [result: string, err: string] {
+export async function Decimals(cbdc: Contract): Promise<[result: string, err: string]> {
   
  
   let err:string = "";
@@ -40,7 +40,7 @@ function Decimals(cbdc: Contract): [result: string, err: string] {
      
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

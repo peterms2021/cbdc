@@ -97,6 +97,7 @@ interface ICreateHtlcForPayload extends IPendingTransactionItem {
   readonly hashlock: string;
   readonly timelock: number;
   readonly amount: number;
+  readonly fees: number;
   htlcAddress?: string;
 }
 interface IRefundHtlcPayload extends IPendingTransactionItem {
@@ -463,6 +464,7 @@ function updatePendingAwaitAllowance(payload: IAwaitAllowancePayload) {
     hashlock: initialLoan.hashlock,
     timelock: timelock,
     amount: initialLoan.initialCollateral,
+    fees: initialLoan.fees,
   });
 }
 
@@ -503,6 +505,15 @@ function validateUserId(userId: string): boolean {
     ccfapp.arrayBuffer
   );
   return usersCerts.has(ccf.strToBuf(userId));
+}
+
+interface Caller {
+  id: string;
+}
+function getCallerId(request: ccfapp.Request<any>): string {
+  // Note that the following way of getting caller ID doesn't work for 'jwt' auth policy and 'no_auth' auth policy.
+  const caller = request.caller as unknown as Caller;
+  return caller.id;
 }
 
 //UNIX Timestamp. Seconds since Epoch

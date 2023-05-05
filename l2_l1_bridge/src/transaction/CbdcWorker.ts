@@ -33,45 +33,39 @@ import WithdrawHTLC from "../functions/WithdrawHTLC.js";
 
 
 import { BigNumber, Contract, utils } from "ethers";
-import { gConnectionInfo } from "../Connect.js"
+import { enInfo, gConnectionInfo } from "../ops/CbdcConnect.js"
 import GrantKYC from "../functions/GrantKYC.js";
 import RevokeKYC from "../functions/RevokeKYC.js";
 
-import { Accnt, transferFundsFrom, transferFundsFromResp, transferFunds, transferFundsResp, accntBalance , MoneySupply} from "./Interface.js";
-import { approveFunds, approveFundsResp} from "./Interface.js";
+import { Accnt, transferFundsFrom, transferFundsFromResp, transferFunds, transferFundsResp, accntBalance , MoneySupply, allowAnce, allowAnceResp} from "./TransInterface.js";
+import { approveFunds, approveFundsResp} from "./TransInterface.js";
 /**
  * Worker Methods
  */
 
-export const getAccountBalance = async (bankName: string): Promise<accntBalance | null> => {
+export const getAccountBalance = async (): Promise<accntBalance | null> => {
     //lookup the account name in our env table
 
-    let wallet = gConnectionInfo.wallets.get(bankName);
-
-    if (wallet === undefined) {
-        console.log(`getAccountBalance: unknown bank name ${bankName}`);
-        return null;
-    }
-    else {
-        try {
-            let addr = await wallet.getAddress();
-            let [result, err] =  await BalanceOf(gConnectionInfo.cbdc, addr);
-            if (err.length != 0) {
-                console.log(`getAccountBalance: failed to call to BalanceOf bank name ${bankName} with err ${err}`);
-                return null;
-            }
-            console.log(`getAccountBalance:... ${bankName} => ${utils.formatUnits(result, 2).toString()}`);
-            const resp: accntBalance = {
-                acct: bankName,
-                balance: result.toNumber()
-            };
-            console.log(`getAccountBalance: ${bankName} => ${resp.balance}`);
-            return resp;
-        } catch (error) {
-            console.log(`getAccountBalance: failed to calle BalanceOf bank name ${bankName}`);
+    let addr = await gConnectionInfo.wallet.getAddress();
+    try {      
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, err] =  await BalanceOf(cbdc, addr);
+        if (err.length != 0) {
+            console.log(`getAccountBalance: failed to call to BalanceOf bank name ${addr} with err ${err}`);
             return null;
         }
+        console.log(`getAccountBalance:... ${addr} => ${utils.formatUnits(result, 2).toString()}`);
+        const resp: accntBalance = {
+            acct: addr,
+            balance: result.toNumber()
+        };
+        console.log(`getAccountBalance: ${addr} => ${resp.balance}`);
+        return resp;
+    } catch (error) {
+        console.log(`getAccountBalance: failed to calle BalanceOf for address name ${addr}`);
+        return null;
     }
+    
 };
 
 
@@ -84,9 +78,10 @@ export const getMoneySupply  = async (): Promise<MoneySupply | null> =>  {
     else
     {
         try {       
-            let [result, err] = await TotalSupply(gConnectionInfo.cbdc);
+            let cbdc = gConnectionInfo.cbdc;
+            let [result, err] = await TotalSupply(cbdc);
             if (err.length != 0) {
-                console.log(`getMoneySupply: failed to call to BalanceOf bank with err ${err}`);
+                console.log(`getMoneySupply: failed to call to TotalSupply bank with err ${err}`);
                 return null;
             }
             const resp: MoneySupply = {
@@ -101,50 +96,42 @@ export const getMoneySupply  = async (): Promise<MoneySupply | null> =>  {
 };
 
 
-export const transferFrom = async (trans:transferFundsFrom): Promise<transferFundsFromResp | null> => {
-    //lookup the account name in our env table
-
-    let sendWallet = gConnectionInfo.wallets.get(trans.from);
-    let recvWallet = gConnectionInfo.wallets.get(trans.to);
-
-    if(sendWallet ===  undefined ||  recvWallet  === undefined)
-    {
-        if(sendWallet ===  undefined){
-            console.log(`transferFrom: unknown bank name ${trans.from}`);
+export const allowance = async (trans:allowAnce): Promise<allowAnceResp | null> => {
+ 
+    console.log(`allowance: ${trans}`);
+    try {       
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, _err] = await Allowance(cbdc, trans.owner,trans.spender);
+        if (_err.length != 0) {
+            console.log(`allowance: failed to call to Allowance  to: sender  ${trans.owner}  recv: ${trans.spender} amt: with err ${_err}`);
+            //return null;
         }
-
-        if(recvWallet ===  undefined){
-            console.log(`transferFrom: unknown bank name ${trans.to}`);
-        }  
+        const resp: allowAnceResp = {
+            owner: trans.owner,
+            spender: trans.spender,
+            amt: result?.toNumber(),
+            err:_err,
+            result: _err.length?false:true
+        }
+        return resp;
+    } catch (error) {
+        console.log(`allowance: failed to call Allowance  sender  ${trans.owner}  recv: ${trans.spender} `);
         return null;
     }
+    
+};
 
-    //check if the sender has enough funds
-    // should we lock the account?? Even though the transfer on the L1 will fail 
-    // if there is in adequete balance in  the senders account, we need to check 
-    // so we can report  accurately
 
-    let bal:any = await getAccountBalance(trans.from);
-
-    if(bal === undefined){
-        console.log(`transferFrom: cannot get balance of bank name ${trans.from}`);
-        return null;
-    }
-    let amt = bal as accntBalance;
-    if (amt.balance < trans.amount)
-    {
-        console.log(`transferFrom: inadequete balance in account for transfer to: sender  ${trans.from} amt: ${trans.amount} < ${amt.balance }`);
-        return null;
-    }
-  
+export const transferFrom = async (trans:transferFundsFrom): Promise<transferFundsFromResp | null> => {
+ 
     try {
-        let saddr = await sendWallet.getAddress();
-        let raddr = await recvWallet.getAddress();
+        
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await TransferFrom(gConnectionInfo.cbdc, saddr,raddr,a);
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, _err] = await TransferFrom(cbdc, trans.from,trans.to,a);
         if (_err.length != 0) {
-            console.log(`transferFrom: failed to call to TransferFrom  to: sender  ${trans.from}  recv: ${trans.to} amt: ${trans.amount}  bal: ${amt.balance } with err ${_err}`);
+            console.log(`transferFrom: failed to call to TransferFrom  to: sender  ${trans.from}  recv: ${trans.to} amt: ${trans.amount}  with err ${_err}`);
             //return null;
         }
         const resp: transferFundsFromResp = {
@@ -164,22 +151,14 @@ export const transferFrom = async (trans:transferFundsFrom): Promise<transferFun
 
 
 export const transfer = async (trans:transferFunds): Promise<transferFundsResp | null> => {
-
-    let recvWallet = gConnectionInfo.wallets.get(trans.to);
-
-    if(recvWallet  === undefined)
-    {
-        if(recvWallet ===  undefined){
-            console.log(`transferFrom: unknown bank name ${trans.to}`);
-        }  
-        return null;
-    }
-
+ 
     try {
-        let raddr = await recvWallet.getAddress();
+
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await Transfer(gConnectionInfo.cbdc,raddr,a);
+        //use the 
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, _err] = await Transfer(cbdc,trans.to,a);
         if (_err.length != 0) {
             console.log(`transferFrom: failed to call to Transfer  recv: ${trans.to} amt: ${trans.amount}  with err ${_err}`);
             //return null;
@@ -201,21 +180,11 @@ export const transfer = async (trans:transferFunds): Promise<transferFundsResp |
 
 export const approve = async (trans:approveFunds): Promise<approveFundsResp | null> => {
 
-    let recvWallet = gConnectionInfo.wallets.get(trans.spender);
-
-    if(recvWallet  === undefined)
-    {
-        if(recvWallet ===  undefined){
-            console.log(`approve: unknown bank name ${trans.spender}`);
-        }  
-        return null;
-    }
-
     try {
-        let raddr = await recvWallet.getAddress();
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await Transfer(gConnectionInfo.cbdc,raddr,a);
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, _err] = await Approve(cbdc,trans.spender,a);
         if (_err.length != 0) {
             console.log(`approve: failed to call to approve  spender: ${trans.spender} amt: ${trans.amount}  with err ${_err}`);
             //return null;
@@ -237,21 +206,12 @@ export const approve = async (trans:approveFunds): Promise<approveFundsResp | nu
 
 export const increaseAllowance = async (trans:approveFunds): Promise<approveFundsResp | null> => {
 
-    let recvWallet = gConnectionInfo.wallets.get(trans.spender);
-
-    if(recvWallet  === undefined)
-    {
-        if(recvWallet ===  undefined){
-            console.log(`increaseAllowance: unknown bank name ${trans.spender}`);
-        }  
-        return null;
-    }
-
     try {
-        let raddr = await recvWallet.getAddress();
+       
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await IncreaseAllowance(gConnectionInfo.cbdc,raddr,a);
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, _err] = await IncreaseAllowance(cbdc,trans.spender,a);
         if (_err.length != 0) {
             console.log(`increaseAllowance: failed to call to approve  spender: ${trans.spender} amt: ${trans.amount}  with err ${_err}`);
             //return null;
@@ -272,21 +232,11 @@ export const increaseAllowance = async (trans:approveFunds): Promise<approveFund
 
 export const decreaseAllowance = async (trans:approveFunds): Promise<approveFundsResp | null> => {
 
-    let recvWallet = gConnectionInfo.wallets.get(trans.spender);
-
-    if(recvWallet  === undefined)
-    {
-        if(recvWallet ===  undefined){
-            console.log(`decreaseAllowance: unknown bank name ${trans.spender}`);
-        }  
-        return null;
-    }
-
     try {
-        let raddr = await recvWallet.getAddress();
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
-        let [result, _err] = await DecreaseAllowance(gConnectionInfo.cbdc,raddr,a);
+        let cbdc = gConnectionInfo.cbdc;
+        let [result, _err] = await DecreaseAllowance(cbdc,trans.spender,a);
         if (_err.length != 0) {
             console.log(`decreaseAllowance: failed to call to approve  spender: ${trans.spender} amt: ${trans.amount}  with err ${_err}`);
             //return null;
@@ -303,5 +253,7 @@ export const decreaseAllowance = async (trans:approveFunds): Promise<approveFund
         return null;
     } 
 };
+
+
 
 

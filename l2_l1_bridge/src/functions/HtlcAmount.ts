@@ -2,7 +2,7 @@
 import { BigNumber, Contract, utils } from "ethers";
 
 
-function HtlcAmount(cbdc: Contract, htlc:string) : [result: BigNumber, err: string] {
+export async function HtlcAmount(cbdc: Contract, htlc:string) : Promise<[result: BigNumber, err: string]> {
 
   let loading = false;
   let err:string = "";
@@ -39,7 +39,7 @@ function HtlcAmount(cbdc: Contract, htlc:string) : [result: BigNumber, err: stri
           });  
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

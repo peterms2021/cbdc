@@ -1,7 +1,7 @@
 
 import { Contract } from "ethers";
 
-function HtlcRefunded( cbdc: Contract,  htlc: string): [result:boolean, err:string]  {
+export async function HtlcRefunded( cbdc: Contract,  htlc: string): Promise<[result:boolean, err:string]>  {
   let result:boolean =false;
   let err:string = "";
  
@@ -30,7 +30,7 @@ function HtlcRefunded( cbdc: Contract,  htlc: string): [result:boolean, err:stri
           });
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
  
 };
