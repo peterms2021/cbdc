@@ -6,6 +6,7 @@ set -euo pipefail
 
 declare server="https://127.0.0.1:8000"
 declare certificate_dir=workspace/sandbox_common
+cp ./scripts/hosts /etc/hosts
 
 # Using the same way as https://github.com/microsoft/CCF/blob/1f26340dea89c06cf615cbd4ec1b32665840ef4e/tests/start_network.py#L94
 # There is a side effect here in the case of the sandbox as it creates the 'workspace/sandbox_common' everytime
