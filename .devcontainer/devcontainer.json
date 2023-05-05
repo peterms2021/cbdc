@@ -12,7 +12,8 @@
         "github.vscode-pull-request-github",
         "ms-vscode.makefile-tools",
         "ms-python.python",
-        "Trezm.type-doc-vscode"
+        "Trezm.type-doc-vscode",
+        "humao.rest-client"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
