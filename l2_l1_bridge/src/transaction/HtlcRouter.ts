@@ -5,8 +5,8 @@
  import { BigNumber, utils } from "ethers";
  import express, { Request, Response } from "express";
  import * as htlcService from "./HtlcWorker.js";
- import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp, htlcLock, htlcLockFor, htlcWithdraw, htlcSecret, htlcSecretResp, htlcDuration, htlcDurationResp } from "./Interface.js";
- import { approveFunds,  approveFundsResp } from "./Interface.js";
+ import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp, htlcLock, htlcLockFor, htlcWithdraw, htlcSecret, htlcSecretResp, htlcDuration, htlcDurationResp } from "./TransInterface.js";
+ import { approveFunds,  approveFundsResp } from "./TransInterface.js";
  
  export const htlcRouter = express.Router();
  
@@ -19,7 +19,7 @@
         console.log(`htlc/create: ...`);
         const trans: htlcLock = req.body;
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
-        let resp = await htlcService.createHTLC(trans.receiver, trans.duration.toString(),a );
+        let resp = await htlcService.createHTLC(trans.receiver, trans.secret, trans.duration.toString(),a );
         if (resp) {
             let [r,e] = resp;
             if(e.length == 0){
@@ -43,7 +43,7 @@ htlcRouter.post("/create_for", async (req: Request, res: Response) => {
         console.log(`htlc/create_for: ...`);
         const trans: htlcLockFor = req.body;
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
-        let resp = await htlcService.createHTLCFor( trans.sender, trans.receiver, trans.duration.toString(),a );
+        let resp = await htlcService.createHTLCFor( trans.sender, trans.receiver, trans.secret, trans.duration.toString(),a );
         if (resp) {
             let [r,e] = resp;
             if(e.length == 0){

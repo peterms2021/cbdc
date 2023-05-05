@@ -23,7 +23,9 @@ function setResult(val: string){
   result =  val;
 } 
 
-  async function handleSubmit() {
+console.log(`Transfer: from:${from} => to:${to}  amnt:${amount}`);
+
+async function handleSubmit() {
    
       try {
         setLoading(true);

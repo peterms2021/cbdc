@@ -1,7 +1,7 @@
 
 import { Contract } from "ethers";
 
-function HtlcPreimage( cbdc: Contract, htlc: string) : [result:string, err:string]  {
+export async function HtlcPreimage( cbdc: Contract, htlc: string) : Promise<[result:string, err:string]>  {
   let result:string ="";
   let err:string = "";
  
@@ -18,7 +18,7 @@ function HtlcPreimage( cbdc: Contract, htlc: string) : [result:string, err:strin
   }
 
   async function handleSubmit() {
-          cbdc
+          await cbdc
           .htlcPreimage(htlc)
           .then((result: string) => {
             setResult(result);
@@ -30,7 +30,7 @@ function HtlcPreimage( cbdc: Contract, htlc: string) : [result:string, err:strin
           });
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

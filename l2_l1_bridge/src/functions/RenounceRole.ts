@@ -1,7 +1,7 @@
 
 import { Contract, utils } from "ethers";
 
-function RenounceRole(cbdc: Contract, role:string ): [result:string, err:string]  {
+export async function RenounceRole(cbdc: Contract, role:string ): Promise<[result:string, err:string]> {
   
   let result:string ="";
   let err:string = "";
@@ -38,7 +38,7 @@ function RenounceRole(cbdc: Contract, role:string ): [result:string, err:string]
       };
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

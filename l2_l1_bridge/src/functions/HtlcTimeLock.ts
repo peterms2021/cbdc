@@ -2,7 +2,7 @@
 import { BigNumber, Contract } from "ethers";
 
 
-function HtlcTimeLock(cbdc: Contract , htlc: string): [result:BigNumber, err:string]  {
+export async function HtlcTimeLock(cbdc: Contract , htlc: string): Promise<[result:BigNumber, err:string]>  {
   
   let result:BigNumber =BigNumber.from("0");
   let err:string = "";
@@ -32,7 +32,7 @@ function HtlcTimeLock(cbdc: Contract , htlc: string): [result:BigNumber, err:str
           });
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
   
 };

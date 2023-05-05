@@ -1,7 +1,8 @@
 
-import { Contract, utils } from "ethers";
+import { Contract, utils, BigNumber } from "ethers";
 
-function DecreaseAllowance(cbdc: Contract, spender: string,  allowance: string) : [result: string, err: string] {
+
+export async function DecreaseAllowance(cbdc: Contract, spender: string,  allowance: BigNumber) : Promise<[result: string, err: string]> {
 
   let err:string = "";
   let result:string = "";
@@ -23,10 +24,12 @@ function DecreaseAllowance(cbdc: Contract, spender: string,  allowance: string) 
     result =  val;
   }
 
+  console.log(`DecreaseAllowance:  spender: ${spender} allowance:${allowance}`);
   async function handleSubmit() {
       try {
         setLoading(true);
-        const response = await cbdc.decreaseAllowance(spender, utils.parseUnits(allowance, 2).toString());
+        const response = await cbdc.decreaseAllowance(spender, allowance.toString());
+        //const response = await cbdc.decreaseAllowance(spender, utils.parseUnits(allowance, 2).toString());
         await response.wait();
         setResult("Success");
         //setErr(undefined);
@@ -38,7 +41,7 @@ function DecreaseAllowance(cbdc: Contract, spender: string,  allowance: string) 
       }
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 };
 

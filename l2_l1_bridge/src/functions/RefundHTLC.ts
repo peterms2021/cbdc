@@ -1,7 +1,7 @@
 
 import { Contract } from "ethers";
 
-function RefundHTLC( cbdc: Contract,  htlc:string) : [result:string, err:string]  {
+export async function RefundHTLC( cbdc: Contract,  htlc:string) : Promise<[result:string, err:string]>  {
  
   let result:string ="";
   let err:string = "";
@@ -40,7 +40,7 @@ function RefundHTLC( cbdc: Contract,  htlc:string) : [result:string, err:string]
     
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 
 };

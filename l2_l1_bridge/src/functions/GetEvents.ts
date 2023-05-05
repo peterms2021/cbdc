@@ -13,7 +13,7 @@ const events = receipt.logs.map((log) => iface.parseLog({topics: log.topics, dat
 console.log(JSON.stringify(events, null, 4)); // print`;
 
 
-function GetEvents(cbdc: Contract, transaction: string) : [result: string, err: string] {
+export async function GetEvents(cbdc: Contract, transaction: string) : Promise<[result: string, err: string]> {
 
   const abi = [...userAbi, ...kycerAbi];
   const iface = new utils.Interface(abi);
@@ -51,7 +51,7 @@ function GetEvents(cbdc: Contract, transaction: string) : [result: string, err: 
           })
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
  
 };

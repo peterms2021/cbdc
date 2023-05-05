@@ -4,8 +4,8 @@
 
 import express, { Request, Response } from "express";
 import * as WorkerService from "./CbdcWorker.js";
-import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp } from "./Interface.js";
-import { approveFunds,  approveFundsResp } from "./Interface.js";
+import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp, allowAnce } from "./TransInterface.js";
+import { approveFunds,  approveFundsResp } from "./TransInterface.js";
 
 export const cbdcRouter = express.Router();
 
@@ -15,12 +15,12 @@ export const cbdcRouter = express.Router();
 
 // GET account balance
 
-cbdcRouter.get("/balance/:acct", async (req: Request, res: Response) => {
+cbdcRouter.get("/balance", async (req: Request, res: Response) => {
     try {
-        const id: string = req.params.acct;
+        //const id: string = req.params.acct;
         let bal: any;
         console.log("cbdcRouter/balance... ");
-        bal = await WorkerService.getAccountBalance(id);
+        bal = await WorkerService.getAccountBalance();
         if (bal) {
             res.status(200).send(bal);
         } else {
@@ -72,6 +72,8 @@ cbdcRouter.post("/transfer_from", async (req: Request, res: Response) => {
 });
 
 
+
+
 // POST items
 cbdcRouter.post("/transfer", async (req: Request, res: Response) => {
     try {
@@ -94,10 +96,31 @@ cbdcRouter.post("/transfer", async (req: Request, res: Response) => {
 });
 
 
-
-cbdcRouter.put("/approve", async (req: Request, res: Response) => {
+// POST items
+cbdcRouter.post("/allowance", async (req: Request, res: Response) => {
     try {
-        console.log(`transfer_from: ...`);
+        
+        const trans: allowAnce = req.body;
+        //console.log(`allowance: ... ${trans}`);
+
+        let tr = await WorkerService.allowance(trans);
+        if (tr === undefined) {
+            res.status(400).json("Bad request");
+        }
+        if (tr.err.length){
+            res.status(400).send(tr.err);
+        }else{
+            res.status(201).json(tr);
+        }
+    } catch (e) {
+        console.log(`allowance: ${e.message}`);
+        res.status(500).send(e.message);
+    }
+});
+
+
+cbdcRouter.post("/approve", async (req: Request, res: Response) => {
+    try {    
         const trans: approveFunds = req.body;
 
         let tr = await WorkerService.approve(trans);
@@ -110,46 +133,52 @@ cbdcRouter.put("/approve", async (req: Request, res: Response) => {
             res.status(201).json(tr);
         }
     } catch (e) {
-        console.log(`transfer: ${e.message}`);
+        console.log(`approve: ${e.message}`);
         res.status(500).send(e.message);
     }
 });
 
 
-/*
-// PUT items/:id
- 
-cbdcRouter.put("/approve", async (req: Request, res: Response) => {
-  const id: number = parseInt(req.params.id, 10);
- 
-  try {
-    const itemUpdate: Item = req.body;
- 
-    const existingItem: Item = await WorkerService.find(id);
- 
-    if (existingItem) {
-      const updatedItem = await WorkerService.update(id, itemUpdate);
-      return res.status(200).json(updatedItem);
+cbdcRouter.post("/increase", async (req: Request, res: Response) => {
+    try {
+        
+        const trans: approveFunds = req.body;
+        //console.log(`increase: ... ${trans}`);
+
+        let tr = await WorkerService.increaseAllowance(trans);
+        if (tr === undefined) {
+            res.status(400).json("Bad request");
+        }
+        if (tr.err.length){
+            res.status(400).send(tr.err);
+        }else{
+            res.status(201).json(tr);
+        }
+    } catch (e) {
+        console.log(`increase: ${e.message}`);
+        res.status(500).send(e.message);
     }
- 
-    const newItem = await WorkerService.create(itemUpdate);
- 
-    res.status(201).json(newItem);
-  } catch (e) {
-    res.status(500).send(e.message);
-  }
 });
- 
-// DELETE items/:id
- 
-cbdcRouter.delete("/:id", async (req: Request, res: Response) => {
-  try {
-    const id: number = parseInt(req.params.id, 10);
-    await WorkerService.remove(id);
- 
-    res.sendStatus(204);
-  } catch (e) {
-    res.status(500).send(e.message);
-  }
+
+cbdcRouter.post("/decrease", async (req: Request, res: Response) => {
+    try {
+        
+        const trans: approveFunds = req.body;
+        console.log(`decrease: ... ${trans}`);
+
+        let tr = await WorkerService.decreaseAllowance(trans);
+        if (tr === undefined) {
+            res.status(400).json("Bad request");
+        }
+        if (tr.err.length){
+            res.status(400).send(tr.err);
+        }else{
+            res.status(201).json(tr);
+        }
+    } catch (e) {
+        console.log(`decrease: ${e.message}`);
+        res.status(500).send(e.message);
+    }
 });
-*/
+
+
