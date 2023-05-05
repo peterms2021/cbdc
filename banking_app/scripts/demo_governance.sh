@@ -9,6 +9,10 @@ create_certificate(){
     local certName="$1"
     local certFile="${1}_cert.pem"
     local setUserFile="set_${1}.json"
+    if [ -f "$certFile" ]; then
+      echo "$certFile already exists. Reusing existing certificate"
+      return 0
+    fi
     $ccf_prefix/keygenerator.sh --name "$certName"
 
     cert=$(< "$certFile" sed '$!G' | paste -sd '\\n' -)
