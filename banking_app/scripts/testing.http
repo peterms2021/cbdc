@@ -1,7 +1,7 @@
 # We do not recreate user certificates in demo_governance.sh if they already exist
 # We do recreate member certificates each time
-@user0_id="3a96c7b143adfa6e89a5c04f8e8bd674931257c11f9e38245153ca34e8d565f3"
-@user1_id = "c018e5390a8643f9ec5059a5660fa2e12b667d7323c7b6190ee74298b6e424e8"
+@user0_id="fe1ea80bfd877828c9f9432f795b0d6089e43b2e3f8d97d8a9716e0126663292"
+@user1_id = "7fc8a586a88d9ea2de1ba3307bafd521cb17b6eb07ad0c5913bfc28df2b2686b"
 
 @bridge_address="0x5A84099345D666F5FC7FE644D0A7B0D2B51D84AD"
 @user0_address="0xFBCC5EE4EA0AF205EBCB22017A221C0FA5569BAF"
@@ -52,10 +52,16 @@ POST https://user1.localhost:8000/app/loans/{{user1_id}}
     "userId": {{user1_id}},"securityId":"SECURITY42","quantity":100
 }
 
+#At this point user0 will call 
+#cbdc.increaseAllowance(address=bridgeAddress, increasedAllowance=fees+initialCollateral)
 
 ###Get Pending Transactions
 # @name pendingtransactions
 GET https://member0.localhost:8000/app/pendingtransactions
+
+# If bridge receives an AWAIT_ALLOWANCE transaction.
+# Bridge calls cbdc.allowance(order=ownerAddress, spender=spenderAddress)
+# If return from cbdc.allowance > remaining
 
 ###Complete AWAIT_ALLOWANCE transaction.
 #Variables taken from last pendingTransaction in body of last pendingtransactions request
@@ -96,3 +102,4 @@ POST https://member0.localhost:8000/app/completetransaction
       "amount": 10500,
       "htlcAddress": "{{htlcAddress}}"
 }
+
