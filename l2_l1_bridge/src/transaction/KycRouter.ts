@@ -4,7 +4,7 @@
 
  import express, { Request, Response } from "express";
  import * as WorkerService from "./KycWorker.js";
- import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance } from "./Interface.js";
+ import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance } from "./TransInterface.js";
  
  
  export const kycRouter = express.Router();

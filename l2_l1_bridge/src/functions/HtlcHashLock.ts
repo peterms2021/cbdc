@@ -1,7 +1,7 @@
 
 import { Contract } from "ethers";
 
-function HtlcHashLock(cbdc: Contract, htlc:string) : [result:string, err:string]   {
+export async function HtlcHashLock(cbdc: Contract, htlc:string) : Promise< [result:string, err:string] >  {
 
   
   let result:string ="";
@@ -31,7 +31,7 @@ function HtlcHashLock(cbdc: Contract, htlc:string) : [result:string, err:string]
             setErr(err.message);
           });
   }
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
 }
 

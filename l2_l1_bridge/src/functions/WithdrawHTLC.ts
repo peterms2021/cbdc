@@ -1,7 +1,7 @@
 
 import { Contract } from "ethers";
 
-function WithdrawHTLC(cbdc: Contract,  htlc: string,  preimage: string) : [result:string, err:string]  {
+export async function WithdrawHTLC(cbdc: Contract,  htlc: string,  preimage: string) : Promise<[result:string, err:string]>  {
 
   let result : string ="";
   let err: string ="";
@@ -40,7 +40,7 @@ function WithdrawHTLC(cbdc: Contract,  htlc: string,  preimage: string) : [resul
     
   }
 
-  handleSubmit();
+  await handleSubmit();
   return [result,err] ; 
  
 };

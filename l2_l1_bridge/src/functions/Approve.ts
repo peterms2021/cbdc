@@ -1,7 +1,7 @@
 
 import { Contract, utils, BigNumber } from "ethers";
 
-function Approve(cbdc: Contract, spender: string, amount: BigNumber ): [result: string, err: string] {
+export async function Approve(cbdc: Contract, spender: string, amount: BigNumber ): Promise<[result: string, err: string]> {
   
   let loading = false;
   let err:string = "";
@@ -22,6 +22,8 @@ function Approve(cbdc: Contract, spender: string, amount: BigNumber ): [result: 
     result =  val;
   }
 
+  console.log(`Approve:  spender: ${spender} amount:${amount}`);
+
   async function approve(cbdc: Contract, _spender: string, _amount: string  ) {
       try {
         setLoading(true);
@@ -37,7 +39,7 @@ function Approve(cbdc: Contract, spender: string, amount: BigNumber ): [result: 
       } 
   }
 
-  approve(cbdc, spender, amount.toString());
+  await approve(cbdc, spender, amount.toString());
   return [result,err] ; 
 };
 
