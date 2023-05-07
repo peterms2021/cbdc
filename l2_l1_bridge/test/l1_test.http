@@ -1,0 +1,93 @@
+@BANKA_PORT=8001
+@BANKB_PORT=9001
+@BRIDGE_PORT=7001
+
+@bridge_address=0xBF4961b1b32CA8873e0C760906745F2006878EF0
+@user_bankA_address=0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001
+@user_bankB_address=0xa3df034084078EBf20216b0789CF4901D8D6194E
+
+@allowance_size=1000
+@fees=100
+###Bank A query balance
+GET http://localhost:{{BANKA_PORT}}/balance
+
+####
+GET http://localhost:{{BANKB_PORT}}/balance
+
+###Bank A creates a request for increase allowance for the bridge spend on behalf of bank B
+POST http://localhost:{{BANKA_PORT}}/increase
+Content-Type: "application/json"
+charset:UTF-8
+
+{
+     "spender": "{{bridge_address}}",
+     "amount" : {{allowance_size}}
+}
+
+### check that the bridge has the allowance
+
+POST http://localhost:{{BRIDGE_PORT}}/allowance
+
+
+{
+    "owner": "{{user_bankA_address}}",
+    "spender": "{{bridge_address}}"
+}
+
+
+###Bridge spends allowance transfer_from Bank A to Bank B
+POST http://localhost:{{BRIDGE_PORT}}/transfer_from
+
+{
+    "from": "{{user_bankA_address}}",
+    "to": "{{user_bankB_address}}",
+    "amount": {{fees}}
+}
+
+
+### now check the balance in A and B
+GET http://localhost:{{BANKA_PORT}}/balance
+
+###
+GET http://localhost:{{BANKB_PORT}}/balance
+
+### now create HTLC for collateral
+@secret= "{{$localDatetime 'YYYY-MM-DD'}} + {{$timestamp}}"
+
+
+### create htlhash
+# @name htlcSecretResp
+PUT http://localhost:{{BRIDGE_PORT}}/htlc/hash_secret
+
+{
+    "secret": {{secret}} 
+}
+
+### HTLC secret
+@htlc={{htlcSecretResp.response.body.$.htlcSecretResp.result}}
+
+####
+# @name timeStamp
+
+PUT http://localhost:{{BRIDGE_PORT}}/htlc/duration
+
+{
+    "dur_ms": 30000 
+}
+
+@duration={{timeStamp.response.body.$.timeStamp.result}}
+
+#### create HTLC for
+# @name htlcreate
+POST http://localhost:{{BRIDGE_PORT}}/htlc/create_for
+
+{ "sender":"{{user_bankA_address}}", 
+  "receiver":"{{user_bankB_address}}", 
+  "secret":"{{htlc}}", 
+  "duration":"{{duration}}",
+  "amount": 100
+}
+
+@htlock = {{htlcreate.response.body.$.htlcreate.result}}
+
+
