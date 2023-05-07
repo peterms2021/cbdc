@@ -1,7 +1,7 @@
 # We do not recreate user certificates in demo_governance.sh if they already exist
 # We do recreate member certificates each time
-@user0_id="fe1ea80bfd877828c9f9432f795b0d6089e43b2e3f8d97d8a9716e0126663292"
-@user1_id = "7fc8a586a88d9ea2de1ba3307bafd521cb17b6eb07ad0c5913bfc28df2b2686b"
+@user0_id="5ef13a001d17b02062a99f48adddf84aa410670fde21931f0546b7c981de1637"
+@user1_id = "7bd24bd11dcc59e552459483db34a0d5bd59b64fc5f0ce788c473a4aa126445a"
 
 @bridge_address="0x5A84099345D666F5FC7FE644D0A7B0D2B51D84AD"
 @user0_address="0xFBCC5EE4EA0AF205EBCB22017A221C0FA5569BAF"

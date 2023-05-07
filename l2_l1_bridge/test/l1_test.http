@@ -16,7 +16,8 @@ GET http://localhost:{{BANKB_PORT}}/balance
 
 ###Bank A creates a request for increase allowance for the bridge spend on behalf of bank B
 POST http://localhost:{{BANKA_PORT}}/increase
-Content-Type: "application/json"
+User-Agent: rest-client
+Content-Type: application/json
 charset:UTF-8
 
 {
@@ -27,7 +28,7 @@ charset:UTF-8
 ### check that the bridge has the allowance
 
 POST http://localhost:{{BRIDGE_PORT}}/allowance
-
+Content-Type: application/json
 
 {
     "owner": "{{user_bankA_address}}",
@@ -37,6 +38,7 @@ POST http://localhost:{{BRIDGE_PORT}}/allowance
 
 ###Bridge spends allowance transfer_from Bank A to Bank B
 POST http://localhost:{{BRIDGE_PORT}}/transfer_from
+Content-Type: application/json
 
 {
     "from": "{{user_bankA_address}}",
@@ -58,28 +60,33 @@ GET http://localhost:{{BANKB_PORT}}/balance
 ### create htlhash
 # @name htlcSecretResp
 PUT http://localhost:{{BRIDGE_PORT}}/htlc/hash_secret
+Content-Type: application/json
 
 {
     "secret": {{secret}} 
 }
 
 ### HTLC secret
-@htlc={{htlcSecretResp.response.body.$.htlcSecretResp.result}}
+##@htlc={{htlcSecretResp.response.body.$.htlcSecretResp.result}}
+@htlc={{htlcSecretResp.response.body.result}}
 
 ####
 # @name timeStamp
 
 PUT http://localhost:{{BRIDGE_PORT}}/htlc/duration
+Content-Type: application/json
 
 {
     "dur_ms": 30000 
 }
 
-@duration={{timeStamp.response.body.$.timeStamp.result}}
+####
+@duration={{timeStamp.response.body.result}}
 
 #### create HTLC for
 # @name htlcreate
 POST http://localhost:{{BRIDGE_PORT}}/htlc/create_for
+Content-Type: application/json
 
 { "sender":"{{user_bankA_address}}", 
   "receiver":"{{user_bankB_address}}", 
@@ -88,6 +95,7 @@ POST http://localhost:{{BRIDGE_PORT}}/htlc/create_for
   "amount": 100
 }
 
+###
 @htlock = {{htlcreate.response.body.$.htlcreate.result}}
 
 

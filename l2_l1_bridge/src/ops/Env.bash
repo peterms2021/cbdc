@@ -37,7 +37,7 @@ export CCF_CLIENT_CERT_FILE="~/.ccf_key/user0.cer"
 #mutual TLS service cert
 export CCF_SERVICE_CERT_FILE="~/.ccf_key/service_cert.pem"
 
-export API_GET_TRANSACTION="/pending_tx"
+export API_GET_TRANSACTION="/app/pendingtransactions"
 export API_GET_LOAN="/get_loan"
 export API_CONFIRM_LOAN="/confirm_loan"
 export API_CONFIRM_TRANSFER="/confirm_transfer"

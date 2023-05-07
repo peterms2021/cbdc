@@ -38,8 +38,7 @@
 
 
 htlcRouter.post("/create_for", async (req: Request, res: Response) => {
-    try {
-        
+    try {        
         console.log(`htlc/create_for: ...`);
         const trans: htlcLockFor = req.body;
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
@@ -406,31 +405,42 @@ htlcRouter.post("/withdraw/:id", async (req: Request, res: Response) => {
 
 //test function
 htlcRouter.put("/hash_secret", async (req: Request, res: Response) => {
-    const val: htlcSecret = req.body;
-    console.log(`htlc/hash_secret: ...${val}`);
+    try {
+        const val: htlcSecret = req.body;
+        console.log(`htlc/hash_secret: ...${val}`);
     
-    let [r] = await shash(val.secret);
-    console.log(`htlc/hash: ...${r}`);
+        let [r] = await shash(val.secret);
+        console.log(`htlc/hash: ...${r}`);
 
-    //let rr: htlcSecretResp;
-    //rr.result = r;
-    res.status(200).json(r);
+         const  rr = {} as htlcSecretResp;
+         rr.result = r;
+        res.status(200).json(rr);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }  
 });
 
 //test function
 htlcRouter.put("/duration", async (req: Request, res: Response) => {
-    const val: htlcDuration = req.body;
-    console.log(`htlc/duration: ...${val}`);
+    try {
+        const val: htlcDuration = req.body;
+        console.log(`htlc/duration: ...${val}`);
+        
+        //get how many milliseconds to add to the current time
+        let f = val.dur_ms;
+        let v = Date.now();
+        let r = +v + +f;
+        console.log(`duration: ${f} + now ${v} => ${r}`);
+        
+        //let rres: htlcDurationResp;
+        //rres.result  = r;
+        const val2 = {} as htlcDurationResp;
+        val2.result = r;
+        res.status(200).json(val2);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
     
-    //get how many milliseconds to add to the current time
-    let f = val.dur_ms;
-    let v = Date.now();
-    let r = +v + +f;
-    console.log(`duration: ${f} + now ${v} => ${r}`);
-    
-    //let rres: htlcDurationResp;
-    //rres.result  = r;
-    res.status(200).json(r);
 });
 
 

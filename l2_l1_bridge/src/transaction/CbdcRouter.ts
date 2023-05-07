@@ -101,7 +101,7 @@ cbdcRouter.post("/allowance", async (req: Request, res: Response) => {
     try {
         
         const trans: allowAnce = req.body;
-        //console.log(`allowance: ... ${trans}`);
+        console.log(`allowance: ... ${JSON.stringify(trans)}`);
 
         let tr = await WorkerService.allowance(trans);
         if (tr === undefined) {
@@ -122,7 +122,8 @@ cbdcRouter.post("/allowance", async (req: Request, res: Response) => {
 cbdcRouter.post("/approve", async (req: Request, res: Response) => {
     try {    
         const trans: approveFunds = req.body;
-
+        console.log(`allowance: ... ${JSON.stringify(trans)}`);
+        
         let tr = await WorkerService.approve(trans);
         if (tr === undefined) {
             res.status(400).json("Bad request");
@@ -143,7 +144,7 @@ cbdcRouter.post("/increase", async (req: Request, res: Response) => {
     try {
         
         const trans: approveFunds = req.body;
-        //console.log(`increase: ... ${trans}`);
+        console.log(`increase: ... ${JSON.stringify(trans, null, 4)}`);
 
         let tr = await WorkerService.increaseAllowance(trans);
         if (tr === undefined) {
@@ -155,7 +156,7 @@ cbdcRouter.post("/increase", async (req: Request, res: Response) => {
             res.status(201).json(tr);
         }
     } catch (e) {
-        console.log(`increase: ${e.message}`);
+        console.log(` Error increase: ${e.message}`);
         res.status(500).send(e.message);
     }
 });
