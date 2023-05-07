@@ -35,7 +35,7 @@ curl -i -X POST -H 'Content-Type: application/json; charset=UTF-8' -d '{"to":"0x
 
 
 # ----  Allowances ----
-# request allowance
+# request allowance balance that spender can spend on behalf of owner
 curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{"owner":"<raddr>", "spender":"<saddr>"}'   http://localhost:7001/allowance
 curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{"owner":"0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001", "spender":"0xa3df034084078EBf20216b0789CF4901D8D6194E"}'   http://localhost:7001/allowance
 
@@ -46,7 +46,56 @@ curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{"spende
 
 # Increase allowance 
 curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{"spender":"<raddr>", "amount":"<number>"}'   http://localhost:7001/increase
-curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{"spender":"0xa3df034084078EBf20216b0789CF4901D8D6194E", "amount":"1000}'   http://localhost:7001/increase
+
+# Example frlow
+# bank A (0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001) requesting allowance for the bridge (0xBF4961b1b32CA8873e0C760906745F2006878EF0) to spend on its behalf (note we use port for Bank A L1 client - 8001)
+curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{"spender":"0xBF4961b1b32CA8873e0C760906745F2006878EF0", "amount":10000}'   http://localhost:8001/increase 
+# Watch for the approval (events log on bridge)
+            {
+                "spender": "0xBF4961b1b32CA8873e0C760906745F2006878EF0",
+                "owner": "0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001",
+                "value": {
+                    "type": "BigNumber",
+                    "hex": "0x0f4240"
+                },
+                "eventData": {
+                    "blockNumber": 11680711,
+                    "blockHash": "0xa64f607670b61b905169d5bfb02e2388b1c911adde242d78ba03679a6bfdf441",
+                    "transactionIndex": 0,
+                    "removed": false,
+                    "address": "0xb82C4150d953fcCcE42d7D53246B5553016c5C71",
+                    "data": "0x00000000000000000000000000000000000000000000000000000000000f4240",
+                    "topics": [
+                        "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+                        "0x000000000000000000000000edac9e99e752107c8de95dad7ccd8bd0ae352001",
+                        "0x000000000000000000000000bf4961b1b32ca8873e0c760906745f2006878ef0"
+                    ],
+                    "transactionHash": "0x720d830e485ef658bd45e20b4303bd1945c28e3231945d5808048b96b6a1da47",
+                    "logIndex": 0,
+                    "event": "Approval",
+                    "eventSignature": "Approval(address,address,uint256)",
+                    "args": [
+                        "0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001",
+                        "0xBF4961b1b32CA8873e0C760906745F2006878EF0",
+                        {
+                            "type": "BigNumber",
+                            "hex": "0x0f4240"
+                        }
+                    ]
+                }
+            }
+
+# call to check allowance by the bridge
+curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{"owner":"0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001", "spender":"0xBF4961b1b32CA8873e0C760906745F2006878EF0"}'   http://localhost:7001/allowance
+
+
+curl -i -X POST  -H 'Content-Type: application/json; charset=UTF-8' -d '{"owner":"0xBF4961b1b32CA8873e0C760906745F2006878EF0", "spender":"0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001"}'   http://localhost:7001/allowance
+
+
+# now bridge do transfer from Bank A  to Bank B (0xa3df034084078EBf20216b0789CF4901D8D6194E) to pay fees
+curl -i -X POST -H 'Content-Type: application/json; charset=UTF-8' -d '{"from":"0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001", "to":"0xa3df034084078EBf20216b0789CF4901D8D6194E","amount":1000}' http://localhost:7001/transfer_from 
+
+
 
 
 # Decrease allowance 

@@ -11,7 +11,12 @@ import { kycRouter } from './transaction/KycRouter.js';
 import { bridgeEventListener as bridgeEventListener } from './ops/CbdcEventListener.js';
 import { bridgeRouter } from './transaction/BridgeRouter.js';
 
+import compression  from "compression";
+
 const app = express();
+
+// compress responses
+app.use(compression())
 
 setupConnection();
 let runMode = envRunMode();

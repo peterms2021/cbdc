@@ -98,7 +98,7 @@ export const getMoneySupply  = async (): Promise<MoneySupply | null> =>  {
 
 export const allowance = async (trans:allowAnce): Promise<allowAnceResp | null> => {
  
-    console.log(`allowance: ${trans}`);
+    console.log(`allowance: ${JSON.stringify(trans)}`);
     try {       
         let cbdc = gConnectionInfo.cbdc;
         let [result, _err] = await Allowance(cbdc, trans.owner,trans.spender);
