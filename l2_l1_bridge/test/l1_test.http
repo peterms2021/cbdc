@@ -8,6 +8,7 @@
 
 @allowance_size=1000
 @fees=100
+@collateral=500
 ###Bank A query balance
 GET http://localhost:{{BANKA_PORT}}/balance
 
@@ -73,6 +74,7 @@ Content-Type: application/json
 ####
 # @name timeStamp
 
+#for testing lets use 30 seconds
 PUT http://localhost:{{BRIDGE_PORT}}/htlc/duration
 Content-Type: application/json
 
@@ -92,10 +94,39 @@ Content-Type: application/json
   "receiver":"{{user_bankB_address}}", 
   "secret":"{{htlc}}", 
   "duration":"{{duration}}",
-  "amount": 100
+  "amount": {{collateral}}
 }
 
 ###
+
 @htlock = {{htlcreate.response.body.$.htlcreate.result}}
 
 
+###get pre image  - THIS CALL FAILS
+# @name getpreimage
+GET http://localhost:{{BRIDGE_PORT}}/htlc/preimage/:{{htlc}}
+
+
+@preimage={{getpreimage.response.body.result}}
+
+### look at the Active htlocks in the system
+GET http://localhost:{{BRIDGE_PORT}}/htlc/active
+
+### See all 
+GET http://localhost:{{BRIDGE_PORT}}/htlc/all
+
+### see amount on the HTLC that was created
+
+GET http://localhost:{{BRIDGE_PORT}}/htlc/amount/:{{htlc}}
+
+### get the balance
+GET http://localhost:{{BRIDGE_PORT}}/htlc/balance/:{{htlc}}
+
+
+### get the spender
+GET http://localhost:{{BRIDGE_PORT}}/htlc/sender/:{{htlc}}
+
+### refund 
+GET http://localhost:{{BRIDGE_PORT}}/htlc/refund/:{{htlc}}
+
+#seize this cant work because it requires preimaging which does not work
