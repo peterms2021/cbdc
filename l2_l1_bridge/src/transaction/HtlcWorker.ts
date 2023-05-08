@@ -48,7 +48,7 @@ export const createHTLC = async (receiver: string, hashlock:string, timelock: st
         let cbdc = gConnectionInfo.cbdc;
         let [htlock, err] =  await CreateHTLC(cbdc, receiver, hashlock, timelock,amount);
         if (err.length != 0) {
-            console.log(`createHTLC: failed to call to createHTLC account ${receiver} with err ${err}`);
+            console.log(`worker createHTLC: failed to call to createHTLC account ${receiver} with err ${err}`);
             //return null;
         }else{
             console.log(`createHTLC:... ${receiver} => ${htlock}`);
@@ -66,6 +66,7 @@ export const createHTLC = async (receiver: string, hashlock:string, timelock: st
 export const createHTLCFor = async ( sender: string, receiver: string, hashlock:string, timelock: string, amount:BigNumber ): Promise<[htclock: string, err: string] | null> => {
  
     try {
+        console.log(`worker createHTLCFor: sender:${sender} receiver:${receiver} hashlock:${hashlock}  timelock:${timelock} : amount:${amount}`)
         
         let cbdc = gConnectionInfo.cbdc;
         let [htlock, err] =  await CreateHTLCFor(cbdc, sender, receiver, hashlock, timelock,amount);

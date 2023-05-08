@@ -101,15 +101,18 @@ export const allowance = async (trans:allowAnce): Promise<allowAnceResp | null> 
     console.log(`allowance: ${JSON.stringify(trans)}`);
     try {       
         let cbdc = gConnectionInfo.cbdc;
-        let [result, _err] = await Allowance(cbdc, trans.owner,trans.spender);
+        let [_result, _err] = await Allowance(cbdc, trans.owner,trans.spender);
         if (_err.length != 0) {
             console.log(`allowance: failed to call to Allowance  to: sender  ${trans.owner}  recv: ${trans.spender} amt: with err ${_err}`);
-            //return null;
+            return null;
         }
+        //convert to two decimal places
+        let a =  parseFloat( utils.formatUnits(_result, 2));
+
         const resp: allowAnceResp = {
             owner: trans.owner,
             spender: trans.spender,
-            amt: result?.toNumber(),
+            amt:  a,
             err:_err,
             result: _err.length?false:true
         }
@@ -209,6 +212,7 @@ export const increaseAllowance = async (trans:approveFunds): Promise<approveFund
     try {
        
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
+        console.log(`increaseAllowance amnt: ${trans.amount} => ${a}`);
 
         let cbdc = gConnectionInfo.cbdc;
         let [result, _err] = await IncreaseAllowance(cbdc,trans.spender,a);
@@ -234,6 +238,7 @@ export const decreaseAllowance = async (trans:approveFunds): Promise<approveFund
 
     try {
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
+        console.log(`decreaseAllowance amnt: ${trans.amount} => ${a}`);
 
         let cbdc = gConnectionInfo.cbdc;
         let [result, _err] = await DecreaseAllowance(cbdc,trans.spender,a);

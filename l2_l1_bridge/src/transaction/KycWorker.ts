@@ -66,7 +66,7 @@ export const grantKyc  = async (account: string): Promise<boolean | null> =>  {
         let cbdc = gConnectionInfo.cbdc;
         let [result, err] = await GrantKYC(cbdc, account);
         if (err.length != 0) {
-            console.log(`grantKyc: failed to call to BalanceOf bank with err ${err}`);
+            console.log(`grantKyc: failed with err ${err}`);
             return null;
         }            
         return result;
@@ -83,7 +83,7 @@ export const numKyc  = async (acct: string): Promise<BigNumber | null> =>  {
         let cbdc = gConnectionInfo.cbdc;
         let [result, err] = await NumKYCs(cbdc, acct);
         if (err.length != 0) {
-            console.log(`numKyc: failed to call to BalanceOf bank with err ${err}`);
+            console.log(`numKyc: failed with err ${err}`);
             return null;
         }            
         return result;
@@ -101,7 +101,7 @@ export const revokeKyc  = async (accnt: string): Promise<boolean | null> =>  {
         let cbdc = gConnectionInfo.cbdc;
         let [result, err] = await RevokeKYC(cbdc, accnt);
         if (err.length != 0) {
-            console.log(`revokeKyc: failed to call to BalanceOf bank with err ${err}`);
+            console.log(`revokeKyc: failed with err ${err}`);
             return null;
         }            
         return result;
