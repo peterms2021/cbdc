@@ -14,18 +14,15 @@ import { contractEvent } from "./CbdcEventInterface.js";
 
 import fetch from "node-fetch";
 import {
-  CCF_CLIENT_CERT_BUFFER,
-  CCF_CLIENT_KEY_BUFFER,
   CCF_CONFIRM_LOAN,
   CCF_CONFIRM_TRANSFER,
   CCF_GET_LOAN,
   CCF_LOAN_LOCK,
-  CCF_PORT,
   CCF_SERVER_PORT,
-  CCF_SERVER_NAME,
-  CCF_SERVICE_CERT_BUFFER,
   CCF_HOST_NAME,
+  CCF_SERVER_NAME,
 } from "./Env.js";
+
 import CreateHTLCFor from "../functions/CreateHTLCFor.js";
 
 import * as htlcService from "../transaction/HtlcWorker.js";
@@ -36,8 +33,15 @@ import {
   addAccountToWatch,
   isAccountBridgeWatchList,
 } from "../transaction/BridgeRouter.js";
+
 import https from "https";
-import { prettyPrint } from "./CbdcEventListener.js";
+
+import {
+  CCF_CLIENT_CERT_BUFFER,
+  CCF_CLIENT_KEY_BUFFER,
+  CCF_SERVICE_CERT_BUFFER,
+  prettyPrint,
+} from "./OpsUtil.js";
 
 function httpsReq(body: any, _options: any) {
   return new Promise<any | null>((resolve, reject) => {
@@ -88,6 +92,7 @@ async function ccf_get_call(path_url: string, args: any): Promise<any | null> {
     ca: [CCF_SERVICE_CERT_BUFFER], //mutual TLS service cert
     //rejectUnauthorized: false,              // Used for self signed server
     hostname: enInfo.get(CCF_SERVER_NAME), // Server hostname
+    //port:CCF_PORT,
     method: "GET",
     path: path_url,
   };
@@ -185,7 +190,6 @@ async function processPendingTransctionWaitingForAllowance(
   tx.owner = trans.ownerAddress;
   tx.spender = trans.spenderAddress; //the bridge will be able to spend the allowance to spender after owner has approved
 
-
   let tr = await WorkerService.allowance(tx);
 
   if (tr === undefined) {
@@ -201,7 +205,7 @@ async function processPendingTransctionWaitingForAllowance(
         `${fname}: insufficient balance in allowance  ${tr.amt} < ${trans.remaining}`
       );
 
-       //issue a request for allowance to spend on behalf the burrower
+      //issue a request for allowance to spend on behalf the burrower
 
       return;
     }

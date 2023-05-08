@@ -7,7 +7,10 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "build_dist": "del-cli -f ../banking_app/dist/ && rollup --config && node cbdc_build_bundle.js dist/",
+    "bundle": "node cbdc_build_bundle.js ../banking_app/dist",
+    "test": "node --version"
   },
   "overrides": {
     "eslint-config-next": {
@@ -31,6 +34,10 @@
     "web3": "^0.20.7"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-typescript": "^11.1.0",
     "@types/compression": "^1.7.2",
     "@types/cors": "^2.8.13",
     "@types/dotenv": "^8.2.0",
@@ -42,10 +49,12 @@
     "@types/web3": "^1.2.2",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
+    "del-cli": "^5.0.0",
     "eslint": "8.22.0",
     "eslint-config-next": "12.2.5",
     "eslint-plugin-react": "^7.32.2",
     "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
     "typescript": "^4.9.5"
   }
 }

@@ -1,14 +1,9 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "rootDirs": [
-      "src",
-      "stories",
-      "config"
-    ],
+    "rootDirs": ["src", "stories", "config"],
     "rootDir": "src",
     "sourceMap": true,
-    "outDir": "build",
     "lib": ["esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -20,14 +15,8 @@
     "incremental": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports":true
+    "allowSyntheticDefaultImports": true
   },
-  "include": [
-              "src/**/*.ts",
-              "src/*.ts",
-              "src/*.js",
-              "src/transaction/"
-          ],
-  "exclude": ["node_modules",               
-               "build"]
+  "include": ["src/**/*.ts", "src/*.ts", "src/*.js", "src/transaction/"],
+  "exclude": ["node_modules", "build"]
 }
