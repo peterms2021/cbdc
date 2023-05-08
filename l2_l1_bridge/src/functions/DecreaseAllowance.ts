@@ -28,7 +28,7 @@ export async function DecreaseAllowance(cbdc: Contract, spender: string,  allowa
   async function handleSubmit() {
       try {
         setLoading(true);
-        const response = await cbdc.decreaseAllowance(spender, allowance.toString());
+        const response = await cbdc.decreaseAllowance(spender, allowance);
         //const response = await cbdc.decreaseAllowance(spender, utils.parseUnits(allowance, 2).toString());
         await response.wait();
         setResult("Success");

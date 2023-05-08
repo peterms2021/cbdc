@@ -4,7 +4,7 @@
 
 import express, { Request, Response } from "express";
 import * as WorkerService from "./CbdcWorker.js";
-import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp, allowAnce } from "./TransInterface.js";
+import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp, allowAnce, allowAnceResp } from "./TransInterface.js";
 import { approveFunds,  approveFundsResp } from "./TransInterface.js";
 
 export const cbdcRouter = express.Router();
@@ -104,9 +104,11 @@ cbdcRouter.post("/allowance", async (req: Request, res: Response) => {
         console.log(`allowance: ... ${JSON.stringify(trans)}`);
 
         let tr = await WorkerService.allowance(trans);
+
         if (tr === undefined) {
             res.status(400).json("Bad request");
         }
+        
         if (tr.err.length){
             res.status(400).send(tr.err);
         }else{
@@ -123,7 +125,7 @@ cbdcRouter.post("/approve", async (req: Request, res: Response) => {
     try {    
         const trans: approveFunds = req.body;
         console.log(`allowance: ... ${JSON.stringify(trans)}`);
-        
+
         let tr = await WorkerService.approve(trans);
         if (tr === undefined) {
             res.status(400).json("Bad request");

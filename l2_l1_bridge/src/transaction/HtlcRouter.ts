@@ -39,8 +39,10 @@
 
 htlcRouter.post("/create_for", async (req: Request, res: Response) => {
     try {        
-        console.log(`htlc/create_for: ...`);
+        
         const trans: htlcLockFor = req.body;
+        console.log(`htlc/create_for: ... ${JSON.stringify(trans)}`);
+
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
         let resp = await htlcService.createHTLCFor( trans.sender, trans.receiver, trans.secret, trans.duration.toString(),a );
         if (resp) {

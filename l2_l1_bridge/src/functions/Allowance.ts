@@ -14,11 +14,12 @@ export async function  Allowance(cbdc: Contract, owner: string, spender: string 
 
   async function allowance(_cbdc: Contract, _owner: string, _spender: string ) {
     let resp: string;
-    _cbdc
+    await _cbdc
       .allowance(_owner, _spender)
       .then((resp: BigNumber) => {
       // format to 2 decimal places
-      console.log(`resp => $${resp}: `, utils.formatUnits(resp, 0).toString());     
+      let a =  parseFloat( utils.formatUnits(resp, 2));
+      console.log(`resp => $${resp}: ${a}:= `, utils.formatUnits(resp, 2).toString());       
       r = resp;
     })
     .catch((err: Error) => {
