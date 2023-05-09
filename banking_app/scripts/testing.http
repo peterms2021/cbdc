@@ -7,6 +7,9 @@
 @user0_address="0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001"
 @user1_address="0xa3df034084078EBf20216b0789CF4901D8D6194E"
 
+###
+GET https://member0.localhost:8000/app/api
+
 ###Member0 should fail###
 POST https://member0.localhost:8000/app/testing
 ###User0 should succeed###
