@@ -12,3 +12,5 @@ package-lock.json
 **/coverage
 package-lock.json
 **/banking_dashboard/**
+
+banking_app/.prod_certs/

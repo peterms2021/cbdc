@@ -2,6 +2,10 @@
 127.0.0.1	member0.localhost
 127.0.0.1	user0.localhost
 127.0.0.1	user1.localhost
+20.225.119.187  ccfdeployment
+20.225.119.187  member0.ccfdeployment
+20.225.119.187  user0.ccfdeployment
+20.225.119.187  user1.ccfdeployment
 ::1	localhost ip6-localhost ip6-loopback
 fe00::0	ip6-localnet
 ff00::0	ip6-mcastprefix
