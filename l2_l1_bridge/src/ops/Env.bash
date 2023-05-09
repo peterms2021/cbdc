@@ -37,6 +37,11 @@ export CCF_CLIENT_CERT_FILE="~/.ccf_key/user0.cer"
 #mutual TLS service cert
 export CCF_SERVICE_CERT_FILE="~/.ccf_key/service_cert.pem"
 
+# THe L1 Member
+export CCF_CLIENT_KEY_FILE="~/.ccf_key/peterwalker_privk.pem"
+export CCF_CLIENT_CERT_FILE="~/.ccf_key/peterwalker_cert.pem"
+export CCF_SERVICE_CERT_FILE="~/.ccf_key/service_cert.pem"
+
 
 export CCF_CLIENT_CERT_FILE="~/workspace/cbdc/banking_app/workspace/sandbox_common/member0_cert.pem"
 export CCF_CLIENT_KEY_FILE="~/workspace/cbdc/banking_app/workspace/sandbox_common/member0_privk.pem"
