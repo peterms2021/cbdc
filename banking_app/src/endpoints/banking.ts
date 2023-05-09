@@ -62,9 +62,12 @@ interface ISecurityLoanItem {
   initialCollateral: number;
   htlcAddress?: string; //Address of the HTLC. i.e. return val from createHTLCFor
   allowanceCreated?: number; //Timestamp when we observed allowance amount > (collateral+fees)
+  timelock?: number; //Timelock is not set until we create the htlcFor transaction
   htlcCreated?: number; //Timestamp when we completed createHTLCFor
   htlcRefunded?: number; //Timestamp when we observed htlcRefunded == true
   htlcWithdrawn?: number; //Timestamp when we observed htlcWithdrawn == true
+  htlcSeized?: number; //Not implemented fully yet. Does not observe from CBDC as cannot Seize htlc on current API
+  closureStatus?: LoanClosureStatus;
 }
 const securityLoansTable = ccfapp.typedKv(
   securityLoansTableName,
@@ -76,6 +79,7 @@ const pendingTransactionsTableName = "lending.pendingtransactions";
 export enum TransactionType {
   AWAIT_ALLOWANCE = "AWAIT_ALLOWANCE",
   CREATE_HTLC_FOR = "CREATE_HTLC_FOR",
+  CLOSE_LOAN = "CLOSE_LOAN",
   REFUND_HTLC = "REFUND_HTLC",
   WITHDRAW_HTLC = "WITHDRAW_HTLC",
 }
@@ -84,6 +88,7 @@ interface IPendingTransactionItem {
   readonly transactionType: TransactionType;
   readonly originatingLoanId: string;
   readonly transactionCreated: number;
+  readonly doNotProcessBefore?: number;
   transactionCompleted?: number;
 }
 interface IAwaitAllowancePayload extends IPendingTransactionItem {
@@ -100,9 +105,9 @@ interface ICreateHtlcForPayload extends IPendingTransactionItem {
   readonly fees: number;
   htlcAddress?: string;
 }
+interface ICloseLoanPayload extends IPendingTransactionItem {}
 interface IRefundHtlcPayload extends IPendingTransactionItem {
   readonly htlcAddress: string;
-  readonly htlcSecret: string;
 }
 interface IWithdrawHtlcPayload extends IPendingTransactionItem {
   readonly htlcAddress: string;
@@ -379,13 +384,17 @@ interface IGetPendingTransactionsResponse {
 export function getPendingTransactions(
   request: ccfapp.Request
 ): ccfapp.Response<IGetPendingTransactionsResponse> {
-  //Return all holdings for userId.
   // TODO: Re-evaluate this for efficiency. Currently a full table scan. Investigate indexing
   // https://microsoft.github.io/CCF/release/3.x/architecture/indexing.html
+  let timestamp = getTimestamp();
   let pendingTransactions: IPendingTransactionItem[] = [];
   pendingTransactionsTable.forEach(
     (value: IPendingTransactionItem, key: string) => {
-      if (value.transactionCompleted == undefined) {
+      if (
+        value.transactionCompleted == undefined &&
+        (value.doNotProcessBefore == undefined ||
+          value.doNotProcessBefore < timestamp)
+      ) {
         pendingTransactions.push(value);
       }
     }
@@ -420,6 +429,9 @@ export function updatePendingTransaction(
     case TransactionType.CREATE_HTLC_FOR:
       updatePendingHtlcFor(<ICreateHtlcForPayload>body);
       break;
+    case TransactionType.CLOSE_LOAN:
+      closeLoan(<ICloseLoanPayload>body);
+      break;
     case TransactionType.REFUND_HTLC:
       break;
     case TransactionType.WITHDRAW_HTLC:
@@ -430,7 +442,7 @@ export function updatePendingTransaction(
   dumpKVMap(pendingTransactionsTableName);
   return {
     statusCode: 204,
-    body: `Transaction completed: ${body.transactionId}`,
+    body: `Transaction completed: ${body.transactionId} Status: `,
   };
 }
 
@@ -439,6 +451,13 @@ function completePendingTransaction(
   timestamp: number
 ) {
   let initialTransaction = pendingTransactionsTable.get(payload.transactionId);
+
+  //Check that payload matches pending loan type
+  if (payload.transactionType != initialTransaction.transactionType)
+    throw new Error(
+      `Close transaction payload ${payload.transactionType} does not match pending transaction type ${initialTransaction.transactionType}`
+    );
+
   initialTransaction.transactionCompleted = timestamp;
   pendingTransactionsTable.set(payload.transactionId, initialTransaction);
 }
@@ -450,10 +469,12 @@ function updatePendingAwaitAllowance(payload: IAwaitAllowancePayload) {
   //Update loan
   let initialLoan = securityLoansTable.get(payload.originatingLoanId);
   initialLoan.allowanceCreated = timestamp;
+  let timelock = timestamp + 86400; //Index off the transaction timestamp by 24hr by adding seconds
+  initialLoan.timelock = timelock;
   securityLoansTable.set(payload.originatingLoanId, initialLoan);
+
   //Create new htlc transaction
   let htlcTransactionId = arrayBufToHex(ccfcrypto.generateAesKey(256));
-  let timelock = timestamp + 86400; //Index off the transaction timestamp by 24hr by adding seconds
   pendingTransactionsTable.set(htlcTransactionId, <ICreateHtlcForPayload>{
     transactionType: TransactionType.CREATE_HTLC_FOR,
     transactionId: htlcTransactionId,
@@ -466,6 +487,16 @@ function updatePendingAwaitAllowance(payload: IAwaitAllowancePayload) {
     amount: initialLoan.initialCollateral,
     fees: initialLoan.fees,
   });
+
+  //Create future dated (23.5hr) transaction to close loan
+  let closeLoanId = arrayBufToHex(ccfcrypto.generateAesKey(256));
+  pendingTransactionsTable.set(closeLoanId, <ICloseLoanPayload>{
+    transactionType: TransactionType.CLOSE_LOAN,
+    transactionId: closeLoanId,
+    transactionCreated: timestamp,
+    originatingLoanId: payload.originatingLoanId,
+    doNotProcessBefore: timestamp + 84600, //23.5*60*60 = 23.5hrs
+  });
 }
 
 function updatePendingHtlcFor(payload: ICreateHtlcForPayload) {
@@ -477,6 +508,168 @@ function updatePendingHtlcFor(payload: ICreateHtlcForPayload) {
   initialLoan.htlcCreated = timestamp;
   initialLoan.htlcAddress = payload.htlcAddress;
   securityLoansTable.set(payload.originatingLoanId, initialLoan);
+}
+
+enum LoanClosureStatus {
+  REFUNDED = "REFUNDED",
+  WITHDRAWN = "WITHDRAWN",
+  SEIZED = "SEIZED",
+  PENDING = "PENDING",
+}
+interface ICloseLoanEarlyRequest {
+  securityLoanId: string;
+}
+//We do this async via bridge to mimimize alternative code paths between the scheduled and the early closure.
+//We return the pending transaction such that bridge can action immediately if desired
+export function closeLoanEarly(request: ccfapp.Request): ccfapp.Response {
+  let timestamp = getTimestamp();
+  let body: ICloseLoanEarlyRequest;
+  try {
+    body = request.body.json();
+  } catch {
+    return {
+      statusCode: 400,
+      body: <any>`Cannot parse JSON from ${request.body.text()}`,
+    };
+  }
+  //Create transaction to close loan
+  let closeLoanId = arrayBufToHex(ccfcrypto.generateAesKey(256));
+  pendingTransactionsTable.set(closeLoanId, <ICloseLoanPayload>{
+    transactionType: TransactionType.CLOSE_LOAN,
+    transactionId: closeLoanId,
+    transactionCreated: timestamp,
+    originatingLoanId: body.securityLoanId,
+  });
+  return {
+    statusCode: 204,
+    body: `Close Loan transaction created for loan ID: ${body.securityLoanId}}`,
+  };
+}
+function closeLoan(payload: ICloseLoanPayload): LoanClosureStatus {
+  let originatingLoanId = payload.originatingLoanId;
+  let originatingLoan = securityLoansTable.get(originatingLoanId);
+  let timestamp = getTimestamp();
+
+  //Complete pending transaction
+  completePendingTransaction(payload, timestamp);
+
+  //Checks
+  //Has loan already been closed. This will often occur when loan is closed early and then the 23.5hr pendingTransaction is executed.
+  if (originatingLoan.closureStatus != null) {
+    console.log(
+      `Loan already closed. Status: ${originatingLoan.closureStatus}`
+    );
+    return originatingLoan.closureStatus;
+  }
+
+  //At least 1,200 seconds (20 minutes) prior to timelock expiry
+  //If we don't process this in time. Seize Htlc pending manual resolution. This is a stub as no seize API on CBDC
+  if (originatingLoan.timelock - 1200 < getTimestamp()) {
+    console.log(`Loan closure occuring after 23.5hr Htlc will be seized`);
+    originatingLoan.htlcSeized = timestamp;
+    originatingLoan.closureStatus = LoanClosureStatus.SEIZED;
+    securityLoansTable.set(originatingLoanId, originatingLoan);
+    return LoanClosureStatus.SEIZED;
+  }
+
+  //Request that securities are returned (by the stub)
+  let returnSuccess = requestSecurityReturn(
+    originatingLoan.lenderId,
+    originatingLoan.borrowerId,
+    originatingLoan.securityId,
+    originatingLoan.quantity
+  );
+
+  //Securities returned. Create pending transaction to refund HTLC
+  if (returnSuccess) {
+    console.log(`Creating refund transaction`);
+    //Create refund transaction
+    let refundTransactionId = arrayBufToHex(ccfcrypto.generateAesKey(256));
+    pendingTransactionsTable.set(refundTransactionId, <IRefundHtlcPayload>{
+      transactionType: TransactionType.REFUND_HTLC,
+      transactionId: refundTransactionId,
+      transactionCreated: timestamp,
+      originatingLoanId: originatingLoanId,
+      htlcAddress: originatingLoan.htlcAddress,
+      doNotProcessBefore: originatingLoan.timelock + 300,
+    });
+    return LoanClosureStatus.PENDING; //Still pending closure
+  } else {
+    console.log(`Creating withdrawl transaction`);
+    //Create withdrawl transaction
+    //Securities not returned. Withdraw Htlc
+    let withdrawlTransactionid = arrayBufToHex(ccfcrypto.generateAesKey(256));
+    pendingTransactionsTable.set(withdrawlTransactionid, <IWithdrawHtlcPayload>{
+      transactionType: TransactionType.WITHDRAW_HTLC,
+      transactionId: withdrawlTransactionid,
+      transactionCreated: timestamp,
+      originatingLoanId: originatingLoanId,
+      htlcAddress: originatingLoan.htlcAddress,
+      htlcSecret: originatingLoan.secret,
+    });
+    return LoanClosureStatus.PENDING; //Still pending closure
+  }
+}
+
+//Stub to emulate request to return securities. e.g. if securities had been tokenized, or if call was made to custodian
+//We stub and pass:fail 80:20
+function requestSecurityReturn(
+  lenderId: string,
+  borrowerId: string,
+  securityId: string,
+  quantity: number
+): boolean {
+  let success: boolean = randomNumberBetween(1, 10) < 8;
+  if (success) {
+    console.log(`Sucurity return succeeded`);
+    //Stub: Transfer securities back
+    //Take the first candidate holding. Reduce the holding. Update the kvMap
+    //let candidateLoan = sample(candidateLoans);
+    let securityHoldingKey = <ISecurityHoldingKey>{
+      userId: lenderId,
+      securityId: securityId,
+    };
+    let holding =
+      securityHoldingsTable.get(securityHoldingKey) ??
+      <IHolding>{ securityId: securityId, quantity: 0 };
+    holding.quantity += quantity;
+    securityHoldingsTable.set(securityHoldingKey, holding);
+    return success;
+  } else {
+    //Just return
+    console.log(`Sucurity return failed`);
+    return success;
+  }
+}
+
+function completeRefunded(payload: IRefundHtlcPayload): LoanClosureStatus {
+  let originatingLoanId = payload.originatingLoanId;
+  let originatingLoan = securityLoansTable.get(originatingLoanId);
+  let timestamp = getTimestamp();
+
+  //Complete pending transaction
+  completePendingTransaction(payload, timestamp);
+  originatingLoan.htlcRefunded = timestamp;
+  originatingLoan.closureStatus = LoanClosureStatus.REFUNDED;
+
+  //Update securityLoan
+  securityLoansTable.set(originatingLoanId, originatingLoan);
+  return originatingLoan.closureStatus;
+}
+
+function completeWithdrawn(payload: IWithdrawHtlcPayload): LoanClosureStatus {
+  let originatingLoanId = payload.originatingLoanId;
+  let originatingLoan = securityLoansTable.get(originatingLoanId);
+  let timestamp = getTimestamp();
+
+  //Complete pending transaction
+  completePendingTransaction(payload, timestamp);
+  originatingLoan.htlcWithdrawn = timestamp;
+  originatingLoan.closureStatus = LoanClosureStatus.WITHDRAWN;
+
+  //Update securityLoan
+  securityLoansTable.set(originatingLoanId, originatingLoan);
+  return originatingLoan.closureStatus;
 }
 
 //#endregion
@@ -527,6 +720,10 @@ function getTimestamp() {
 
 function getTimestampFor(forDate: Date) {
   return Math.floor(forDate.getTime() / 1000);
+}
+
+function randomNumberBetween(min: number, max: number): number {
+  return Math.ceil(Math.random() * (max - min) + min);
 }
 
 //TODO: This is a very insecure method. So we should ideally have a mechanism to prevent it from being accidentally run in a production environment.
