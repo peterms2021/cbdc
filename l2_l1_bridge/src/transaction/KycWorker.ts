@@ -43,7 +43,7 @@ import RevokeKYC from "../functions/RevokeKYC.js";
 // KYC functions
 
 export const checkKyc  = async (account: string): Promise<boolean | null> =>  {
-
+    
     try {       
         let cbdc = gConnectionInfo.cbdc;
         let [result, err] = await IsKYCed(cbdc, account);
