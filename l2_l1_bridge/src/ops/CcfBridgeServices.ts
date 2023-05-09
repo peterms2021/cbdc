@@ -32,10 +32,7 @@ import * as htlcService from "../transaction/HtlcWorker.js";
 import TransferFrom from "../functions/TransferFrom.js";
 import * as acctWorker from "../transaction/CbdcWorker.js";
 import { allowAnce, transferFundsFrom } from "../transaction/TransInterface.js";
-import {
-  addAccountToWatch,
-  isAccountBridgeWatchList,
-} from "../transaction/BridgeRouter.js";
+
 import https from "https";
 import { prettyPrint } from "./CbdcEventListener.js";
 
@@ -157,6 +154,8 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
           processPendingTransctionCreateHtlcFor(
             trans as pendingTransactionsTypeCreateHtlcFor
           );
+        }else{ 
+            console.log(`Unknown transaction ${(trans?.transactionType as string)}`);
         }
       } catch (err) {}
     })
@@ -176,15 +175,12 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
   return true;
 };
 
-async function processPendingTransctionWaitingForAllowance(
-  trans: pendingTransactionsTypeWaitForAllowance
-) {
+async function processPendingTransctionWaitingForAllowance( trans: pendingTransactionsTypeWaitForAllowance) {
   let fname = "processPendingTransctionWaitingForAllowance";
   // check if the allowance is available from the burrower
   const tx = {} as allowAnce;
   tx.owner = trans.ownerAddress;
   tx.spender = trans.spenderAddress; //the bridge will be able to spend the allowance to spender after owner has approved
-
 
   let tr = await WorkerService.allowance(tx);
 
@@ -200,9 +196,6 @@ async function processPendingTransctionWaitingForAllowance(
       console.log(
         `${fname}: insufficient balance in allowance  ${tr.amt} < ${trans.remaining}`
       );
-
-       //issue a request for allowance to spend on behalf the burrower
-
       return;
     }
   }
