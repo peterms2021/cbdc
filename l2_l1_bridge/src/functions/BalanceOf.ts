@@ -27,7 +27,8 @@ export async function BalanceOf(cbdc: Contract, addres: string ): Promise<[resul
           .balanceOf(_addres)
           .then((_result: BigNumber) => {
             // format to 2 decimal places
-            console.log(`balanceof:... ${_addres} => ${utils.formatUnits(_result, 2).toString()}`);
+            let n = utils.formatUnits(_result, 2);
+            console.log(`balanceof:... ${_addres} => ${n}`);
             setResult(_result);
             //setErr(undefined);
           })

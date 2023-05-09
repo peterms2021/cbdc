@@ -55,9 +55,11 @@ export const getAccountBalance = async (): Promise<accntBalance | null> => {
             return null;
         }
         console.log(`getAccountBalance:... ${addr} => ${utils.formatUnits(result, 2).toString()}`);
+
+        let n = utils.formatUnits(result, 2).toString();
         const resp: accntBalance = {
             acct: addr,
-            balance: result.toNumber()
+            balance: Number.parseFloat(n)
         };
         console.log(`getAccountBalance: ${addr} => ${resp.balance}`);
         return resp;
@@ -131,6 +133,8 @@ export const transferFrom = async (trans:transferFundsFrom): Promise<transferFun
         
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
 
+        console.log(`transferFrom req:  sender  ${trans.from}  recv: ${trans.to} amt: ${trans.amount} => ${a.toString()}`);
+
         let cbdc = gConnectionInfo.cbdc;
         let [result, _err] = await TransferFrom(cbdc, trans.from,trans.to,a);
         if (_err.length != 0) {
@@ -158,6 +162,8 @@ export const transfer = async (trans:transferFunds): Promise<transferFundsResp |
     try {
 
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
+
+        console.log(`transfer req:   recv: ${trans.to} amt: ${trans.amount} => ${a.toString()}`);
 
         //use the 
         let cbdc = gConnectionInfo.cbdc;
