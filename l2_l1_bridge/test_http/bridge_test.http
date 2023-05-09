@@ -6,7 +6,7 @@
 @user_bankA_address=0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001
 @user_bankB_address=0xa3df034084078EBf20216b0789CF4901D8D6194E
 
-@allowance_size=1000
+@allowance_size=20000
 @fees=10
 @collateral=500 
 @tranfer_amt=10000
@@ -65,6 +65,19 @@ charset:UTF-8
      "spender": "{{bridge_address}}",
      "amount" : {{allowance_size}}
 }
+
+
+###Bank A creates a request for increase allowance for the bridge spend on behalf of bank B
+POST http://localhost:{{BANKA_PORT}}/increase
+User-Agent: rest-client
+Content-Type: application/json
+charset:UTF-8
+
+{
+     "spender": "{{bridge_address}}",
+     "amount" : {{allowance_size}}
+}
+
 
 ### check that the bridge has the allowance
 # @name allowA

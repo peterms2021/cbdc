@@ -11,8 +11,6 @@ import * as WorkerService from "../transaction/CbdcWorker.js";
 
 import { enInfo, gConnectionInfo } from "./CbdcConnect.js";
 import { contractEvent } from "./CbdcEventInterface.js";
-
-import fetch from "node-fetch";
 import {
   CCF_CLIENT_CERT_BUFFER,
   CCF_CLIENT_KEY_BUFFER,
@@ -27,14 +25,13 @@ import {
   CCF_HOST_NAME,
 } from "./Env.js";
 import CreateHTLCFor from "../functions/CreateHTLCFor.js";
-
 import * as htlcService from "../transaction/HtlcWorker.js";
 import TransferFrom from "../functions/TransferFrom.js";
 import * as acctWorker from "../transaction/CbdcWorker.js";
 import { allowAnce, transferFundsFrom } from "../transaction/TransInterface.js";
 
 import https from "https";
-import { prettyPrint } from "./CbdcEventListener.js";
+import { prettyPrint } from "./Env.js";
 
 function httpsReq(body: any, _options: any) {
   return new Promise<any | null>((resolve, reject) => {
@@ -46,7 +43,7 @@ function httpsReq(body: any, _options: any) {
         switch (res.headers["content-type"]) {
           case "application/json":
             console.log(`resp data: ${resBody.toString()}`);
-            resBody = JSON.parse(resBody.toString());
+            //resBody = JSON.parse(resBody.toString());
             break;
         }
         resolve(resBody);
@@ -96,7 +93,9 @@ async function ccf_get_call(path_url: string, args: any): Promise<any | null> {
 export async function test_ccf(): Promise<void> {
   try {
     console.log(" test_ccf...");
-    await ccf_get_call("/app/balance/current_account", "")
+    let path ="/app/pendingtransactions";
+    //let path = "/app/";
+    await ccf_get_call(path, "")
       .then((jsonformat) =>
         console.log(prettyPrint(JSON.stringify(jsonformat)))
       )
@@ -132,7 +131,8 @@ export const processApproval = async (trans: contractEvent): Promise<void> => {
 
 let errCnt: number = 0;
 export const pullNewTransaction = async (): Promise<boolean | null> => {
-  let path = enInfo.get(CCF_GET_LOAN);
+
+  let path="/app/pendingtransactions";
 
   //test_ccf(); return null;
 
@@ -143,21 +143,29 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
 
       let trans = JSON.parse(result);
       console.log(`New transaction`, prettyPrint(trans));
+
       try {
-        if ((trans?.transactionType as string) == pendTransTypeAllowance) {
-          processPendingTransctionWaitingForAllowance(
-            trans as pendingTransactionsTypeWaitForAllowance
-          );
-        } else if (
-          (trans?.transactionType as string) == pendTransTypeCreateHtlcFor
-        ) {
-          processPendingTransctionCreateHtlcFor(
-            trans as pendingTransactionsTypeCreateHtlcFor
-          );
-        }else{ 
-            console.log(`Unknown transaction ${(trans?.transactionType as string)}`);
+        for (var i = 0; i < trans.pendingTransactions.length; i++) {
+          let tran = trans.pendingTransactions[i];
+          console.log(`Trans: ${i} => `, prettyPrint(tran));
+
+          if ((tran.transactionType as string) === pendTransTypeAllowance) {
+            processPendingTransctionWaitingForAllowance(
+              tran as pendingTransactionsTypeWaitForAllowance
+            );
+          } else if (
+            (tran.transactionType as string) === pendTransTypeCreateHtlcFor
+          ) {
+            processPendingTransctionCreateHtlcFor(
+              tran as pendingTransactionsTypeCreateHtlcFor
+            );
+          } else {
+            console.log(`Unknown transaction ${(tran.transactionType as string)}`);
+          }
         }
-      } catch (err) {}
+      } catch (err) {
+        console.log("Error parsing new Transaction!!!");
+      }
     })
     //the posted contents to the website in json format is displayed as the output on the screen
     .then((jsonformat) => {
@@ -201,8 +209,8 @@ async function processPendingTransctionWaitingForAllowance( trans: pendingTransa
   }
 
   //we have enough allowance for the transaction to process .. send response confirming loan
-  let path = enInfo.get(CCF_CONFIRM_LOAN);
-
+  //let path = enInfo.get(CCF_CONFIRM_LOAN);
+  let path = "/app/completetransaction";
   ccf_post_call(path, trans)
     .then((result) => {
       console.log(`${fname} `, prettyPrint(result.json()));
@@ -283,7 +291,8 @@ async function processPendingTransctionCreateHtlcFor(
   }
 
   //we have enough allowance for the transaction to process .. send response confirming loan
-  let path = enInfo.get(CCF_CONFIRM_LOAN);
+  let path = "/app/completetransaction";
+  //let path = enInfo.get(CCF_CONFIRM_LOAN);
 
   ccf_post_call(path, resp)
     .then((result) => {
