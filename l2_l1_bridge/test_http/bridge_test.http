@@ -9,6 +9,7 @@
 @allowance_size=1000
 @fees=10
 @collateral=500 
+@tranfer_amt=10000
 
 ###Bank A query balance
 GET http://localhost:{{BANKA_PORT}}/balance
@@ -29,7 +30,7 @@ charset:UTF-8
 
 {
      "to": "{{user_bankA_address}}",
-     "amount" : {{fees}}
+     "amount" : {{tranfer_amt}}
 }
 
 ### Bank B creates a request for increase allowance for the bridge spend on behalf of bank B
