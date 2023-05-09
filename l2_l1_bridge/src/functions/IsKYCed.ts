@@ -19,10 +19,10 @@ async function IsKYCed(cbdc: Contract,  holder: string) : Promise<[result:boolea
   }
 
   async function handleSubmit() {
-          cbdc
+          await cbdc
           .isKYCed(holder)
-          .then((result: boolean) => {
-            setResult(result);
+          .then((_result: boolean) => {
+            setResult(_result);
             //setErr(undefined);
           })
           .catch((err: Error) => {
@@ -32,6 +32,7 @@ async function IsKYCed(cbdc: Contract,  holder: string) : Promise<[result:boolea
   }
 
   await handleSubmit();
+  console.log(`IsKYCed: holder: ${holder} => ${result}`)
   return [result,err] ; 
 };
 

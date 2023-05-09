@@ -7,7 +7,7 @@
 @user_bankB_address=0xa3df034084078EBf20216b0789CF4901D8D6194E
 
 @allowance_size=1000
-@fees=100
+@fees=10
 @collateral=500 
 ###Bank A query balance
 GET http://localhost:{{BANKA_PORT}}/balance
@@ -106,7 +106,7 @@ Content-Type: application/json
 
 ###get pre image  - THIS CALL FAILS
 # @name getpreimage
-GET http://localhost:{{BRIDGE_PORT}}/htlc/preimage/:{{htlc}}
+GET http://localhost:{{BRIDGE_PORT}}/htlc/preimage/{{htlc}}
 
 
 @preimage={{getpreimage.response.body.result}}
@@ -119,17 +119,17 @@ GET http://localhost:{{BRIDGE_PORT}}/htlc/all
 
 ### see amount on the HTLC that was created
 
-GET http://localhost:{{BRIDGE_PORT}}/htlc/amount/:{{htlc}}
+GET http://localhost:{{BRIDGE_PORT}}/htlc/amount/{{htlc}}
 
 ### get the balance
-GET http://localhost:{{BRIDGE_PORT}}/htlc/balance/:{{htlc}}
+GET http://localhost:{{BRIDGE_PORT}}/htlc/balance/{{htlc}}
 
 
 ### get the spender
-GET http://localhost:{{BRIDGE_PORT}}/htlc/sender/:{{htlc}}
+GET http://localhost:{{BRIDGE_PORT}}/htlc/sender/{{htlc}}
 
 ### refund 
-GET http://localhost:{{BRIDGE_PORT}}/htlc/refund/:{{htlc}}
+GET http://localhost:{{BRIDGE_PORT}}/htlc/refund/{{htlc}}
 
 #seize this cant work because it requires preimaging which does not work
 
@@ -137,16 +137,16 @@ GET http://localhost:{{BRIDGE_PORT}}/htlc/refund/:{{htlc}}
 @KYCER_PORT=10001
 
 #### check KYC for Bank A
-GET http://localhost:{{KYCER_PORT}}/kyc/check/:{{user_bankA_address}}
+GET http://localhost:{{KYCER_PORT}}/kyc/check/{{user_bankA_address}}
 
 #### check KYC check for bridge
-GET http://localhost:{{KYCER_PORT}}/kyc/check/:{{bridge_address}}
+GET http://localhost:{{KYCER_PORT}}/kyc/check/{{bridge_address}}
 
 #### check KYC count for bridge
-GET http://localhost:{{KYCER_PORT}}/kyc/num/:{{bridge_address}}
+GET http://localhost:{{KYCER_PORT}}/kyc/num/{{bridge_address}}
 
 ### check for bank B
-GET http://localhost:{{KYCER_PORT}}/kyc/check/:{{user_bankB_address}}
+GET http://localhost:{{KYCER_PORT}}/kyc/check/{{user_bankB_address}}
 
 ### grant KYC for bank A
-PUT http://localhost:{{KYCER_PORT}}/kyc/grant/:{{user_bankB_address}}
+PUT http://localhost:{{KYCER_PORT}}/kyc/grant/{{user_bankB_address}}

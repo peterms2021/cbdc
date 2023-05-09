@@ -3,6 +3,7 @@
     "target": "es5",
     "rootDirs": ["src", "stories", "config"],
     "rootDir": "src",
+    "outDir": "build",
     "sourceMap": true,
     "lib": ["esnext"],
     "allowJs": true,
