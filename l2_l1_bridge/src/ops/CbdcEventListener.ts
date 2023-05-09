@@ -1,14 +1,14 @@
 
 import process from 'process'
 import Web3 from 'web3'
-import util  from 'util'
+
 
 import * as cbdcLib from './CbdcConnect.js';
 import * as envLib from './Env.js';
 import { BigNumber, Contract, ethers, Wallet } from 'ethers';
 import { contractEvent } from './CbdcEventInterface.js';
 import { enInfo, gConnectionInfo } from './CbdcConnect.js';
-import { CCF_POLL_NEW_TRANS, loadCcfBridgeData } from './Env.js';
+import { CCF_POLL_NEW_TRANS, loadCcfBridgeData, prettyPrint } from './Env.js';
 import { processApproval, processTransfer, pullNewTransaction } from './CcfBridgeServices.js';
 
 export function programRunMode (){  
@@ -34,10 +34,6 @@ const setup = async (): Promise<NewTypeT> => {
     //which wallet do we want to watch?
     //console.log("setup done...");
     return [ iface.web3, networkId, contractAddress, cbdc, iface.wallet ]
-}
-
-export const prettyPrint = (o:any) => {
-   return util.inspect(o, {showHidden: false, depth: null, colors: true})
 }
 
 const recordWrite = async () : Promise<number> => {

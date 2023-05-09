@@ -14,6 +14,8 @@
 # export  BANK_A_PKEY="0xb3eb9d9441bd67b03136ded6f0bfaaade05a12be2897e93ced0860cfbe79c8ce"
 
 
+bankA 0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001
+bankB 0xa3df034084078EBf20216b0789CF4901D8D6194E
 
 
 #set WALLET_PKEY to whatever wallet we want to attach to
@@ -29,12 +31,10 @@ export L1_CHAIN_ID="1007845588"
 #set the URL to the CCF instance
 export CCF_HOST_NAME="cbdc-test1.confidential-ledger.azure.com"
 export CCF_SERVER_PORT=443
-
+export CCF_HOST_NAME="cbdc-test1.confidential-ledger.azure.com"
 #private key
 export CCF_CLIENT_KEY_FILE="~/.ccf_key/user0.key"
-#public key
 export CCF_CLIENT_CERT_FILE="~/.ccf_key/user0.cer"
-#mutual TLS service cert
 export CCF_SERVICE_CERT_FILE="~/.ccf_key/service_cert.pem"
 
 # THe L1 Member

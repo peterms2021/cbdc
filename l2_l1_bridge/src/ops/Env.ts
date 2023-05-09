@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { enInfo } from "./CbdcConnect.js";
-
+import util  from 'util'
 import fs from 'fs';
 import untildify from 'untildify';
 
@@ -108,7 +108,7 @@ export const CCF_LOAN_LOCK = "API_REG_LOAN_HTLC";
 
 export var CCF_CLIENT_KEY_BUFFER: Buffer;
 export var CCF_CLIENT_CERT_BUFFER: Buffer;
-export var CCF_SERVICE_CERT_BUFFER: Buffer;
+export var CCF_SERVICE_CERT_BUFFER: Buffer; 
 export var CCF_PORT:number;
 
 //The run mode of the app 
@@ -120,6 +120,9 @@ export enum AppRunMode {
 }
 export const APP_RUN_MODE = "L1_APP_MODE"
 
+export const prettyPrint = (o:any) => {
+    return util.inspect(o, {showHidden: false, depth: null, colors: true})
+ }
 
 export function envRunMode(): number {
     let n = extractIntegerEnvVar(APP_RUN_MODE);
