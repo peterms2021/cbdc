@@ -20,7 +20,7 @@ export async function HtlcTimeLock(cbdc: Contract , htlc: string): Promise<[resu
   }
 
   async function handleSubmit() {
-          cbdc
+        await  cbdc
           .htlcTimeLock(htlc)
           .then((result: BigNumber) => {
             setResult(result);

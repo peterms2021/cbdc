@@ -18,7 +18,7 @@ export async function HtlcRefunded( cbdc: Contract,  htlc: string): Promise<[res
   }
 
   async function handleSubmit() {
-          cbdc
+         await cbdc
           .htlcRefunded(htlc)
           .then((result: boolean) => {
             setResult(result);

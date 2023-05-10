@@ -38,7 +38,7 @@ export async function GetEvents(cbdc: Contract, transaction: string) : Promise<[
   }
 
   async function handleSubmit() {
-        cbdc.provider
+        await cbdc.provider
           .getTransactionReceipt(transaction)
           .then(receipt => {
             const events = receipt.logs.map(log => iface.parseLog({ topics: log.topics, data: log.data }));

@@ -23,7 +23,7 @@ export async function HtlcEnabled(cbdc: Contract, htlc: string): Promise<[result
   }
 
   async function handleSubmit() {
-        cbdc
+        await cbdc
           .htlcEnabled(htlc)
           .then((result: boolean) => {
             setResult(result);

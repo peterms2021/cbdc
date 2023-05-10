@@ -95,7 +95,8 @@ export const getActiveHTLCs = async (): Promise<[result: Array<string>, err: str
             console.log(`getActiveHTLCs: failed with err ${err}`);
             //return null;
         } else {
-            console.log(`getActiveHTLCs:... => ${htlock}`);
+            //const myJSON = JSON.stringify(htlock)
+            //console.log(`getActiveHTLCs:... => ${myJSON}`);
         }
         return [htlock, err];
     } catch (error) {

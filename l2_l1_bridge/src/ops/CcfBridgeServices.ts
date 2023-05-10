@@ -3,8 +3,11 @@ import {
   pendingTransactionsTypeCreateHtlcFor,
   pendingTransactionsTypeCreateHtlcForResp,
   pendingTransactionsTypeWaitForAllowance,
-  pendTransTypeAllowance,
-  pendTransTypeCreateHtlcFor,
+  AWAIT_ALLOWANCE,
+  CREATE_HTLC_FOR,
+  CLOSE_LOAN,
+  REFUND_HTLC,
+  WITHDRAW_HTLC,
 } from "./CcfInterface.js";
 
 import * as WorkerService from "../transaction/CbdcWorker.js";
@@ -146,17 +149,40 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
           let tran = trans.pendingTransactions[i];
           //console.log(`Trans: ${i} => `, prettyPrint(tran));
 
-          if ((tran.transactionType as string) === pendTransTypeAllowance) {
+          if ((tran.transactionType as string) === AWAIT_ALLOWANCE) {
             processPendingTransctionWaitingForAllowance(
               tran as pendingTransactionsTypeWaitForAllowance
             );
           } else if (
-            (tran.transactionType as string) === pendTransTypeCreateHtlcFor
+            (tran.transactionType as string) === CREATE_HTLC_FOR
           ) {
             processPendingTransctionCreateHtlcFor(
               tran as pendingTransactionsTypeCreateHtlcFor
             );
-          } else {
+          } 
+          /*
+          else if (
+            (tran.transactionType as string) === CLOSE_LOAN
+          ) {
+            processCloseLoan(
+              tran as pendingTransactionsTypeCreateHtlcFor
+            );
+          } 
+          else if (
+            (tran.transactionType as string) === REFUND_HTLC
+          ) {
+            processRefundLoan(
+              tran as pendingTransactionsTypeCreateHtlcFor
+            );
+          } 
+          else if (
+            (tran.transactionType as string) === WITHDRAW_HTLC
+          ) {
+            processRefundLoan(
+              tran as pendingTransactionsTypeCreateHtlcFor
+            );
+          } */
+          else {
             console.log(
               `Unknown transaction ${tran.transactionType as string}`
             );
@@ -230,6 +256,8 @@ async function processPendingTransctionWaitingForAllowance(
   return;
 }
 
+
+
 async function processTransferForFee(
   trans: pendingTransactionsTypeCreateHtlcFor
 ): Promise<boolean> {
@@ -279,14 +307,14 @@ async function processHtlcCreateFor(
   );
 
   if (err.length) {
-    console.log(`${fname}: Unable to createHTLOCKFor `, prettyPrint(trans));
+    console.log(`${fname}: Unable to createHTLOCKFor amt:${a} =>`, prettyPrint(trans));
     //posrt failure to ccf
 
     // what to do here  - refund the transfer? Or the burrower bears the penality of
     // of not having enough funds as loss
     return null;
   } else {
-    console.log(`${fname}: SUCCESS to createHTLOCKFor ${htlock} =>`, prettyPrint(trans));
+    console.log(`${fname}: SUCCESS to createHTLOCKFor amt:${a}: ${htlock} =>`, prettyPrint(trans));
     return htlock;
   }
 }
@@ -318,6 +346,7 @@ async function processPendingTransctionCreateHtlcFor(
   let bCreateHtlockFirst = true;
 
   if (bCreateHtlockFirst) {
+  
     let hlock = await processHtlcCreateFor(trans);
 
     //if fail - we keep the fee??

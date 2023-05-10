@@ -6,10 +6,10 @@
 @user_bankA_address=0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001
 @user_bankB_address=0xa3df034084078EBf20216b0789CF4901D8D6194E
 
-@allowance_size=20000
-@fees=10
-@collateral=500 
-@tranfer_amt=10000
+@allowance_size=100
+@fees=11
+@collateral=10 
+@tranfer_amt=10
 
 ###Bank A query balance
 GET http://localhost:{{BANKA_PORT}}/balance

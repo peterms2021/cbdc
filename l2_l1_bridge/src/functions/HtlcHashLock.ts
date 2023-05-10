@@ -20,7 +20,7 @@ export async function HtlcHashLock(cbdc: Contract, htlc:string) : Promise< [resu
   }
 
   async function handleSubmit() {
-        cbdc
+        await cbdc
           .htlcHashLock(htlc)
           .then((result: string) => {
             setResult(result);
