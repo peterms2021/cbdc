@@ -248,7 +248,7 @@ htlcRouter.get("/receiver/:id", async (req: Request, res: Response) => {
     }
 });
 
-htlcRouter.get("/refund/:id", async (req: Request, res: Response) => {
+htlcRouter.put("/refund/:id", async (req: Request, res: Response) => {
     const id: string = req.params.id;
     try {
 
@@ -409,7 +409,7 @@ htlcRouter.post("/withdraw/:id", async (req: Request, res: Response) => {
 };
 
 //test function
-htlcRouter.put("/hash_secret", async (req: Request, res: Response) => {
+htlcRouter.get("/hash_secret", async (req: Request, res: Response) => {
     try {
         const val: htlcSecret = req.body;
         console.log(`htlc/hash_secret: ...${val}`);
@@ -426,7 +426,7 @@ htlcRouter.put("/hash_secret", async (req: Request, res: Response) => {
 });
 
 //test function
-htlcRouter.put("/duration", async (req: Request, res: Response) => {
+htlcRouter.get("/duration", async (req: Request, res: Response) => {
     try {
         const val: htlcDuration = req.body;
         console.log(`htlc/duration: ...${val}`);

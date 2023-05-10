@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --build",
+    "build": "cp ../banking_app/src/endpoints/interface.ts src/ops/bank_interface.ts  && tsc --build",
     "clean": "tsc --build --clean",
     "start": "node build/index.js"
   },

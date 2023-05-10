@@ -19,17 +19,18 @@ export async function HtlcPreimage(
     result = val;
   }
 
-  console.log(`HtlcPreimage: htlc:${htlc}`);
 
+ 
   async function handleSubmit() {
     await cbdc
       .htlcPreimage(htlc)
-      .then((result: string) => {
-        setResult(result);
-        //setErr(undefined);
+      .then((_result) => {
+        let b = _result as Buffer;
+        setResult(_result);
+        console.log(`HtlcPreimage: htlc:${htlc} => ${_result} ${b}`);
       })
       .catch((err: Error) => {
-        //setResult(undefined);
+        console.log(`HtlcPreimage: Error  htlc:${htlc} => ${err.message}`);
         setErr(err.message);
       });
   }

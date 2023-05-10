@@ -2,7 +2,15 @@ import * as ccfapp from "@microsoft/ccf-app";
 import * as ccfcrypto from "@microsoft/ccf-app/crypto.js";
 import { ccf } from "@microsoft/ccf-app/global";
 import { keccak256 } from "js-sha3";
-
+import {
+  IAwaitAllowancePayload,
+  ICloseLoanPayload,
+  ICreateHtlcForPayload,
+  IPendingTransactionItem,
+  IRefundHtlcPayload,
+  IWithdrawHtlcPayload,
+  TransactionType,
+} from "./interface.js";
 const bridge_address = "0xBF4961b1b32CA8873e0C760906745F2006878EF0"; //TODO: Dummy address for Bridge
 
 export function testFunction(request: ccfapp.Request): ccfapp.Response {
@@ -76,43 +84,6 @@ const securityLoansTable = ccfapp.typedKv(
 );
 
 const pendingTransactionsTableName = "lending.pendingtransactions";
-export enum TransactionType {
-  AWAIT_ALLOWANCE = "AWAIT_ALLOWANCE",
-  CREATE_HTLC_FOR = "CREATE_HTLC_FOR",
-  CLOSE_LOAN = "CLOSE_LOAN",
-  REFUND_HTLC = "REFUND_HTLC",
-  WITHDRAW_HTLC = "WITHDRAW_HTLC",
-}
-interface IPendingTransactionItem {
-  readonly transactionId: string;
-  readonly transactionType: TransactionType;
-  readonly originatingLoanId: string;
-  readonly transactionCreated: number;
-  readonly doNotProcessBefore?: number;
-  transactionCompleted?: number;
-}
-interface IAwaitAllowancePayload extends IPendingTransactionItem {
-  readonly ownerAddress: string;
-  readonly spenderAddress: string;
-  readonly remaining: number;
-}
-interface ICreateHtlcForPayload extends IPendingTransactionItem {
-  readonly senderAddress: string;
-  readonly receiverAddress: string;
-  readonly hashlock: string;
-  readonly timelock: number;
-  readonly amount: number;
-  readonly fees: number;
-  htlcAddress?: string;
-}
-interface ICloseLoanPayload extends IPendingTransactionItem {}
-interface IRefundHtlcPayload extends IPendingTransactionItem {
-  readonly htlcAddress: string;
-}
-interface IWithdrawHtlcPayload extends IPendingTransactionItem {
-  readonly htlcAddress: string;
-  readonly htlcSecret: string;
-}
 const pendingTransactionsTable = ccfapp.typedKv(
   pendingTransactionsTableName,
   ccfapp.string, //Transaction id. Generated on creation
