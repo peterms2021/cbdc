@@ -40,11 +40,12 @@ export async function CreateHTLCFor( cbdc: Contract, sender: string,
         console.log(`CreateHTLCFor called...`);
         
         const receipt = await response.wait();
+
         const htlcAddress = receipt.events?.find((e: { event: string }) => e.event == "HTLCCreated")?.args?.[0];
         if (!htlcAddress) {
-            throw Error("HTLCCreated event not emitted.");
+            throw Error("HTLCCreated FAILED event not emitted.");
         }
-        console.log(`HTLC address: ${htlcAddress}`);
+        console.log(`HTLC CREATE SUCCESS address: ${htlcAddress}`);
         setResult(htlcAddress);
         //setErr(undefined);
         setLoading(false);
