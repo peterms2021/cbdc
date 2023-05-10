@@ -92,6 +92,29 @@ charset:UTF-8
 
 
 ###Bank A creates a request for increase allowance for the bridge spend on behalf of bank B
+POST http://localhost:{{BANKA_PORT}}/decrease
+User-Agent: rest-client
+Content-Type: application/json
+charset:UTF-8
+
+{
+     "spender": "{{bridge_address}}",
+     "amount" : {{allowance_size}}
+}
+
+###Bank A creates a request for increase allowance for the bridge spend on behalf of bank B
+POST http://localhost:{{BANKB_PORT}}/decrease
+User-Agent: rest-client
+Content-Type: application/json
+charset:UTF-8
+
+{
+     "spender": "{{bridge_address}}",
+     "amount" : 10000
+}
+
+
+###Bank A creates a request for increase allowance for the bridge spend on behalf of bank B
 POST http://localhost:{{BANKA_PORT}}/increase
 User-Agent: rest-client
 Content-Type: application/json
@@ -113,9 +136,19 @@ Content-Type: application/json
     "spender": "{{bridge_address}}"
 }
 
-
 ### 
 @avail_allowance={{allowA.response.body.amt}}
+
+### check that the bridge has the allowance
+# @name allowB
+POST http://localhost:{{BRIDGE_PORT}}/allowance
+Content-Type: application/json
+
+{
+    "owner": "{{user_bankB_address}}",
+    "spender": "{{bridge_address}}"
+}
+
 
 ###Bridge spends allowance transfer_from Bank A to Bank B
 POST http://localhost:{{BRIDGE_PORT}}/transfer_from
@@ -149,7 +182,7 @@ Content-Type: application/json
 
 ### HTLC secret
 ##@htlc={{htlcSecretResp.response.body.$.htlcSecretResp.result}}
-@htlc={{htlcSecretResp.response.body.result}}
+@htlc_secret={{htlcSecretResp.response.body.result}}
 
 ####
 # @name timeStamp
@@ -165,29 +198,6 @@ Content-Type: application/json
 ####
 @duration={{timeStamp.response.body.result}}
 
-#### create HTLC for
-# @name htlcreate
-POST http://localhost:{{BRIDGE_PORT}}/htlc/create_for
-Content-Type: application/json
-
-{ "sender":"{{user_bankA_address}}", 
-  "receiver":"{{user_bankB_address}}", 
-  "secret":"{{htlc}}", 
-  "duration":"{{duration}}",
-  "amount": {{collateral}}
-}
-
-###
-
-@htlock = {{htlcreate.response.body.$.htlcreate.result}}
-
-
-###get pre image  - THIS CALL FAILS
-# @name getpreimage
-GET http://localhost:{{BRIDGE_PORT}}/htlc/preimage/{{htlc}}
-
-
-@preimage={{getpreimage.response.body.result}}
 
 ### look at the Active htlocks in the system
 GET http://localhost:{{BRIDGE_PORT}}/htlc/active
@@ -198,7 +208,42 @@ GET http://localhost:{{BRIDGE_PORT}}/htlc/all
 ### see amount on the HTLC that was created
 
 ### look at the Active htlocks in the system
+# @name AactiveHTLC
 GET http://localhost:{{BANKA_PORT}}/htlc/active
+
+###
+@hlock_val={{AactiveHTLC.response.body.$[-1:]}}
+
+### amount the HTLC
+GET http://localhost:{{BANKA_PORT}}/htlc/amount/{{hlock_val}}
+
+### balance the HTLC
+GET http://localhost:{{BANKA_PORT}}/htlc/balance/{{hlock_val}}
+
+### sender the HTLC
+GET http://localhost:{{BANKA_PORT}}/htlc/sender/{{hlock_val}}
+
+### reciever the HTLC
+GET http://localhost:{{BANKA_PORT}}/htlc/receiver/{{hlock_val}}
+
+### get pre image 
+GET http://localhost:{{BANKA_PORT}}/htlc/preimage/{{hlock_val}}
+
+### get pre image 
+PUT http://localhost:{{BANKA_PORT}}/htlc/refund/{{hlock_val}}
+
+### get pre image 
+POST http://localhost:{{BANKA_PORT}}/htlc/withdraw/{{hlock_val}}
+Content-Type: application/json
+
+{ "htlc":"{{hlock_val}}", 
+  "preimage":""
+}
+
+### 
+GET http://localhost:{{BANKA_PORT}}/htlc/preimage/0xFCc3c6B1Ea0111fFF9D0007D52dE5266583d3ae2
+
+
 
 ### look at the Active htlocks in the system
 GET http://localhost:{{BANKB_PORT}}/htlc/active

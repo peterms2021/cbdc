@@ -2,12 +2,12 @@
 import { BigNumber, Contract, utils } from "ethers";
 
 
-export async function HtlcAmount(cbdc: Contract, htlc:string) : Promise<[result: BigNumber, err: string]> {
+export async function HtlcAmount(cbdc: Contract, htlc:string) : Promise<[result: number, err: string]> {
 
   let loading = false;
   let err:string = "";
   //let result:BigNumber = BigNumber.from(Number.MAX_SAFE_INTEGER - 1);
-  let result:BigNumber = BigNumber.from("0");
+  let result:number = 0;
 
   if(cbdc == undefined){
     console.log("Cbdc object is not defined");
@@ -20,7 +20,7 @@ export async function HtlcAmount(cbdc: Contract, htlc:string) : Promise<[result:
   function setErr(val: string){
     err =  val;
   }
-  function setResult(val: BigNumber){
+  function setResult(val: number){
     result =  val;
   }
 
@@ -29,12 +29,13 @@ export async function HtlcAmount(cbdc: Contract, htlc:string) : Promise<[result:
           .htlcAmount(htlc)
           .then((result: BigNumber) => {
             // format to 2 decimal places      
-            console.log(utils.formatUnits(result, 2).toString());
-            setResult(result);
-            //setErr(undefined);
+            
+            let n = utils.formatUnits(result, 2).toString();
+            let f = Number.parseFloat(n);
+            console.log( `HtlcAmount=> ${f}`);
+            setResult(f);
           })
           .catch((err: Error) => {
-            //setResult(undefined);
             setErr(err.message);
           });  
   }

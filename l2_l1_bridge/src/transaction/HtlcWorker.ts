@@ -146,7 +146,7 @@ export const getAllHTLCs = async (): Promise<[result: Array<string>, err: string
 
 
 
-export const getHtlcAmount = async (htlc:string): Promise<[result:BigNumber, err: string] | null> => {
+export const getHtlcAmount = async (htlc:string): Promise<[result:number, err: string] | null> => {
   
     try {
 
@@ -167,7 +167,7 @@ export const getHtlcAmount = async (htlc:string): Promise<[result:BigNumber, err
 };
 
 
-export const getHtlcBalance = async (htlc:string): Promise<[result:BigNumber, err: string] | null> => {
+export const getHtlcBalance = async (htlc:string): Promise<[result:number, err: string] | null> => {
   
     try {
 
