@@ -247,7 +247,7 @@ export function requestSecurityLoan(
   request: ccfapp.Request<ISecurityLoanRequest>
 ): ccfapp.Response<ISecurityLoanResponse> {
   //For simplification. Const values.
-  const securityPrice = 100; //Initial price of all securities set to fixed value
+  const securityPrice = 10; //Initial price of all securities set to fixed value
   const collateralRate = 1.05; //All securities subject to same collateral level
   const feeRate = 0.01; //All securities subject to same fee rate.
 
@@ -617,7 +617,7 @@ function requestSecurityReturn(
   lenderId: string,
   borrowerId: string,
   securityId: string,
-  quantity: numbe
+  quantity: number
 ): boolean {
   //let success: boolean = randomNumberBetween(1, 10) < 8;
   let success: boolean = false;
