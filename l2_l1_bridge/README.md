@@ -152,7 +152,7 @@ export CCF_SERVICE_CERT_FILE="~/.ccf_key/service_cert.pem"
 
 # see <loanDetails> in src/ops/CcfInterface.ts for interface definitions - the JSON data passed between these calls
 # get pending loans - returns loanDetails
-export API_GET_TRANSACTION="/pending_tx"  
+export API_GET_TRANSACTION="/app/pendingtransactions"  
 
 # get loan returns the details of loan that needs to processed by bridge. See src/ops/CcfInterface.ts 
 export API_GET_LOAN="/get_loan"
@@ -173,16 +173,39 @@ export API_RETURN_SHARES="/return_shares"
 export API_UPDATE_PRICE="/update_price"
 
 
-# Bridge management calls. We want to know what accounts to watch for transaction. This is necessary as the time between the
-# Polling for events from the CCF app can cause the bridge to ignore allowance events because 
-# the events may arrive before the polling sees the pending transaction in the account.
- 
- # NB - change the HTTP port to match the port of the bridge is listening on
- # Get the accounts being watched
-curl  http://localhost:7001/bridge/list_watch 
-curl -X PUT  http://localhost:7001/bridge/add_watch/<accnt_addr> 
-curl -X DELETE  http://localhost:7001/bridge/del_watch/<accnt_addr> 
+# user0_id=$(openssl x509 -in "user0_cert.pem" -noout -fingerprint -sha256 | cut -d "=" -f 2 | sed 's/://g' | awk '{print tolower($0)}')
+# user1_id=$(openssl x509 -in "user1_cert.pem" -noout -fingerprint -sha256 | cut -d "=" -f 2 | sed 's/://g' | awk '{print tolower($0)}')
 
-example 
-curl -X PUT  http://localhost:7001/bridge/add_watch/0xa3df034084078EBf20216b0789CF4901D8D6194E
-curl -X DELETE  http://localhost:7001/bridge/del_watch/0xa3df034084078EBf20216b0789CF4901D8D6194E
+# CCF interaction
+
+curl -i https://cbdc-test1.confidential-ledger.azure.com/app/pendingtransactions -X GET --cacert service_cert.pem --cert peterwalker_cert.pem --key peterwalker_privk.pem
+
+
+# register 
+curl -i https://cbdc-test1.confidential-ledger.azure.com/app/cbdcuser/<userid>/<cbdaddress> -X PUT --cacert service_cert.pem --cert peterwalker_cert.pem --key peterwalker_privk.pem
+
+
+# register user 0
+curl -i https://cbdc-test1.confidential-ledger.azure.com/app/cbdcuser/e720dfff1d4db487d335eb27cd7ca2efe001be06be0a3e661eeea814fd4f0777/0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001 -X PUT --cacert service_cert.pem --cert peterwalker_cert.pem --key peterwalker_privk.pem
+
+# register user 1
+curl -i https://cbdc-test1.confidential-ledger.azure.com/app/cbdcuser/dd36a6ccb82f67a4d4c9fa1472180897005d442eab8ee039c0e2aa44ba9cf003/0xB678AC4F4D06E21EF11E858940333692EC2C80BA -X PUT --cacert service_cert.pem --cert peterwalker_cert.pem --key peterwalker_privk.pem
+
+
+curl -i https://cbdc-test1.confidential-ledger.azure.com/app/testing -X POST --cacert service_cert.pem --cert user0.cer --key user0.key
+
+# Register securities
+
+curl -i https://cbdc-test1.confidential-ledger.azure.com/app/securities/e720dfff1d4db487d335eb27cd7ca2efe001be06be0a3e661eeea814fd4f0777 -X PUT -H 'Content-Type: application/json; charset=UTF-8' -d '{       "userId": "e720dfff1d4db487d335eb27cd7ca2efe001be06be0a3e661eeea814fd4f0777", 
+    "holdings": [{"securityId":"SECURITY1","quantity":500},{"securityId":"SECURITY2","quantity":700}]}'    --cacert service_cert.pem --cert user0.cer --key user0.key 
+
+
+curl -i https://cbdc-test1.confidential-ledger.azure.com/app/securities/dd36a6ccb82f67a4d4c9fa1472180897005d442eab8ee039c0e2aa44ba9cf003 -X PUT -H 'Content-Type: application/json; charset=UTF-8' -d '{       "userId": "dd36a6ccb82f67a4d4c9fa1472180897005d442eab8ee039c0e2aa44ba9cf003", 
+    "holdings": [{"securityId":"SECURITY1","quantity":500},{"securityId":"SECURITY2","quantity":700}]}'    --cacert service_cert.pem --cert user1.cer --key user1.key 
+
+# request loan as user1
+curl -i https://cbdc-test1.confidential-ledger.azure.com/app/loans/dd36a6ccb82f67a4d4c9fa1472180897005d442eab8ee039c0e2aa44ba9cf003 -X POST -H 'Content-Type: application/json; charset=UTF-8' -d '{       "userId": "dd36a6ccb82f67a4d4c9fa1472180897005d442eab8ee039c0e2aa44ba9cf003", 
+    "securityId":"SECURITY2","quantity":100}'    --cacert service_cert.pem --cert user1.cer --key user1.key 
+
+curl -i https://cbdc-test1.confidential-ledger.azure.com/app/loans/e720dfff1d4db487d335eb27cd7ca2efe001be06be0a3e661eeea814fd4f0777 -X POST -H 'Content-Type: application/json; charset=UTF-8' -d '{       "userId": "dd36a6ccb82f67a4d4c9fa1472180897005d442eab8ee039c0e2aa44ba9cf003", 
+    "securityId":"SECURITY2","quantity":100}'    --cacert service_cert.pem --cert user1.cer --key user1.key

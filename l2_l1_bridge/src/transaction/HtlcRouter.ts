@@ -4,6 +4,7 @@
 
  import { BigNumber, utils } from "ethers";
  import express, { Request, Response } from "express";
+import { prettyPrint } from "../ops/Env.js";
  import * as htlcService from "./HtlcWorker.js";
  import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp, htlcLock, htlcLockFor, htlcWithdraw, htlcSecret, htlcSecretResp, htlcDuration, htlcDurationResp } from "./TransInterface.js";
  import { approveFunds,  approveFundsResp } from "./TransInterface.js";
@@ -41,7 +42,7 @@ htlcRouter.post("/create_for", async (req: Request, res: Response) => {
     try {        
         
         const trans: htlcLockFor = req.body;
-        console.log(`htlc/create_for: ... ${JSON.stringify(trans)}`);
+        console.log(`htlc/create_for: ...`, prettyPrint(trans));
 
         let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
         let resp = await htlcService.createHTLCFor( trans.sender, trans.receiver, trans.secret, trans.duration.toString(),a );
