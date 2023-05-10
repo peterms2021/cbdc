@@ -617,9 +617,10 @@ function requestSecurityReturn(
   lenderId: string,
   borrowerId: string,
   securityId: string,
-  quantity: number
+  quantity: numbe
 ): boolean {
-  let success: boolean = randomNumberBetween(1, 10) < 8;
+  //let success: boolean = randomNumberBetween(1, 10) < 8;
+  let success: boolean = false;
   if (success) {
     console.log(`Sucurity return succeeded`);
     //Stub: Transfer securities back

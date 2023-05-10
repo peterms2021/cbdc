@@ -141,4 +141,7 @@ POST https://member0.ccfdeployment/app/completetransaction
 
 ###Get Pending Transactions###
 # @name pendingtransactions4
-GET https://member0.ccfdeployment/app/pendingtransactions
+GET https://member0.ccfdeployment/app/pendingtransactions 
+
+#TODO: You will get back either a REFUND_HTLC (80% of time, but not until timelock+300s) or WITHDRAW_HTLC (20% of the time, immediately)
+# Per discussion for Demo this will always be a WITHDRAW_HTLC pendingtxn
