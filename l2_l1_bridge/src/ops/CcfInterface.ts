@@ -1,5 +1,8 @@
-export var pendTransTypeAllowance: string = "AWAIT_ALLOWANCE";
-export var pendTransTypeCreateHtlcFor: string = "CREATE_HTLC_FOR";
+export var AWAIT_ALLOWANCE: string = "AWAIT_ALLOWANCE";
+export var CREATE_HTLC_FOR: string = "CREATE_HTLC_FOR";
+export var CLOSE_LOAN: string ="CLOSE_LOAN";
+export var REFUND_HTLC: string ="REFUND_HTLC";
+export var WITHDRAW_HTLC: string="WITHDRAW_HTLC";
 
 
 export interface pendingTransactionBase {

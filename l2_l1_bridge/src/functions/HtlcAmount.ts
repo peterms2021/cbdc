@@ -25,7 +25,7 @@ export async function HtlcAmount(cbdc: Contract, htlc:string) : Promise<[result:
   }
 
   async function handleSubmit() {
-        cbdc
+        await cbdc
           .htlcAmount(htlc)
           .then((result: BigNumber) => {
             // format to 2 decimal places      

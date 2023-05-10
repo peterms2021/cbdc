@@ -19,7 +19,7 @@ export async function HtlcSender(cbdc: Contract , htlc: string): Promise<[result
   }
 
   async function handleSubmit() {
-          cbdc
+        await  cbdc
           .htlcSender(htlc)
           .then((result: string) => {
             setResult(result);

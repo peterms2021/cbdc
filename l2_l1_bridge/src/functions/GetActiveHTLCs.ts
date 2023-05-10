@@ -24,7 +24,7 @@ export async function  GetActiveHTLCs(cbdc: Contract) : Promise <[result: Array<
   }
 
   async function handleSubmit() {
-          cbdc
+          await cbdc
           .getActiveHTLCs()
           .then((htlcs: Array<string>) => {
             setResult(htlcs);

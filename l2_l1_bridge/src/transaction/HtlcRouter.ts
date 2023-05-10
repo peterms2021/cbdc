@@ -71,7 +71,9 @@ htlcRouter.get("/active", async (req: Request, res: Response) => {
         if (resp) {
             let [r,e] = resp;
             if(e.length == 0){
-                res.status(200).json(resp);
+                //const myJSON = JSON.stringify(resp);
+                //console.log(`htlcRouter.get("/active => ${myJSON}`);
+                res.status(200).json(r);
             }else{
                 res.status(400).json(resp);
             }

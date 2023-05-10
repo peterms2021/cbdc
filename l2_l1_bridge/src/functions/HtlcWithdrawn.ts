@@ -19,7 +19,7 @@ export async function HtlcWithdrawn (cbdc: Contract , htlc: string): Promise<[re
   }
 
   async function handleSubmit() {
-          cbdc
+        await  cbdc
           .htlcWithdrawn(htlc)
           .then((result: boolean) => {
             setResult(result);
