@@ -3,7 +3,7 @@ import * as ccfcrypto from "@microsoft/ccf-app/crypto.js";
 import { ccf } from "@microsoft/ccf-app/global";
 import { keccak256 } from "js-sha3";
 
-const bridge_address = "0x5A84099345D666F5FC7FE644D0A7B0D2B51D84AD"; //TODO: Dummy address for Bridge
+const bridge_address = "0xBF4961b1b32CA8873e0C760906745F2006878EF0"; //TODO: Dummy address for Bridge
 
 export function testFunction(request: ccfapp.Request): ccfapp.Response {
   console.log(`Entered Test Function`);

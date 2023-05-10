@@ -1,6 +1,7 @@
 export var pendTransTypeAllowance: string = "AWAIT_ALLOWANCE";
 export var pendTransTypeCreateHtlcFor: string = "CREATE_HTLC_FOR";
 
+
 export interface pendingTransactionBase {
   transactionType: string; //pendTransTypeAllowance
   transactionId: string;
