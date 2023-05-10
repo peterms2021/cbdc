@@ -42,7 +42,7 @@ function httpsReq(body: any, _options: any) {
         let resBody = Buffer.concat(chunks);
         switch (res.headers["content-type"]) {
           case "application/json":
-            console.log(`resp data: ${resBody.toString()}`);
+            //console.log(`resp data: ${resBody.toString()}`);
             //resBody = JSON.parse(resBody.toString());
             break;
         }
@@ -93,12 +93,10 @@ async function ccf_get_call(path_url: string, args: any): Promise<any | null> {
 export async function test_ccf(): Promise<void> {
   try {
     console.log(" test_ccf...");
-    let path ="/app/pendingtransactions";
+    let path = "/app/pendingtransactions";
     //let path = "/app/";
     await ccf_get_call(path, "")
-      .then((jsonformat) =>
-        console.log(prettyPrint(JSON.stringify(jsonformat)))
-      )
+      .then(async (jsonformat) => console.log(prettyPrint(jsonformat)))
       .catch((err) => console.log(`Error ${err}`));
   } catch (err) {
     console.log(`test_ccf Error ${err}`);
@@ -131,12 +129,11 @@ export const processApproval = async (trans: contractEvent): Promise<void> => {
 
 let errCnt: number = 0;
 export const pullNewTransaction = async (): Promise<boolean | null> => {
-
-  let path="/app/pendingtransactions";
+  let path = "/app/pendingtransactions";
 
   //test_ccf(); return null;
 
-  ccf_get_call(path, "")
+  await ccf_get_call(path, "")
     //then() function is used to convert the posted contents to the website into json format
     .then(async (result) => {
       errCnt = 0;
@@ -147,7 +144,7 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
       try {
         for (var i = 0; i < trans.pendingTransactions.length; i++) {
           let tran = trans.pendingTransactions[i];
-          console.log(`Trans: ${i} => `, prettyPrint(tran));
+          //console.log(`Trans: ${i} => `, prettyPrint(tran));
 
           if ((tran.transactionType as string) === pendTransTypeAllowance) {
             processPendingTransctionWaitingForAllowance(
@@ -160,7 +157,9 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
               tran as pendingTransactionsTypeCreateHtlcFor
             );
           } else {
-            console.log(`Unknown transaction ${(tran.transactionType as string)}`);
+            console.log(
+              `Unknown transaction ${tran.transactionType as string}`
+            );
           }
         }
       } catch (err) {
@@ -168,7 +167,7 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
       }
     })
     //the posted contents to the website in json format is displayed as the output on the screen
-    .then((jsonformat) => {
+    .then(async (jsonformat) => {
       console.log(
         "pullNewTransaction: jsonformat response",
         JSON.stringify(jsonformat)
@@ -183,7 +182,9 @@ export const pullNewTransaction = async (): Promise<boolean | null> => {
   return true;
 };
 
-async function processPendingTransctionWaitingForAllowance( trans: pendingTransactionsTypeWaitForAllowance) {
+async function processPendingTransctionWaitingForAllowance(
+  trans: pendingTransactionsTypeWaitForAllowance
+) {
   let fname = "processPendingTransctionWaitingForAllowance";
   // check if the allowance is available from the burrower
   const tx = {} as allowAnce;
@@ -208,23 +209,86 @@ async function processPendingTransctionWaitingForAllowance( trans: pendingTransa
     }
   }
 
+  console.log(`${fname} sending completion for loan `, prettyPrint(trans));
+
   //we have enough allowance for the transaction to process .. send response confirming loan
   //let path = enInfo.get(CCF_CONFIRM_LOAN);
   let path = "/app/completetransaction";
-  ccf_post_call(path, trans)
-    .then((result) => {
-      console.log(`${fname} `, prettyPrint(result.json()));
-    })
+  await ccf_post_call(path, trans)
+    .then(async (result) => {
+      console.log(`${fname} `, prettyPrint(result));
+    }) /*
     //the posted contents
-    .then((jsonformat) => {
+    .then(async (jsonformat) => {
       console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
-    })
+    })*/
     .catch((err) => {
       console.log(`${fname} Error sending approval ${err}`);
       return false;
     });
 
   return;
+}
+
+async function processTransferForFee(
+  trans: pendingTransactionsTypeCreateHtlcFor
+): Promise<boolean> {
+  let fname = "processTransferForFee";
+  const tx = {} as transferFundsFrom;
+  tx.amount = trans.fees;
+  tx.from = trans.senderAddress;
+  tx.to = trans.receiverAddress;
+
+  let tr = await WorkerService.transferFrom(tx);
+
+  if (tr === undefined) {
+    console.log(`${fname}: failed to call allowance for ${tx}`);
+    return false;
+  }
+  if (tr.err.length) {
+    console.log(`${fname}: failed to call allowance with error  ${tr.err}`);
+    return false;
+  }
+
+  if (tr.result == false) {
+    console.log(`${fname}: failed to transfer fees  ${tx.amount} < ${trans}`);
+    return false;
+  }
+
+  return true;
+}
+
+async function processHtlcCreateFor(
+  trans: pendingTransactionsTypeCreateHtlcFor
+): Promise<string | null> {
+  // create the HTLC LOCK for the balance
+  let fname = "processHtlcCreateFor";
+  let a: BigNumber =  utils.parseUnits(trans.amount.toString(), 2);
+
+  if (!trans.hashlock.startsWith("0x")) {
+    trans.hashlock = "0x".concat(trans.hashlock);
+    //console.log(`${fname} prepend hashlock with 0x> ${trans.hashlock}`);
+  }
+
+  let [htlock, err] = await htlcService.createHTLCFor(
+    trans.senderAddress,
+    trans.receiverAddress,
+    trans.hashlock,
+    trans.timelock.toString(),
+    a
+  );
+
+  if (err.length) {
+    console.log(`${fname}: Unable to createHTLOCKFor `, prettyPrint(trans));
+    //posrt failure to ccf
+
+    // what to do here  - refund the transfer? Or the burrower bears the penality of
+    // of not having enough funds as loss
+    return null;
+  } else {
+    console.log(`${fname}: SUCCESS to createHTLOCKFor ${htlock} =>`, prettyPrint(trans));
+    return htlock;
+  }
 }
 
 async function processPendingTransctionCreateHtlcFor(
@@ -250,56 +314,51 @@ async function processPendingTransctionCreateHtlcFor(
   // So we transfer the fees first and then lock the collateral.
 
   const tx = {} as transferFundsFrom;
-  tx.amount = trans.fees;
-  tx.from = trans.senderAddress;
-  tx.to = trans.receiverAddress;
 
-  let tr = await WorkerService.transferFrom(tx);
+  let bCreateHtlockFirst = true;
 
-  if (tr === undefined) {
-    console.log(`${fname}: failed to call allowance for ${tx}`);
-    return;
-  }
-  if (tr.err.length) {
-    console.log(`${fname}: failed to call allowance with error  ${tr.err}`);
-    return;
-  }
+  if (bCreateHtlockFirst) {
+    let hlock = await processHtlcCreateFor(trans);
 
-  if (tr.result == false) {
-    console.log(`${fname}: failed to transfer fees  ${tx.amount} < ${trans}`);
-  } else {
-    // create the HTLC LOCK for the balance
-
-    let a: BigNumber = utils.parseUnits(trans.amount.toString(), 2);
-    let [htlock, err] = await htlcService.createHTLCFor(
-      trans.senderAddress,
-      trans.receiverAddress,
-      trans.hashlock,
-      trans.timelock.toString(),
-      a
-    );
-
-    if (err.length) {
-      console.log(`${fname}: Unable to createHTLOCK for ${trans}`);
-      //posrt failure to ccf
-
-      // what to do here  - refund the transfer? Or the burrower bears the penality of
-      // of not having enough funds as loss
+    //if fail - we keep the fee??
+    resp.htlcAddress = hlock === null ? "none" : (hlock as unknown as string);
+    if (hlock) {
+      //do the transfer
+      let b = await processTransferForFee(trans);
+      if (b == false) {
+        console.log(
+          `${fname} fee transfer failed after HTLC create  failed skipping fee transfer `
+        );
+        //allow the lock to expire??
+      }
     } else {
-      resp.htlcAddress = htlock;
+      console.log(`${fname} htlclock create  failed skipping fee transfer `);
+      //we could return and keep trying - or indicate failure and close out loan
+    }
+  } else {
+    let b = await processTransferForFee(trans);
+    if (b) {
+      let hlock = await processHtlcCreateFor(trans);
+      //if fail - do we keep the fee?? Obviously as the bridge cant to a reverse transfer from
+      resp.htlcAddress = hlock === null ? "none" : (hlock as unknown as string);
+    } else {
+      console.log(`${fname} fee transfer failed skipping htlclock create`);
+      resp.htlcAddress = "none";
     }
   }
+
+  console.log(`${fname} sending completion for loan `, prettyPrint(resp));
 
   //we have enough allowance for the transaction to process .. send response confirming loan
   let path = "/app/completetransaction";
   //let path = enInfo.get(CCF_CONFIRM_LOAN);
 
-  ccf_post_call(path, resp)
-    .then((result) => {
-      console.log(`${fname} `, prettyPrint(result.json()));
+  await ccf_post_call(path, resp)
+    .then(async (result) => {
+      console.log(`${fname}  resp`, prettyPrint(JSON.parse(result)));
     })
     //the posted contents
-    .then((jsonformat) => {
+    .then(async (jsonformat) => {
       console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
     })
     .catch((err) => {

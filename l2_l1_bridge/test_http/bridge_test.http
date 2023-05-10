@@ -30,8 +30,32 @@ charset:UTF-8
 
 {
      "to": "{{user_bankA_address}}",
+     "amount" : 15000
+}
+
+#### Send B some money
+POST http://localhost:{{BRIDGE_PORT}}/transfer
+User-Agent: rest-client
+Content-Type: application/json
+charset:UTF-8
+
+{
+     "to": "{{user_bankB_address}}",
      "amount" : {{tranfer_amt}}
 }
+
+
+#### A Send B some money
+POST http://localhost:{{BANKA_PORT}}/transfer
+User-Agent: rest-client
+Content-Type: application/json
+charset:UTF-8
+
+{
+     "to": "{{user_bankB_address}}",
+     "amount" : {{tranfer_amt}}
+}
+
 
 ### Bank B creates a request for increase allowance for the bridge spend on behalf of bank B
 POST http://localhost:{{BANKB_PORT}}/increase
