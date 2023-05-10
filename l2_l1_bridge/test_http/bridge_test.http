@@ -197,6 +197,20 @@ GET http://localhost:{{BRIDGE_PORT}}/htlc/all
 
 ### see amount on the HTLC that was created
 
+### look at the Active htlocks in the system
+GET http://localhost:{{BANKA_PORT}}/htlc/active
+
+### look at the Active htlocks in the system
+GET http://localhost:{{BANKB_PORT}}/htlc/active
+
+### See all 
+GET http://localhost:{{BANKA_PORT}}/htlc/all
+### See all 
+GET http://localhost:{{BANKB_PORT}}/htlc/all
+
+### see amount on the HTLC that was created
+
+
 GET http://localhost:{{BRIDGE_PORT}}/htlc/amount/{{htlc}}
 
 ### get the balance
