@@ -50,7 +50,7 @@ function httpsReq(body: any, _options: any) {
             //console.log(`resp data: ${resBody.toString()}`);
             //let jSonResBody = JSON.parse(resBody.toString());
             //resolve(jSonResBody);
-            break;            
+            break;
         }
         resolve(resBody);
       });
@@ -108,18 +108,17 @@ export async function test_ccf(): Promise<void> {
     console.log(`test_ccf Error ${err}`);
   }
 }
-var bCALL_PROCESS_NEW_TRANACTION_ON_EVENT=false;
+var bCALL_PROCESS_NEW_TRANACTION_ON_EVENT = false;
 
 export const processTransfer = async (trans: contractEvent): Promise<void> => {
   //format to 2 places of decimal
   console.log(
-    `processTransfer: from ${trans.from_owner} -> ${
-      trans.to_spender
+    `processTransfer: from ${trans.from_owner} -> ${trans.to_spender
     } amt:${utils.formatUnits(trans.value, 2).toString()}`
   );
 
   //we use the tranfer event to check for pending transactions on the bridge
-  if(bCALL_PROCESS_NEW_TRANACTION_ON_EVENT){
+  if (bCALL_PROCESS_NEW_TRANACTION_ON_EVENT) {
     pullNewTransaction();
   }
 };
@@ -127,20 +126,19 @@ export const processTransfer = async (trans: contractEvent): Promise<void> => {
 export const processApproval = async (trans: contractEvent): Promise<void> => {
   //format to 2 places of decimal
   console.log(
-    `processApproval: from ${trans.from_owner} -> ${
-      trans.to_spender
+    `processApproval: from ${trans.from_owner} -> ${trans.to_spender
     } amt:${utils.formatUnits(trans.value, 2).toString()} :`
   );
 
   //we use the approval event to check for pending transactions on the bridge
-  if(bCALL_PROCESS_NEW_TRANACTION_ON_EVENT){
+  if (bCALL_PROCESS_NEW_TRANACTION_ON_EVENT) {
     pullNewTransaction();
   }
 };
 
 let errCnt: number = 0;
 
- const _pullNewTransaction = async (): Promise<boolean | null> => {
+const _pullNewTransaction = async (): Promise<boolean | null> => {
   let path = "/app/pendingtransactions";
 
   //test_ccf(); return null;
@@ -150,7 +148,7 @@ let errCnt: number = 0;
     .then(async (result) => {
       errCnt = 0;
       try {
-        
+
         let trans = JSON.parse(result);
         if (trans.pendingTransactions.length) {
           console.log(`New transaction`, prettyPrint(trans));
@@ -180,18 +178,18 @@ let errCnt: number = 0;
           }
         }
       } catch (err) {
-          //console.log(`Error parsing new Transaction!!! ${err}`);
-          console.log(`Transaction...`);
+        //console.log(`Error parsing new Transaction!!! ${err}`);
+        console.log(`Transaction...`);
       }
     })
     //the posted contents to the website in json format is displayed as the output on the screen
     .then(async (jsonformat) => {
-     //console.log("pullNewTransaction: jsonformat response",JSON.stringify(jsonformat));
+      //console.log("pullNewTransaction: jsonformat response",JSON.stringify(jsonformat));
     })
     .catch((err) => {
-      if(err.length){
+      if (err.length) {
         console.log(`pullNewTransaction  Error: ${JSON.stringify(err)}`);
-      }else{
+      } else {
         console.log(`pullNewTransaction`);
       }
       errCnt++;
@@ -203,16 +201,16 @@ let errCnt: number = 0;
 //serialize calls
 let bProcessing: boolean = false;
 export const pullNewTransaction = async (): Promise<boolean | null> => {
-  if(bProcessing){
+  if (bProcessing) {
     return null;
   }
 
   bProcessing = true;
-  let b= await _pullNewTransaction();
+  let b = await _pullNewTransaction();
   bProcessing = false;
   return b;
 }
-async function processPendingTransctionWaitingForAllowance( trans: IAwaitAllowancePayload) {
+async function processPendingTransctionWaitingForAllowance(trans: IAwaitAllowancePayload) {
   let fname = "processPendingTransctionWaitingForAllowance";
   // check if the allowance is available from the burrower
   const tx = {} as allowAnce;
@@ -245,7 +243,7 @@ async function processPendingTransctionWaitingForAllowance( trans: IAwaitAllowan
   await ccf_post_call(path, trans)
     .then(async (result) => {
       console.log(`${fname} `, prettyPrint(result));
-    }) 
+    })
     //the posted contents
     .then(async (jsonformat) => {
       console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
@@ -258,7 +256,7 @@ async function processPendingTransctionWaitingForAllowance( trans: IAwaitAllowan
   return;
 }
 
-async function processTransferForFee( trans: ICreateHtlcForPayload): Promise<boolean> {
+async function processTransferForFee(trans: ICreateHtlcForPayload): Promise<boolean> {
   let fname = "processTransferForFee";
   const tx = {} as transferFundsFrom;
   tx.amount = trans.fees;
@@ -370,14 +368,14 @@ async function processPendingTransctionCreateHtlcFor(trans: ICreateHtlcForPayloa
     transactionType: trans.transactionType,
     transactionId: trans.transactionId,
     transactionCreated: trans.transactionCreated,
-    originatingLoanId:  trans.originatingLoanId,
+    originatingLoanId: trans.originatingLoanId,
     senderAddress: trans.senderAddress,
     receiverAddress: trans.receiverAddress,
     hashlock: trans.hashlock,
     timelock: trans.timelock,
     amount: trans.amount,
     fees: trans.fees,
-    htlcAddress:  htlcAddress
+    htlcAddress: htlcAddress
   };
 
   console.log(`${fname} sending completion for loan `, prettyPrint(resp));
@@ -425,25 +423,35 @@ async function processCloseLoan(resp: ICloseLoanPayload) {
 
 
 async function processWithDraw(trans: IWithdrawHtlcPayload) {
-  
+
   let fname = "processWithDraw";
+  
 
+  if (trans.htlcAddress === 'none') {
+    console.log(`${fname} HTLC was not created - nothing to do`, prettyPrint(trans));
+  }
+  else {
 
-  //first pre image the htlc
-  let [preimage, err]  = await htlcService.htlcPreimage(trans.htlcAddress);
+    console.log(`${fname} NOTIFY THE LENDER with SECRET `, prettyPrint(trans));
+    /*
+    //first pre image the htlc
+    let [preimage, err] = await htlcService.htlcPreimage(trans.htlcAddress);
 
-  if(err.length){
+    if (err.length) {
       console.log(`${fname} Error getting HTLC preimage  ${err}`);
       return;
+    }
+    console.log(`${fname} preimage => ${preimage}`);
+    //now with drawn
+    let [resu, _err] = await htlcService.htlcWithdraw(trans.htlcAddress, preimage);
+
+    if (_err.length) {
+      console.log(`${fname} Error withdrawing  ${_err}`);
+      return;
+    }
+    */
   }
-  console.log(`${fname} preimage => ${preimage}`);
-  //now with drawn
-  let [resu, _err]  = await htlcService.htlcWithdraw(trans.htlcAddress, preimage);
   
-  if(_err.length){
-    console.log(`${fname} Error withdrawing  ${_err}`);
-    return;
-  }
 
   //we have successfully with drawn - send response
   let path = "/app/completetransaction";
@@ -464,8 +472,45 @@ async function processWithDraw(trans: IWithdrawHtlcPayload) {
 }
 
 
-function processRefundLoan(trans: IRefundHtlcPayload) {
-  let fname = "processWithDraw";
-  console.log(`${fname} Error NOT IMPLEMENTED`, prettyPrint(trans));
+async function processRefundLoan(trans: IRefundHtlcPayload) {
+  let fname = "processRefundLoan";
+  if (trans.htlcAddress === 'none') {
+    console.log(`${fname} HTLC was not created - nothing to do`, prettyPrint(trans));
+  }
+  else {
+  
+    console.log(`${fname} NOTIFY THE BURROWER with SECRET `, prettyPrint(trans));
+    /*
+     //first pre image the htlc
+     let [preimage, err] = await htlcService.htlcPreimage(trans.htlcAddress);
+
+     if (err.length) {
+       console.log(`${fname} Error getting HTLC preimage  ${err}`);
+       return;
+     }
+     console.log(`${fname} preimage => ${preimage}`);
+     //now with drawn
+     let [resu, _err] = await htlcService.htlcRefund(trans.htlcAddress);
+ 
+     if (_err.length) {
+       console.log(`${fname} Error refunding  ${_err}`);
+       return;
+     }
+     */
+  }
+  let path = "/app/completetransaction";
+  await ccf_post_call(path, trans)
+    .then(async (result) => {
+      console.log(`${fname}  resp`, prettyPrint(JSON.parse(result)));
+    })
+    //the posted contents
+    .then(async (jsonformat) => {
+      console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+    })
+    .catch((err) => {
+      console.log(`${fname} Error sending data ${err}`);
+      return;
+    });
+
   return;
 }
