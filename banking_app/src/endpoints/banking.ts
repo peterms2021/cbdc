@@ -623,6 +623,8 @@ interface ILoanSecret {
   state: string;
 }
 
+
+
 interface ICloseLoansRequestResponse {
   userId: string;
   loans: ILoanSecret[];
@@ -632,6 +634,18 @@ interface ICloseLoansRequest {
   userId: string;
   hashlock: string;
 }
+
+interface IMLoanSecret extends ILoanSecret{
+  sender: string,
+  receiver:string
+}
+
+
+interface ICloseMLoansRequestResponse {
+  loans: IMLoanSecret[];
+}
+
+
 
 export function requestLoanSecrets(
   request: ccfapp.Request
@@ -702,6 +716,67 @@ export function requestLoanSecrets(
     },
   };
 }
+
+
+
+export function requestMemberLoanSecrets(
+  request: ccfapp.Request
+): ccfapp.Response<ICloseMLoansRequestResponse> {
+  let req_body: ICloseLoansRequest;
+  try {
+    req_body = request.body.json();
+  } catch {
+    return {
+      statusCode: 400,
+      body: <any>`Cannot parse JSON from ${request.body.text()}`,
+    };
+  }
+
+
+  let Loans: IMLoanSecret[] = [];
+  pendingTransactionsTable.forEach(
+    (value: ICreateHtlcForPayload, key: string) => {
+      if (
+        value.transactionType === TransactionType.REFUND_HTLC ||
+        value.transactionType === TransactionType.WITHDRAW_HTLC ||
+        value.transactionType === TransactionType.CLOSE_LOAN
+      ) {
+        if (
+          req_body.hashlock === value.htlcAddress ||
+          req_body.hashlock === "all"
+        ) {
+          let initialLoan = securityLoansTable.get(value.originatingLoanId);
+          var hl: string = "none";
+          var scret = initialLoan.secret;
+          if (initialLoan.htlcAddress && initialLoan.htlcAddress.length) {
+            hl = initialLoan.htlcAddress;
+          } else if (value.htlcAddress && value.htlcAddress.length) {
+            hl = initialLoan.htlcAddress;
+          }
+
+          let d: IMLoanSecret = {
+            state: value.transactionType,
+            loanId: value.originatingLoanId,
+            hashlock: hl,
+            secret: scret,
+            sender: value.senderAddress,
+            receiver: value.receiverAddress
+          };
+          Loans.push(d);
+        }
+      }
+    }
+  );
+
+  return {
+    statusCode: 204,
+    body: <ICloseMLoansRequestResponse>{
+      loans: Loans,
+    },
+  };
+}
+
+
 
 function completeRefunded(payload: IRefundHtlcPayload): LoanClosureStatus {
   let originatingLoanId = payload.originatingLoanId;
