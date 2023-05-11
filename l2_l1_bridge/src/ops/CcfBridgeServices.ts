@@ -38,6 +38,8 @@ import https from "https";
 import { prettyPrint } from "./Env.js";
 import { IAwaitAllowancePayload, ICloseLoanPayload, ICreateHtlcForPayload, IRefundHtlcPayload, IWithdrawHtlcPayload, TransactionType } from "./bank_interface.js";
 
+var noisyLog:boolean = false;
+
 function httpsReq(body: any, _options: any) {
   return new Promise<any | null>((resolve, reject) => {
     const req = https.request(_options, (res) => {
@@ -414,7 +416,9 @@ async function processCloseLoan(resp: ICloseLoanPayload) {
       console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
     })
     .catch((err) => {
-      console.log(`${fname} Error sending data ${err}`);
+      if(noisyLog){
+        console.log(`${fname} Error sending data ${err}`);
+      }
       return;
     });
 }
@@ -466,7 +470,9 @@ async function processWithDraw(trans: IWithdrawHtlcPayload) {
       console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
     })
     .catch((err) => {
-      console.log(`${fname} Error sending data ${err}`);
+      if(noisyLog){
+        console.log(`${fname} Error sending data ${err}`);
+      }
       return;
     });
 }
@@ -508,7 +514,9 @@ async function processRefundLoan(trans: IRefundHtlcPayload) {
       console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
     })
     .catch((err) => {
-      console.log(`${fname} Error sending data ${err}`);
+      if(noisyLog){
+        console.log(`${fname} Error sending data ${err}`);
+      }
       return;
     });
 
