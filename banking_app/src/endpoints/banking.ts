@@ -620,11 +620,12 @@ interface ILoanSecret {
   loanId: string;
   hashlock: string;
   secret: string;
+  state: string;
 }
 
 interface ICloseLoansRequestResponse {
   userId: string;
-  loans: IWithdrawHtlcPayload[];
+  loans: ILoanSecret[];
 }
 
 interface ICloseLoansRequest {
@@ -660,21 +661,34 @@ export function requestLoanSecrets(
     };
   }
 
-  let pendingTransactions: IWithdrawHtlcPayload[] = [];
+  let Loans: ILoanSecret[] = [];
   pendingTransactionsTable.forEach(
-    (value: IWithdrawHtlcPayload, key: string) => {
+    (value: ICreateHtlcForPayload, key: string) => {
       if (
         value.transactionType === TransactionType.REFUND_HTLC ||
-        value.transactionType === TransactionType.WITHDRAW_HTLC
-        //ideally we should return only transactions associated with the
-        //user - but for now we dump all of transactions
+        value.transactionType === TransactionType.WITHDRAW_HTLC ||
+        value.transactionType === TransactionType.CLOSE_LOAN
       ) {
-        //log here
         if (
           req_body.hashlock === value.htlcAddress ||
           req_body.hashlock === "all"
         ) {
-          pendingTransactions.push(value);
+          let initialLoan = securityLoansTable.get(value.originatingLoanId);
+          var hl: string = "none";
+          var scret = initialLoan.secret;
+          if (initialLoan.htlcAddress && initialLoan.htlcAddress.length) {
+            hl = initialLoan.htlcAddress;
+          } else if (value.htlcAddress && value.htlcAddress.length) {
+            hl = initialLoan.htlcAddress;
+          }
+
+          let d: ILoanSecret = {
+            state: value.transactionType,
+            loanId: value.originatingLoanId,
+            hashlock: hl,
+            secret: scret,
+          };
+          Loans.push(d);
         }
       }
     }
@@ -684,7 +698,7 @@ export function requestLoanSecrets(
     statusCode: 204,
     body: <ICloseLoansRequestResponse>{
       userId: userId,
-      loans: pendingTransactions,
+      loans: Loans,
     },
   };
 }
