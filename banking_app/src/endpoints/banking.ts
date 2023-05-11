@@ -632,7 +632,9 @@ interface ICloseLoansRequest {
   hashlock: string;
 }
 
-export function requestLoanSecrets(request: ccfapp.Request): ccfapp.Response {
+export function requestLoanSecrets(
+  request: ccfapp.Request
+): ccfapp.Response<ICloseLoansRequestResponse> {
   let req_body: ICloseLoansRequest;
   try {
     req_body = request.body.json();
@@ -663,16 +665,14 @@ export function requestLoanSecrets(request: ccfapp.Request): ccfapp.Response {
     (value: IWithdrawHtlcPayload, key: string) => {
       if (
         value.transactionType === TransactionType.REFUND_HTLC ||
-        value.transactionType === TransactionType.WITHDRAW_HTLC ||
-        true
+        value.transactionType === TransactionType.WITHDRAW_HTLC
         //ideally we should return only transactions associated with the
         //user - but for now we dump all of transactions
       ) {
         //log here
         if (
           req_body.hashlock === value.htlcAddress ||
-          req_body.hashlock === "all" ||
-          true
+          req_body.hashlock === "all"
         ) {
           pendingTransactions.push(value);
         }
@@ -680,15 +680,11 @@ export function requestLoanSecrets(request: ccfapp.Request): ccfapp.Response {
     }
   );
 
-  let data: ICloseLoansRequestResponse = {
-    userId: userId,
-    loans: pendingTransactions,
-  };
-
   return {
     statusCode: 204,
-    body: {
-      data: data,
+    body: <ICloseLoansRequestResponse>{
+      userId: userId,
+      loans: pendingTransactions,
     },
   };
 }
