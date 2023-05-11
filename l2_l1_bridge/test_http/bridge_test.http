@@ -170,7 +170,6 @@ GET http://localhost:{{BANKB_PORT}}/balance
 ### now create HTLC for collateral
 @secret= "{{$localDatetime 'YYYY-MM-DD'}} + {{$timestamp}}"
 
-
 ### create htlhash
 # @name htlcSecretResp
 PUT http://localhost:{{BRIDGE_PORT}}/htlc/hash_secret
@@ -192,12 +191,25 @@ PUT http://localhost:{{BRIDGE_PORT}}/htlc/duration
 Content-Type: application/json
 
 {
-    "dur_ms": 30000 
+    "receiver": "{{user_bankA_address}}",
+    "sender": "{{user_bankB_address}}",
+    "duration": {{duration}},
+    "amount" : 10,
+    "secret": "{{htlc_secret}}"
 }
 
 ####
 @duration={{timeStamp.response.body.result}}
 
+
+### create and HTLCFor 
+PUT http://localhost:{{BRIDGE_PORT}}/htlc/create_for
+Content-Type: application/json
+
+{
+     
+    "dur_ms": 30000 
+}
 
 ### look at the Active htlocks in the system
 GET http://localhost:{{BRIDGE_PORT}}/htlc/active
