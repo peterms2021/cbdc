@@ -1,7 +1,7 @@
 # We do not recreate user certificates in demo_governance.sh if they already exist
 # We do recreate member certificates each time
-@user0_id="fea6656f1c4ee32a7dd19f93fc61851ab3e8a859843c92b8820edbf05698905c"
-@user1_id = "30bb199d6d62d3f989ea6b414adbd787bd7ecbac53d15d6115c84ef19a6ac63f"
+@user0_id="1246bb0d8b3ddef3bfcb48989698f1a3f0207831b60305b1543f6f6b44b02b50"
+@user1_id ="5089cd26cdaf0fbb3ba0cfdc2046e34c5e579873df7c1cb230effe7ec55ef8f9"
 
 @bridge_address="0xBF4961b1b32CA8873e0C760906745F2006878EF0"
 @user0_address="0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001"
@@ -32,6 +32,15 @@ PUT https://user1.localhost:8000/app/securities/{{user1_id}}
 { 
     "userId": {{user1_id}}, 
     "holdings": [{"securityId":"SECURITY4","quantity":500},{"securityId":"SECURITY5","quantity":700}]
+}
+
+
+###Request loan secrets to close out loan ###
+POST https://user1.localhost:8000/app/loan_secrets/{{user1_id}}
+
+{ 
+    "userId": {{user1_id}},
+    "hashlock":"all"
 }
 
 ###Request loan###

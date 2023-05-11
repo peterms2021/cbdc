@@ -138,6 +138,7 @@ interface IHolding {
   securityId: string;
   quantity: number;
 }
+
 export function registerSecurityHoldings(
   request: ccfapp.Request<IRegisterHoldingsRequestResponse>
 ): ccfapp.Response<IRegisterHoldingsRequestResponse> {
@@ -613,6 +614,81 @@ function requestSecurityReturn(
     console.log(`Sucurity return failed`);
     return success;
   }
+}
+
+interface ILoanSecret {
+  loanId: string;
+  hashlock: string;
+  secret: string;
+}
+
+interface ICloseLoansRequestResponse {
+  userId: string;
+  loans: IWithdrawHtlcPayload[];
+}
+
+interface ICloseLoansRequest {
+  userId: string;
+  hashlock: string;
+}
+
+export function requestLoanSecrets(
+  request: ccfapp.Request
+): ccfapp.Response<ICloseLoansRequestResponse> {
+  let req_body: ICloseLoansRequest;
+  try {
+    req_body = request.body.json();
+  } catch {
+    return {
+      statusCode: 400,
+      body: <any>`Cannot parse JSON from ${request.body.text()}`,
+    };
+  }
+
+  //Validate userId and that these match between caller and data
+  const userId = getCallerId(request);
+  if (
+    !validateUserId(req_body.userId) ||
+    !validateUserId(userId) ||
+    req_body.userId != userId
+  ) {
+    return {
+      statusCode: 400,
+      body: <any>(
+        `User not found or does not match caller for: ${req_body.userId} : ${userId}`
+      ),
+    };
+  }
+
+  let pendingTransactions: IWithdrawHtlcPayload[] = [];
+  pendingTransactionsTable.forEach(
+    (value: IWithdrawHtlcPayload, key: string) => {
+      if (
+        value.transactionType === TransactionType.REFUND_HTLC ||
+        value.transactionType === TransactionType.WITHDRAW_HTLC
+        //ideally we should return only transactions associated with the
+        //user - but for now we dump all of transactions
+      ) {
+        if (
+          req_body.hashlock === value.htlcAddress ||
+          req_body.hashlock === "all"
+        ) {
+          pendingTransactions.push(value);
+        }
+      }
+    }
+  );
+  let data: ICloseLoansRequestResponse = {
+    userId: userId,
+    loans: pendingTransactions,
+  };
+
+  return {
+    statusCode: 204,
+    body: <ICloseLoansRequestResponse>(<unknown>{
+      ICloseLoansRequestResponse: data,
+    }),
+  };
 }
 
 function completeRefunded(payload: IRefundHtlcPayload): LoanClosureStatus {
