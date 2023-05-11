@@ -249,7 +249,7 @@ export function requestSecurityLoan(
     };
   }*/
 
-  dumpKVMap(securityHoldingsTableName);
+  // dumpKVMap(securityHoldingsTableName);
 
   //Determine if securities available to loan. For simplicity we require that entire parcel can be obtained
   // from single lender (single holding). Would also need to consider a more 'fair' randomized allocation of holding->loan
@@ -271,6 +271,7 @@ export function requestSecurityLoan(
     ) {
       let quantityDelta: number = value.quantity - body.quantity;
       candidateLoans.push([key, value, quantityDelta]); //For use later when optimizing more complex loans
+      return;
     }
   });
 
@@ -293,7 +294,7 @@ export function requestSecurityLoan(
     securityHoldingsTable.set(candidateLoan[0], holdingValue);
   }
 
-  dumpKVMap(securityHoldingsTableName);
+  // dumpKVMap(securityHoldingsTableName);
 
   //Generate and hash secret
   const secretKey = arrayBufToHex(ccfcrypto.generateAesKey(256));
@@ -321,7 +322,7 @@ export function requestSecurityLoan(
     initialCollateral: initialCollateral,
   });
 
-  dumpKVMap(securityHoldingsTableName);
+  // dumpKVMap(securityHoldingsTableName);
 
   let transactionId = arrayBufToHex(ccfcrypto.generateAesKey(256));
   pendingTransactionsTable.set(transactionId, <IAwaitAllowancePayload>{
@@ -334,7 +335,7 @@ export function requestSecurityLoan(
     remaining: initialCollateral + fees,
   });
 
-  dumpKVMap(pendingTransactionsTableName);
+  // dumpKVMap(pendingTransactionsTableName);
 
   return {
     statusCode: 204,
