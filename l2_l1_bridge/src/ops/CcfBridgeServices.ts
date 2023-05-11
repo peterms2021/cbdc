@@ -522,3 +522,24 @@ async function processRefundLoan(trans: IRefundHtlcPayload) {
 
   return;
 }
+
+async function processGetSecrets(): Promise<any | null> {
+{
+
+  let fname = "processRefundLoan";
+  let path = "/app/loan_secrets/";
+        await ccf_post_call(path, trans)
+    .then(async (result) => {
+      console.log(`${fname}  resp`, prettyPrint(JSON.parse(result)));
+    })
+    //the posted contents
+    .then(async (jsonformat) => {
+      console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+    })
+    .catch((err) => {
+      if(noisyLog){
+        console.log(`${fname} Error sending data ${err}`);
+      }
+      return;
+    });
+}
