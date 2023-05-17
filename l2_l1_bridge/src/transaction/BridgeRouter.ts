@@ -3,6 +3,7 @@
  */
 
  import express, { Request, Response } from "express";
+import { processCloseLoanEarly, processGetSecrets } from "../ops/CcfBridgeServices.js";
  import * as WorkerService from "./CbdcWorker.js";
  import { transferFundsFrom, transferFundsFromResp, Accnt, accntBalance, transferFunds, transferFundsResp } from "./TransInterface.js";
  import { approveFunds,  approveFundsResp } from "./TransInterface.js";
@@ -84,3 +85,31 @@ bridgeRouter.delete("/del_watch/:id", async (req: Request, res: Response) => {
     res.status(500).send(e.message);
   }
 });
+
+
+bridgeRouter.get("/dump_secrets", async (req: Request, res: Response) => {
+    try {
+        let b = await processGetSecrets();   
+        console.log(`dump_secrets: ${b as string}`);         
+        if(b){
+            res.status(200).json( b as string);         
+        }else{
+            res.status(200).json( "{[]}"); 
+        }
+       
+    } catch (e) {
+      res.status(500).send(e.message);
+    }
+  });
+
+
+  bridgeRouter.get("/closeloanearly/:id", async (req: Request, res: Response) => {
+    try {
+        const id: string = req.params.id;
+        let b = await processCloseLoanEarly(id);      
+        console.log(`close_early: ${b as string}`);      
+        res.status(200).json(b);
+    } catch (e) {
+      res.status(500).send(e.message);
+    }
+  });

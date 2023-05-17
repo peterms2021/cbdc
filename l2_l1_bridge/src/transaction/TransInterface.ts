@@ -106,4 +106,3 @@ export interface Accnt {
     err: string;
   };
   
-  
