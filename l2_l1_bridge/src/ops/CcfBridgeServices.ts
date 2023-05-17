@@ -153,7 +153,8 @@ const _pullNewTransaction = async (): Promise<boolean | null> => {
 
         let trans = JSON.parse(result);
         if (trans.pendingTransactions.length) {
-          console.log(`New transaction`, prettyPrint(trans));
+           console.log(`New transaction...`);
+          //console.log(`New transaction`, prettyPrint(trans));
           for (var i = 0; i < trans.pendingTransactions.length; i++) {
             let tran = trans.pendingTransactions[i];
             //console.log(`Trans: ${i} => `, prettyPrint(tran));
@@ -167,7 +168,8 @@ const _pullNewTransaction = async (): Promise<boolean | null> => {
               processCloseLoan(tran as ICloseLoanPayload);
             }
             else if ((tran.transactionType as string) === TransactionType.REFUND_HTLC) {
-              processRefundLoan(tran as IRefundHtlcPayload);
+                //only show loans that we were able to create HTLC for
+                processRefundLoan(tran as IRefundHtlcPayload);
             }
             else if ((tran.transactionType as string) === TransactionType.WITHDRAW_HTLC) {
               processWithDraw(tran as IWithdrawHtlcPayload);
@@ -248,7 +250,9 @@ async function processPendingTransctionWaitingForAllowance(trans: IAwaitAllowanc
     })
     //the posted contents
     .then(async (jsonformat) => {
+      if(noisyLog){
       console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      }
     })
     .catch((err) => {
       console.log(`${fname} Error sending respone to banking app ${err}`);
@@ -392,7 +396,9 @@ async function processPendingTransctionCreateHtlcFor(trans: ICreateHtlcForPayloa
     })
     //the posted contents
     .then(async (jsonformat) => {
-      console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      if(noisyLog){
+        console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      }
     })
     .catch((err) => {
       console.log(`${fname} Error sending to HTLCFor response banking app ${err} => `);
@@ -413,7 +419,9 @@ async function processCloseLoan(resp: ICloseLoanPayload) {
     })
     //the posted contents
     .then(async (jsonformat) => {
-      console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      if(noisyLog){
+        console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      }
     })
     .catch((err) => {
       if(noisyLog){
@@ -432,7 +440,9 @@ async function processWithDraw(trans: IWithdrawHtlcPayload) {
   
 
   if (trans.htlcAddress === 'none') {
-    console.log(`${fname} HTLC was not created - nothing to do`, prettyPrint(trans));
+    if(noisyLog){
+      console.log(`${fname} HTLC was not created - nothing to do`, prettyPrint(trans));
+    }
   }
   else {
 
@@ -467,7 +477,9 @@ async function processWithDraw(trans: IWithdrawHtlcPayload) {
     })
     //the posted contents
     .then(async (jsonformat) => {
-      console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      if(noisyLog){
+        console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      }
     })
     .catch((err) => {
       if(noisyLog){
@@ -481,7 +493,9 @@ async function processWithDraw(trans: IWithdrawHtlcPayload) {
 async function processRefundLoan(trans: IRefundHtlcPayload) {
   let fname = "processRefundLoan";
   if (trans.htlcAddress === 'none') {
-    console.log(`${fname} HTLC was not created - nothing to do`, prettyPrint(trans));
+    if(noisyLog){
+      console.log(`${fname} HTLC was not created - nothing to do`, prettyPrint(trans));
+    }
   }
   else {
   
@@ -511,7 +525,9 @@ async function processRefundLoan(trans: IRefundHtlcPayload) {
     })
     //the posted contents
     .then(async (jsonformat) => {
-      console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      if(noisyLog){
+        console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      }
     })
     .catch((err) => {
       if(noisyLog){
@@ -523,23 +539,60 @@ async function processRefundLoan(trans: IRefundHtlcPayload) {
   return;
 }
 
-async function processGetSecrets(): Promise<any | null> {
-{
-
+export async function processGetSecrets(): Promise<any | null> {
   let fname = "processRefundLoan";
-  let path = "/app/loan_secrets/";
-        await ccf_post_call(path, trans)
+  let path = "/app/loan_msecrets";
+
+  let trans ={
+    userId:"all",
+    hashlock:"all"
+  };
+
+  await ccf_post_call(path, trans)
     .then(async (result) => {
       console.log(`${fname}  resp`, prettyPrint(JSON.parse(result)));
+      
+      return JSON.parse(result);
     })
     //the posted contents
     .then(async (jsonformat) => {
       console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      return jsonformat;
     })
     .catch((err) => {
       if(noisyLog){
         console.log(`${fname} Error sending data ${err}`);
       }
-      return;
+      return null;
+    });
+}
+
+export async function processCloseLoanEarly(id:string): Promise<any | null> {
+
+  let fname = "processCloseLoanEarly";
+  let path = "/app/closeloanearly";
+
+  let trans ={
+    "securityLoanId": id
+  };
+
+  await ccf_post_call(path, trans)
+    .then(async (result) => {
+     
+      console.log(`${fname}  resp`, prettyPrint(JSON.parse(result)));
+      return result;
+    })
+    //the posted contents
+    .then(async (jsonformat) => {
+      if(noisyLog){
+        console.log(`${fname} jsonformat`, prettyPrint(jsonformat));
+      }
+      return jsonformat;
+    })
+    .catch((err) => {
+      if(noisyLog){
+        console.log(`${fname} Error sending data ${err}`);
+      }
+      return null;
     });
 }

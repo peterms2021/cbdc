@@ -6,7 +6,7 @@
 @user_bankA_address=0xEDAC9E99e752107c8dE95DAd7cCD8bd0Ae352001
 @user_bankB_address=0xa3df034084078EBf20216b0789CF4901D8D6194E
 
-@allowance_size=100
+@allowance_size=2000
 @fees=11
 @collateral=10 
 @tranfer_amt=10
@@ -176,7 +176,7 @@ PUT http://localhost:{{BRIDGE_PORT}}/htlc/hash_secret
 Content-Type: application/json
 
 {
-    "secret": {{secret}} 
+    "secret": "{{secret}} "
 }
 
 ### HTLC secret
@@ -191,11 +191,8 @@ PUT http://localhost:{{BRIDGE_PORT}}/htlc/duration
 Content-Type: application/json
 
 {
-    "receiver": "{{user_bankA_address}}",
-    "sender": "{{user_bankB_address}}",
-    "duration": {{duration}},
-    "amount" : 10,
-    "secret": "{{htlc_secret}}"
+      "dur_ms": 30000 
+   
 }
 
 ####
@@ -207,9 +204,24 @@ PUT http://localhost:{{BRIDGE_PORT}}/htlc/create_for
 Content-Type: application/json
 
 {
-     
-    "dur_ms": 30000 
+    "receiver": "{{user_bankA_address}}",
+    "sender": "{{user_bankB_address}}",
+    "duration": {{duration}},
+    "amount" : 1,
+    "secret": "{{htlc_secret}}"
 }
+
+
+#### get secrets for all hashlocks
+GET http://localhost:{{BRIDGE_PORT}}/bridge/dump_secrets
+
+
+####
+@loanid="12234344"
+#### close loan early
+GET http://localhost:{{BRIDGE_PORT}}/bridge/closeloanearly/{{loanid}}
+
+
 
 ### look at the Active htlocks in the system
 GET http://localhost:{{BRIDGE_PORT}}/htlc/active
