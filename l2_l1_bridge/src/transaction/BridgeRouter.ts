@@ -106,6 +106,7 @@ bridgeRouter.get("/dump_secrets", async (req: Request, res: Response) => {
   bridgeRouter.get("/closeloanearly/:id", async (req: Request, res: Response) => {
     try {
         const id: string = req.params.id;
+        console.log(`closeloanearly: ${id}`)
         let b = await processCloseLoanEarly(id);      
         console.log(`close_early: ${b as string}`);      
         res.status(200).json(b);

@@ -126,6 +126,19 @@ charset:UTF-8
 }
 
 
+
+#### get secrets for all hashlocks
+GET http://localhost:{{BRIDGE_PORT}}/bridge/dump_secrets
+
+
+####
+@loanid="13951fe554003f1d22de04f640a9e08c92b3be8d7ee842e8746e2a39e5b39844"
+#### close loan early
+GET http://localhost:{{BRIDGE_PORT}}/bridge/closeloanearly/{{loanid}}
+
+
+
+
 ### check that the bridge has the allowance
 # @name allowA
 POST http://localhost:{{BRIDGE_PORT}}/allowance
@@ -210,17 +223,6 @@ Content-Type: application/json
     "amount" : 1,
     "secret": "{{htlc_secret}}"
 }
-
-
-#### get secrets for all hashlocks
-GET http://localhost:{{BRIDGE_PORT}}/bridge/dump_secrets
-
-
-####
-@loanid="12234344"
-#### close loan early
-GET http://localhost:{{BRIDGE_PORT}}/bridge/closeloanearly/{{loanid}}
-
 
 
 ### look at the Active htlocks in the system
